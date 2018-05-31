@@ -1,3 +1,5 @@
+import com.sun.org.apache.regexp.internal.RE;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +38,19 @@ public class Circuit {
                 if (gate instanceof And) {
                     List<int[]> clauses = gate.toBoolean(i);
                     allClauses.addAll(clauses);
-                    System.out.println("clause for gate created for bit numer " + i);
+                    System.out.println("clause for gate AND created for bit numer " + i);
+                }
+
+                if (gate instanceof Xor) {
+                    List<int[]> clauses = gate.toBoolean(i);
+                    allClauses.addAll(clauses);
+                    System.out.println("clause for gate Xor created for bit numer " + i);
+                }
+
+                if (gate instanceof Register) {
+                    List<int[]> clauses = gate.toBoolean(i);
+                    allClauses.addAll(clauses);
+                    System.out.println("clause for gate REGISTER created for bit numer " + i);
                 }
 
             }
