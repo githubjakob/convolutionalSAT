@@ -19,20 +19,22 @@ public class Main {
 
     public static void main(String[] args) throws ContradictionException, TimeoutException {
 
-        Gate register = new Register(1, 2);
-        Gate register2 = new Register(2, 3);
+        //Gate register = new Register(2, 3);
 
-        Gate xor = new Xor(2, 3, 4);
-        Gate xor2 = new Xor(1, 4, 5);
+        //Gate xor = new Xor(2, 3, 4);
 
-        Circuit circuit = new Circuit(new int[] {
-                1, 0, 1, 1
-        });
+        // ADD input and output bits
+        Circuit circuit = new Circuit(
+                new int[] { 1, 0, 0, 1},
+                new int[] { 0, 1, 1, 0 }
+                );
 
-        circuit.addGate(xor);
-        circuit.addGate(xor2);
-        circuit.addGate(register);
-        circuit.addGate(register2);
+
+        //circuit.addGate(xor);
+        circuit.add("xor");
+        circuit.add("register");
+
+        //circuit.addGate(register);
         List<int[]> clauses = circuit.toBoolean();
 
         solver.newVar(MAXVAR);
@@ -52,6 +54,9 @@ public class Main {
         if (problem.isSatisfiable()) {
             System.out.println(reader.decode(problem.model()));
             System.out.println("success");
+        } else {
+            System.out.println("is not satisfiable");
+
         }
     }
 }
