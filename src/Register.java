@@ -9,13 +9,10 @@ public class Register extends Gate {
 
     int in;
 
-    int out;
-
-    int savedBit = 0; // initialize register with bit 0
-
     Register(int in, int out) {
         this.in = in;
         this.out = out;
+        this.id = in + "" + out + "";
     }
 
     @Override

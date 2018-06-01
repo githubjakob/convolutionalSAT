@@ -1,5 +1,6 @@
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
+import com.sun.org.apache.regexp.internal.RE;
 
 import java.util.*;
 
@@ -220,12 +221,6 @@ public class Circuit {
             // Gates
             // die logik der gates als klauseln
             for (Gate gate : gates) {
-                if (gate instanceof And) {
-                    List<int[]> clauses = gate.toBoolean(i);
-                    allClauses.addAll(clauses);
-                    System.out.println("clause for gate AND created for bit numer " + i);
-                }
-
                 if (gate instanceof Xor) {
                     List<int[]> clauses = gate.toBoolean(i);
                     allClauses.addAll(clauses);
@@ -244,4 +239,28 @@ public class Circuit {
 
     }
 
+    String getGateIdByInput(int in) {
+        for (Gate gate : gates) {
+            if (gate instanceof Xor) {
+                if (((Xor) gate).in1 == in || ((Xor) gate).in2 == in) {
+                    return gate.id;
+                }
+            }
+            if (gate instanceof Register) {
+                if (((Register) gate).in == in) {
+                    return gate.id;
+                }
+            }
+        }
+        return null;
+    }
+
+    String getGateIdByOutput(int out) {
+        for (Gate gate : gates) {
+            if (gate.out == out) {
+                return gate.id;
+            }
+        }
+        return null;
+    }
 }

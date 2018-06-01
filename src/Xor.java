@@ -13,12 +13,11 @@ public class Xor extends Gate {
 
     int in2;
 
-    int out;
-
     Xor(int in1, int in2, int out) {
         this.in1 = in1;
         this.in2 = in2;
         this.out = out;
+        this.id = in1 + "" + in2 + "" + out + "";
     }
 
 

@@ -1,5 +1,7 @@
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
@@ -31,14 +33,13 @@ public class Main {
 
         // ADD input and output bits
         Circuit circuit = new Circuit(
-                new int[] { 0, 1, 0, 1 },
-                new int[] { 0, 1, 1, 0 }
+                new int[] { 0, 1, 0, 1, 0 },
+                new int[] { 0, 1, 1, 0, 0 }
                 );
 
         //circuit.addGate(xor);
         circuit.add("xor");
         circuit.add("register");
-        //circuit.add("register");
 
         List<int[]> clauses = circuit.toBoolean();
 
@@ -63,7 +64,7 @@ public class Main {
             System.out.println("is Satisfiable");
 
             // DRAW
-            //plotCircuit(model, circuit);
+            plotCircuit(model, circuit);
 
         } else {
             System.out.println("is not satisfiable");
@@ -71,61 +72,47 @@ public class Main {
     }
 
     private static void plotCircuit(int[] model, Circuit circuit) throws IOException {
-        Graph graph = new SingleGraph("Tutorial 1");
+        MultiGraph graph = new MultiGraph("Network");
+        System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+        graph.addAttribute("ui.stylesheet", "edge {text-alignment: along;}");
+        graph.addAttribute("ui.quality");
+        graph.addAttribute("ui.antialias");
 
-        //graph.addNode("1"); //INPUT
-        //graph.addNode("2"); //OUTPUT
+        Node input = graph.addNode("N1"); //INPUT
+        input.addAttribute("ui.label", "1/INPUT");
 
-        /*HashSet<Integer> nodesCreated = new HashSet<>();
-        for (int i = 0; i < model.length; i++) {
-            if (model[i] > 1000) {
-                int edge = model[i];
-                int leftNode = edge / 1000;
-                int rightNode = edge % 1000;
-                /*if (!nodesCreated.contains(leftNode)) {
-                    Node node = graph.addNode("N" + leftNode);
-                    node.addAttribute("ui.label", "N" + leftNode);
-                    nodesCreated.add(leftNode);
-                }
-                if (!nodesCreated.contains(rightNode)) {
-                    Node node = graph.addNode("N" + rightNode + "");
-                    node.addAttribute("ui.label", "N" + rightNode);
-                    nodesCreated.add(rightNode);
-
-                }
-
-                graph.addEdge("N" + leftNode + rightNode, "N" + leftNode, "N" + rightNode);
-            }
-        }*/
-
+        Node output = graph.addNode("N2"); //OUTPUT
+        output.addAttribute("ui.label", "2/OUTPUT");
 
         for (Gate gate : circuit.gates) {
             if (gate instanceof Xor) {
-
                 String nodeLabel = "N" + ((Xor) gate).in1 + ((Xor) gate).in2 + ((Xor) gate).out;
                 Node node = graph.addNode(nodeLabel);
-                node.addAttribute("ui.label", "XOR");
-
-                String edgeLabel1 = "N" + ((Xor) gate).in1 + "" + ((Xor) gate).out + "";
-                String edgeLabel2 = "N" + ((Xor) gate).in2 + "" +  ((Xor) gate).out + "";
-                //graph.addEdge(edgeLabel1, "N" + ((Xor) gate).in1, "N" + ((Xor) gate).out);
-                //graph.addEdge(edgeLabel2, "N" + ((Xor) gate).in2, "N" + ((Xor) gate).out);
-
+                node.addAttribute("ui.label", nodeLabel + "/XOR");
+                node.setAttribute("ui.class", "xor");
             }
-            if (gate instanceof Register) {
 
+            if (gate instanceof Register) {
                 String nodeLabel = "N" + ((Register) gate).in + ((Register) gate).out;
                 Node node = graph.addNode(nodeLabel);
-                node.addAttribute("ui.label", "REGISTER");
-
-                String label = "N" + ((Register) gate).in + "" + ((Register) gate).out + "";
-                int in = ((Register) gate).in;
-                int out = ((Register) gate).out;
-                //graph.addEdge(label, "N" + in, "N" + out);
-
+                node.addAttribute("ui.label", nodeLabel + "/REGISTER");
+                node.setAttribute("ui.class", "register");
             }
         }
 
+        for (int i = 0; i < model.length; i++) {
+            if (model[i] > 1000) {
+                int connection = model[i];
+                int leftNode = connection / 1000;
+                int rightNode = connection % 1000;
+
+                String labelLeftNode = leftNode == 1 ? "N1" : "N" + circuit.getGateIdByOutput(leftNode);
+                String labelRightNode = rightNode == 2? "N2" : "N" + circuit.getGateIdByInput(rightNode);
+
+                Edge edge = graph.addEdge("E" + leftNode + rightNode, labelLeftNode ,labelRightNode, true);
+                edge.setAttribute("ui.label", "E" + leftNode + rightNode);
+            }
+        }
 
         String stylesheet = readFile("/home/jakob/Projects/ConvolutionalSAT/src/stylesheet.css", StandardCharsets.UTF_8);
         graph.addAttribute("ui.stylesheet", stylesheet);

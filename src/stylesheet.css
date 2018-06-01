@@ -1,5 +1,24 @@
+graph {
+    padding: 100px;
+}
+
 node {
-    fill-mode: image-scaled;
-    fill-image: url("/home/jakob/Projects/ConvolutionalSAT/icon.png");
     size: 50px;
+    text-size: 30;
+    text-offset: 40px;
+}
+
+node.xor {
+    fill-mode: image-scaled;
+    fill-image: url("/home/jakob/Projects/ConvolutionalSAT/xor.png");
+}
+
+node.register {
+    fill-mode: image-scaled;
+    shape: box;
+    fill-image: url("/home/jakob/Projects/ConvolutionalSAT/register.png");
+}
+
+edge {
+    text-size: 25;
 }
