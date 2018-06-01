@@ -1,0 +1,5 @@
+node {
+    fill-mode: image-scaled;
+    fill-image: url("/home/jakob/Projects/ConvolutionalSAT/icon.png");
+    size: 50px;
+}

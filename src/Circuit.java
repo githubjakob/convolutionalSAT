@@ -1,5 +1,4 @@
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 
 import java.util.*;
@@ -9,12 +8,16 @@ import java.util.*;
  */
 public class Circuit {
 
+    // ENDOCING FOR LITERALS
 
-    // ENDOCING FOR VARIABLES
+    final static int GLOBAL_INPUT = 1;
+    final static int GLOBAL_OUTPUT = 2;
 
-    final static int INPUT = 1000;
-    final static int OUTPUT = 5000;
-    final static int CONNECTIONS = 100000; //xxxYYY
+    // Ranges
+    final static int INPUT = 100;
+    final static int OUTPUT = 200;
+
+    final static int CONNECTIONS = 1000; //xxYY
 
     int[] input;
 
@@ -22,15 +25,15 @@ public class Circuit {
 
     ArrayList<Gate> gates = new ArrayList<>();
 
-    int idCounter = 2;
+    int idCounter = 3;
 
     HashSet<Integer> ins = new HashSet<>();
 
     HashSet<Integer> outs = new HashSet<>();
 
-    SetMultimap<Integer, Integer> connectionsInToOut = HashMultimap.create();
-
     SetMultimap<Integer, Integer> connectionsOutToIn = HashMultimap.create();
+
+    SetMultimap<Integer, Integer> connectionsInToOut = HashMultimap.create();
 
     Circuit(int[] input, int[] output) {
         this.input = input;
@@ -38,7 +41,8 @@ public class Circuit {
 
         //output
 
-        ins.add(OUTPUT);
+        ins.add(GLOBAL_OUTPUT);
+        outs.add(GLOBAL_INPUT);
     }
 
     void addGate(Gate gate) {
@@ -56,20 +60,23 @@ public class Circuit {
             ins.add(in);
             outs.add(out);
 
-            connectionsInToOut.put(1, in);
-            connectionsOutToIn.put(in, 1);
+            connectionsOutToIn.put(GLOBAL_INPUT, in);
+            connectionsInToOut.put(in, GLOBAL_INPUT);
+
+            connectionsOutToIn.put(out, GLOBAL_OUTPUT);
+            connectionsInToOut.put(GLOBAL_OUTPUT, out);
 
             outs.forEach((outId) -> {
                 if (outId != in && outId != in && outId != out) {
-                    connectionsInToOut.put(outId, in);
-                    connectionsOutToIn.put(in, outId);
+                    connectionsOutToIn.put(outId, in);
+                    connectionsInToOut.put(in, outId);
                 }
             });
 
             ins.forEach((inId) -> {
                 if (inId != out && inId != in) {
-                    connectionsInToOut.put(out, inId);
-                    connectionsOutToIn.put(inId, out);
+                    connectionsOutToIn.put(out, inId);
+                    connectionsInToOut.put(inId, out);
                 }
             });
 
@@ -91,27 +98,27 @@ public class Circuit {
             ins.add(in2);
 
             outs.add(out);
-            // create possible connectionsInToOut
+            // create possible connectionsOutToIn
 
             //zwischen input und gate-eingang
-            connectionsInToOut.put(1, in1);
-            connectionsInToOut.put(1, in2);
-            connectionsOutToIn.put(in1, 1);
-            connectionsOutToIn.put(in2, 1);
+            connectionsOutToIn.put(GLOBAL_INPUT, in1);
+            connectionsOutToIn.put(GLOBAL_INPUT, in2);
+            connectionsInToOut.put(in1, GLOBAL_INPUT);
+            connectionsInToOut.put(in2, GLOBAL_INPUT);
 
             outs.forEach((outId) -> {
                 if (outId != in1 && outId != in2 && outId != out) {
-                    connectionsInToOut.put(outId, in1);
-                    connectionsInToOut.put(outId, in2);
-                    connectionsOutToIn.put(in1, outId);
-                    connectionsOutToIn.put(in2, outId);
+                    connectionsOutToIn.put(outId, in1);
+                    connectionsOutToIn.put(outId, in2);
+                    connectionsInToOut.put(in1, outId);
+                    connectionsInToOut.put(in2, outId);
                 }
             });
 
             ins.forEach((inId) -> {
                 if (inId != out && inId != in1 && inId != in2) {
-                    connectionsInToOut.put(out, inId);
-                    connectionsOutToIn.put(inId, out);
+                    connectionsOutToIn.put(out, inId);
+                    connectionsInToOut.put(inId, out);
                 }
             });
 
@@ -125,54 +132,67 @@ public class Circuit {
 
     List<int[]> toBoolean() {
         List<int[]> allClauses = new ArrayList<>();
+
+        // Für jeden Tick:
         for (int i = 1; i <= input.length; i++) {
-            boolean bitInput = input[i-1] == 1;
-            boolean bitOutput = output[i-1] == 1;
             final int bitIndex = i;
 
-
             // die input und output bits als klauseln
-            //input bit id 1
+            boolean bitInput = input[i-1] == 1;
+            boolean bitOutput = output[i-1] == 1;
+
             int inputBit = bitInput ? INPUT + i : (INPUT + i ) * -1;
+            int outputBit = bitOutput ? OUTPUT + i : (OUTPUT + i ) * -1;
+
             allClauses.add(new int[] {
                     inputBit
             });
-
-            // output is id 5
-            int outputBit = bitOutput ? OUTPUT + i : (OUTPUT + i ) * -1;
             allClauses.add(new int[] {
                     outputBit
             });
 
-            // verbindung zwischen den bauteile
-            // zwischen 1 und ins
-            connectionsInToOut.forEach((in, out) -> {
-                int connection = in * CONNECTIONS + out;
-                System.out.println("connection " + connection);
-
-                // stelle sicher, dass wenn eine verbindung gesetzt ist, die ein/ausgänge der verbindung gleich sind
+            // Für alle Verbindungen, ein/ausgänge der verbindung müssen gleich sind
+            connectionsOutToIn.forEach((out, in) -> {
+                int connection = out * CONNECTIONS + in;
                 allClauses.add(new int[] {
-                        connection * -1, out * 100 + 1, (in * 100 + bitIndex) * -1
+                        connection * -1, in * INPUT + bitIndex, (out * INPUT + bitIndex) * -1
                 });
                 allClauses.add(new int[] {
-                        connection * -1, (out * 100 + 1) * -1, in * 100 + bitIndex
+                        connection * -1, (in * INPUT + bitIndex) * -1, out * INPUT + bitIndex
                 });
             });
 
-            // every in need to have a connected out
+            // every out need to have at least one in
             for (Integer out : connectionsOutToIn.keySet()) {
                 Set<Integer> ins = connectionsOutToIn.get(out);
 
                 int[] connections = new int[ins.size()];
 
-                // klausel: 100002 oder 600002
+                // klausel: 600001 oder 600002
                 int index = 0;
                 for (Integer in : ins) {
-                    int connection = in * CONNECTIONS + out;
-                    System.out.println("OUT TO IN : " + connection);
+                    int connection = out * CONNECTIONS + in;
                     connections[index] = connection;
                     index++;
                 };
+                System.out.println("Every out needs to have at least one in: " + Main.reader.decode(connections) );
+                allClauses.add(connections);
+            }
+
+            // every in need to have a connected out
+            for (Integer in : connectionsInToOut.keySet()) {
+                Set<Integer> outs = connectionsInToOut.get(in);
+
+                int[] connections = new int[outs.size()];
+
+                // klausel: 100002 oder 600002
+                int index = 0;
+                for (Integer out : outs) {
+                    int connection = out * CONNECTIONS + in;
+                    connections[index] = connection;
+                    index++;
+                };
+                System.out.println("Every in need to have at least one out: " + Main.reader.decode(connections) );
                 allClauses.add(connections);
 
                 //für jede connection sind die anderen ausgeschlossen
@@ -182,9 +202,11 @@ public class Circuit {
                         if (other == connection) {
                             continue;
                         }
-                        allClauses.add(new int[] {
+                        int[] excludes = new int[]{
                                 connection * -1, other * -1
-                        });
+                        };
+                        System.out.println("For every connection, exclude the other: " + Main.reader.decode(excludes) );
+                        allClauses.add(excludes);
 
                     }
                 }
