@@ -24,7 +24,9 @@ public class Circuit {
 
     int[] output;
 
-    ArrayList<Gate> gates = new ArrayList<>();
+    Set<Gate> gates = new HashSet<>();
+
+    Set<Connection> connections = new HashSet<>();
 
     int idCounter = 3;
 
@@ -36,99 +38,98 @@ public class Circuit {
 
     SetMultimap<Integer, Integer> connectionsInToOut = HashMultimap.create();
 
-    Circuit(int[] input, int[] output) {
-        this.input = input;
-        this.output = output;
-
-        //output
-
+    Circuit() {
         ins.add(GLOBAL_OUTPUT);
         outs.add(GLOBAL_INPUT);
     }
 
-    void addGate(Gate gate) {
-        gates.add(gate);
+    void addInputBitStream(int[] input) {
+        this.input = input;
     }
 
-    void add(String type) {
+    void addOutputBitStream(int[] output) {
+        this.output = output;
+    }
 
-        if (type == "register") {
-            int in = idCounter;
-            idCounter++;
-            int out = idCounter;
-            idCounter++;
+    Register addRegister() {
+        int in = idCounter;
+        idCounter++;
+        int out = idCounter;
+        idCounter++;
 
-            ins.add(in);
-            outs.add(out);
+        ins.add(in);
+        outs.add(out);
 
-            connectionsOutToIn.put(GLOBAL_INPUT, in);
-            connectionsInToOut.put(in, GLOBAL_INPUT);
+        connectionsOutToIn.put(GLOBAL_INPUT, in);
+        connectionsInToOut.put(in, GLOBAL_INPUT);
 
-            connectionsOutToIn.put(out, GLOBAL_OUTPUT);
-            connectionsInToOut.put(GLOBAL_OUTPUT, out);
+        connectionsOutToIn.put(out, GLOBAL_OUTPUT);
+        connectionsInToOut.put(GLOBAL_OUTPUT, out);
 
-            outs.forEach((outId) -> {
-                if (outId != in && outId != in && outId != out) {
-                    connectionsOutToIn.put(outId, in);
-                    connectionsInToOut.put(in, outId);
-                }
-            });
+        outs.forEach((outId) -> {
+            if (outId != in && outId != in && outId != out) {
+                connectionsOutToIn.put(outId, in);
+                connectionsInToOut.put(in, outId);
+            }
+        });
 
-            ins.forEach((inId) -> {
-                if (inId != out && inId != in) {
-                    connectionsOutToIn.put(out, inId);
-                    connectionsInToOut.put(inId, out);
-                }
-            });
+        ins.forEach((inId) -> {
+            if (inId != out && inId != in) {
+                connectionsOutToIn.put(out, inId);
+                connectionsInToOut.put(inId, out);
+            }
+        });
 
-            gates.add(new Register(in, out));
+        Register register = new Register(in, out);
+        gates.add(register);
 
-            System.out.println("Created Register with in: " + in + " out: " + out);
+        System.out.println("Created Register with in: " + in + " out: " + out);
 
-        }
+        return register;
+    }
 
-        if (type == "xor") {
-            int in1 = idCounter;
-            idCounter++;
-            int in2 = idCounter;
-            idCounter++;
-            int out = idCounter;
-            idCounter++;
+    Xor addXor() {
+        int in1 = idCounter;
+        idCounter++;
+        int in2 = idCounter;
+        idCounter++;
+        int out = idCounter;
+        idCounter++;
 
-            ins.add(in1);
-            ins.add(in2);
+        ins.add(in1);
+        ins.add(in2);
 
-            outs.add(out);
-            // create possible connectionsOutToIn
+        outs.add(out);
+        // create possible connectionsOutToIn
 
-            //zwischen input und gate-eingang
-            connectionsOutToIn.put(GLOBAL_INPUT, in1);
-            connectionsOutToIn.put(GLOBAL_INPUT, in2);
-            connectionsInToOut.put(in1, GLOBAL_INPUT);
-            connectionsInToOut.put(in2, GLOBAL_INPUT);
+        //zwischen input und gate-eingang
+        connectionsOutToIn.put(GLOBAL_INPUT, in1);
+        connectionsOutToIn.put(GLOBAL_INPUT, in2);
+        connectionsInToOut.put(in1, GLOBAL_INPUT);
+        connectionsInToOut.put(in2, GLOBAL_INPUT);
 
-            outs.forEach((outId) -> {
-                if (outId != in1 && outId != in2 && outId != out) {
-                    connectionsOutToIn.put(outId, in1);
-                    connectionsOutToIn.put(outId, in2);
-                    connectionsInToOut.put(in1, outId);
-                    connectionsInToOut.put(in2, outId);
-                }
-            });
+        outs.forEach((outId) -> {
+            if (outId != in1 && outId != in2 && outId != out) {
+                connectionsOutToIn.put(outId, in1);
+                connectionsOutToIn.put(outId, in2);
+                connectionsInToOut.put(in1, outId);
+                connectionsInToOut.put(in2, outId);
+            }
+        });
 
-            ins.forEach((inId) -> {
-                if (inId != out && inId != in1 && inId != in2) {
-                    connectionsOutToIn.put(out, inId);
-                    connectionsInToOut.put(inId, out);
-                }
-            });
+        ins.forEach((inId) -> {
+            if (inId != out && inId != in1 && inId != in2) {
+                connectionsOutToIn.put(out, inId);
+                connectionsInToOut.put(inId, out);
+            }
+        });
 
-            gates.add(new Xor(in1, in2, out));
+        Xor xor = new Xor(in1, in2, out);
+        gates.add(xor);
 
-            System.out.println("Created xor with in1: " + in1 + ", in2: " + in2 + ", out: " + out);
+        System.out.println("Created xor with in1: " + in1 + ", in2: " + in2 + ", out: " + out);
 
-        }
-
+        return xor;
     };
 
     List<int[]> toBoolean() {
@@ -176,7 +177,7 @@ public class Circuit {
                     connections[index] = connection;
                     index++;
                 };
-                System.out.println("Every out needs to have at least one in: " + Main.reader.decode(connections) );
+                System.out.println("Every out needs to have at least one in: " + BooleanExpression.reader.decode(connections) );
                 allClauses.add(connections);
             }
 
@@ -193,7 +194,7 @@ public class Circuit {
                     connections[index] = connection;
                     index++;
                 };
-                System.out.println("Every in need to have at least one out: " + Main.reader.decode(connections) );
+                System.out.println("Every in need to have at least one out: " + BooleanExpression.reader.decode(connections) );
                 allClauses.add(connections);
 
                 //für jede connection sind die anderen ausgeschlossen
@@ -206,16 +207,12 @@ public class Circuit {
                         int[] excludes = new int[]{
                                 connection * -1, other * -1
                         };
-                        System.out.println("For every connection, exclude the other: " + Main.reader.decode(excludes) );
+                        System.out.println("For every connection, exclude the other: " + BooleanExpression.reader.decode(excludes) );
                         allClauses.add(excludes);
 
                     }
                 }
-
-                // and every out needs to have a in
-
             }
-
 
 
             // Gates
@@ -239,26 +236,26 @@ public class Circuit {
 
     }
 
-    String getGateIdByInput(int in) {
+    Gate getGateByInput(int in) {
         for (Gate gate : gates) {
             if (gate instanceof Xor) {
                 if (((Xor) gate).in1 == in || ((Xor) gate).in2 == in) {
-                    return gate.id;
+                    return gate;
                 }
             }
             if (gate instanceof Register) {
                 if (((Register) gate).in == in) {
-                    return gate.id;
+                    return gate;
                 }
             }
         }
         return null;
     }
 
-    String getGateIdByOutput(int out) {
+    Gate getGateByOutput(int out) {
         for (Gate gate : gates) {
             if (gate.out == out) {
-                return gate.id;
+                return gate;
             }
         }
         return null;

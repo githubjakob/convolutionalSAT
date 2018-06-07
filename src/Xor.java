@@ -17,9 +17,12 @@ public class Xor extends Gate {
         this.in1 = in1;
         this.in2 = in2;
         this.out = out;
-        this.id = in1 + "" + in2 + "" + out + "";
     }
 
+    @Override
+    public String toString() {
+        return in1 + "" + in2 + "" + out + "";
+    }
 
     List<int[]> toBoolean(int tick) {
 

@@ -5,8 +5,6 @@ import java.util.List;
  */
 public abstract class Gate {
 
-    String id;
-
     int out;
 
     abstract List<int[]> toBoolean(int tick);

@@ -12,14 +12,15 @@ public class Register extends Gate {
     Register(int in, int out) {
         this.in = in;
         this.out = out;
-        this.id = in + "" + out + "";
+    }
+
+    @Override
+    public String toString() {
+        return in + "" + out + "";
     }
 
     @Override
     List<int[]> toBoolean(int tick) {
-
-
-
         if (tick == 1) { // first bit from register is false
             List<int[]> clauses = new ArrayList<>();
             int[] clause = new int[] {
