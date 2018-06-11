@@ -1,147 +1,187 @@
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
-import com.sun.org.apache.regexp.internal.RE;
+import com.google.errorprone.annotations.Var;
+import components.*;
+import components.Connection;
+import components.InputPin;
+import logic.Clause;
+import logic.Clauses;
+import logic.TimeDependentVariable;
+import logic.Variable;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.sat4j.core.VecInt;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by jakob on 31.05.18.
  */
 public class Circuit {
 
-    // ENDOCING FOR LITERALS
+    int[] inputBitStream;
 
-    final static int GLOBAL_INPUT = 1;
-    final static int GLOBAL_OUTPUT = 2;
-
-    // Ranges
-    final static int INPUT = 100;
-    final static int OUTPUT = 200;
-
-    final static int CONNECTIONS = 1000; //xxYY
-
-    int[] input;
-
-    int[] output;
+    int[] outputBitStream;
 
     Set<Gate> gates = new HashSet<>();
 
-    Set<Connection> connections = new HashSet<>();
+    private Set<Connection> connections = new HashSet<>();
 
-    int idCounter = 3;
+    private Set<InputPin> inputPins = new HashSet<>();
 
-    HashSet<Integer> ins = new HashSet<>();
+    private Set<OutputPin> outputPins = new HashSet<>();
 
-    HashSet<Integer> outs = new HashSet<>();
+    Input globalInput = new Input();
 
-    SetMultimap<Integer, Integer> connectionsOutToIn = HashMultimap.create();
-
-    SetMultimap<Integer, Integer> connectionsInToOut = HashMultimap.create();
+    Output globalOutput = new Output();
 
     Circuit() {
-        ins.add(GLOBAL_OUTPUT);
-        outs.add(GLOBAL_INPUT);
+        gates.add(globalInput);
+        gates.add(globalOutput);
+
+        inputPins.addAll(globalOutput.getInputPins());
+        outputPins.add(globalInput.getOutputPin());
     }
 
     void addInputBitStream(int[] input) {
-        this.input = input;
+        this.inputBitStream = input;
     }
 
     void addOutputBitStream(int[] output) {
-        this.output = output;
+        this.outputBitStream = output;
+    }
+
+    Set<Connection> getConnections() {
+        return this.connections;
     }
 
     Register addRegister() {
-        int in = idCounter;
-        idCounter++;
-        int out = idCounter;
-        idCounter++;
-
-        ins.add(in);
-        outs.add(out);
-
-        connectionsOutToIn.put(GLOBAL_INPUT, in);
-        connectionsInToOut.put(in, GLOBAL_INPUT);
-
-        connectionsOutToIn.put(out, GLOBAL_OUTPUT);
-        connectionsInToOut.put(GLOBAL_OUTPUT, out);
-
-        outs.forEach((outId) -> {
-            if (outId != in && outId != in && outId != out) {
-                connectionsOutToIn.put(outId, in);
-                connectionsInToOut.put(in, outId);
-            }
-        });
-
-        ins.forEach((inId) -> {
-            if (inId != out && inId != in) {
-                connectionsOutToIn.put(out, inId);
-                connectionsInToOut.put(inId, out);
-            }
-        });
-
-        Register register = new Register(in, out);
+        Register register = new Register();
         gates.add(register);
-
-        System.out.println("Created Register with in: " + in + " out: " + out);
-
+        inputPins.addAll(register.getInputPins());
+        outputPins.add(register.getOutputPin());
+        createNewConnectionsFor(register);
         return register;
-    }
+    };
 
     Xor addXor() {
-        int in1 = idCounter;
-        idCounter++;
-        int in2 = idCounter;
-        idCounter++;
-        int out = idCounter;
-        idCounter++;
-
-        ins.add(in1);
-        ins.add(in2);
-
-        outs.add(out);
-        // create possible connectionsOutToIn
-
-        //zwischen input und gate-eingang
-        connectionsOutToIn.put(GLOBAL_INPUT, in1);
-        connectionsOutToIn.put(GLOBAL_INPUT, in2);
-        connectionsInToOut.put(in1, GLOBAL_INPUT);
-        connectionsInToOut.put(in2, GLOBAL_INPUT);
-
-        outs.forEach((outId) -> {
-            if (outId != in1 && outId != in2 && outId != out) {
-                connectionsOutToIn.put(outId, in1);
-                connectionsOutToIn.put(outId, in2);
-                connectionsInToOut.put(in1, outId);
-                connectionsInToOut.put(in2, outId);
-            }
-        });
-
-        ins.forEach((inId) -> {
-            if (inId != out && inId != in1 && inId != in2) {
-                connectionsOutToIn.put(out, inId);
-                connectionsInToOut.put(inId, out);
-            }
-        });
-
-        Xor xor = new Xor(in1, in2, out);
+        Xor xor = new Xor();
         gates.add(xor);
-
-        System.out.println("Created xor with in1: " + in1 + ", in2: " + in2 + ", out: " + out);
-
+        inputPins.addAll(xor.getInputPins());
+        outputPins.add(xor.getOutputPin());
+        createNewConnectionsFor(xor);
         return xor;
     };
 
+    private void createNewConnectionsFor(Gate justCreated) {
+        for (Gate gate : getAllComponentsWithOutputs()) {
+            if (gate.equals(justCreated)) {
+                continue;
+            }
+
+            for (InputPin xorInputPin : justCreated.getInputPins()) {
+                connections.add(new Connection(gate.getOutputPin(), xorInputPin));
+            }
+        }
+
+        for (Gate gate : getAllComponentsWithInputs()) {
+            if (gate.equals(justCreated)) {
+                continue;
+            }
+
+            for (InputPin componentInputPin : gate.getInputPins()) {
+                connections.add(new Connection(justCreated.getOutputPin(), componentInputPin));
+            }
+        }
+    }
+
+    private Clauses convertCircuitToCnfForTick(int tick) {
+        Clauses clausesForTick = new Clauses(tick);
+
+        //für jede Verbindung
+        for (Connection connection : connections) {
+            clausesForTick.addAllClauses(connection.convertToCnfAtTick(tick));
+        }
+
+        // für jedes Bauteil
+        for (Gate gate : gates) {
+            clausesForTick.addAllClauses(gate.convertToCnfAtTick(tick));
+        }
+
+        // für jedes bit
+        boolean inputBit = inputBitStream[tick] == 1;
+        Clause inputClause = new Clause(new TimeDependentVariable(tick, inputBit, globalInput));
+        clausesForTick.addClause(inputClause);
+
+        boolean outputBit = outputBitStream[tick] == 1;
+        Clause outputClause = new Clause(new TimeDependentVariable(tick, outputBit, globalOutput));
+        clausesForTick.addClause(outputClause);
+
+        // für jeden Output pin
+        for (OutputPin outputPin : outputPins) {
+            Clause possibleConnections = new Clause();
+            for (Connection connection : connections) {
+                if (connection.getFrom().equals(outputPin)) {
+                    possibleConnections.addVariable(new Variable(true, connection));
+                }
+            }
+            clausesForTick.addClause(possibleConnections);
+        }
+
+        // für jeden Input pin
+
+        for (InputPin inputPin : inputPins) {
+
+            List<Connection> connectionsWithSameTo = connections.stream().filter(connection -> connection.getTo().equals(inputPin)).collect(Collectors.toList());
+
+            Clause possibleConnections = new Clause();
+            for (Connection connection : connectionsWithSameTo) {
+                possibleConnections.addVariable(new Variable(true, connection));
+
+            }
+            clausesForTick.addClause(possibleConnections);
+
+
+            for (Connection connection : connectionsWithSameTo) {
+                for (Connection other : connectionsWithSameTo) {
+                    if (connection.equals(other)) {
+                        continue;
+                    }
+                    Variable connectionFalse = new Variable(false, connection);
+                    Variable otherFalse = new Variable(false, other);
+                    Clause exclude = new Clause(connectionFalse, otherFalse);
+                    clausesForTick.addClause(exclude);
+                }
+
+            }
+        }
+
+
+        return clausesForTick;
+    }
+
+    public List<Clauses> convertCircuitToCnf() {
+        List<Clauses> allClauses = new ArrayList<>();
+
+        for (int tick = 0; tick < inputBitStream.length; tick++) {
+            allClauses.add(convertCircuitToCnfForTick(tick));
+        }
+
+        return allClauses;
+    }
+
+    /*
     List<int[]> toBoolean() {
         List<int[]> allClauses = new ArrayList<>();
 
         // Für jeden Tick:
-        for (int i = 1; i <= input.length; i++) {
+        for (int i = 1; i <= inputBitStream.length; i++) {
             final int bitIndex = i;
 
-            // die input und output bits als klauseln
-            boolean bitInput = input[i-1] == 1;
-            boolean bitOutput = output[i-1] == 1;
+            // die inputBitStream und outputBitStream bits als klauseln
+            boolean bitInput = inputBitStream[i-1] == 1;
+            boolean bitOutput = outputBitStream[i-1] == 1;
 
             int inputBit = bitInput ? INPUT + i : (INPUT + i ) * -1;
             int outputBit = bitOutput ? OUTPUT + i : (OUTPUT + i ) * -1;
@@ -217,15 +257,15 @@ public class Circuit {
 
             // Gates
             // die logik der gates als klauseln
-            for (Gate gate : gates) {
+            for (Component gate : gates) {
                 if (gate instanceof Xor) {
-                    List<int[]> clauses = gate.toBoolean(i);
+                    List<int[]> clauses = ((Xor) gate).toBoolean(i);
                     allClauses.addAll(clauses);
                     System.out.println("clause for gate Xor created for bit numer " + i);
                 }
 
                 if (gate instanceof Register) {
-                    List<int[]> clauses = gate.toBoolean(i);
+                    List<int[]> clauses = ((Register) gate).toBoolean(i);
                     allClauses.addAll(clauses);
                     System.out.println("clause for gate REGISTER created for bit numer " + i);
                 }
@@ -240,12 +280,12 @@ public class Circuit {
         for (Gate gate : gates) {
             if (gate instanceof Xor) {
                 if (((Xor) gate).in1 == in || ((Xor) gate).in2 == in) {
-                    return gate;
+                    return (Xor) gate;
                 }
             }
             if (gate instanceof Register) {
                 if (((Register) gate).in == in) {
-                    return gate;
+                    return (Register) gate;
                 }
             }
         }
@@ -254,10 +294,21 @@ public class Circuit {
 
     Gate getGateByOutput(int out) {
         for (Gate gate : gates) {
-            if (gate.out == out) {
-                return gate;
+            if (gate instanceof Gate) {
+                if (((Gate) gate).out == out) {
+
+                        return (Gate) gate;
+                }
             }
         }
         return null;
+    }*/
+
+    public List<Gate> getAllComponentsWithOutputs() {
+        return gates.stream().filter(gate -> !(gate instanceof Output)).collect(Collectors.toList());
+    }
+
+    public List<Gate> getAllComponentsWithInputs() {
+        return gates.stream().filter(gate -> !(gate instanceof Input)).collect(Collectors.toList());
     }
 }

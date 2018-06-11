@@ -1,6 +1,10 @@
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.MultiGraph;
+import com.google.errorprone.annotations.Var;
+import components.Component;
+import components.Connection;
+import logic.Clause;
+import logic.Clauses;
+import logic.Model;
+import logic.Variable;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.reader.DimacsReader;
@@ -10,15 +14,7 @@ import org.sat4j.specs.IProblem;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.TimeoutException;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by jakob on 07.06.18.
@@ -26,46 +22,129 @@ import java.util.Set;
 public class BooleanExpression {
 
     private final static int MAXVAR = 1000000;
+
     private final static int NBCLAUSES = 1000000;
 
     private static ISolver solver = SolverFactory.newDefault();
 
     static Reader reader = new DimacsReader( solver );
 
-    private Circuit circuit;
+    List<int[]> dimacs;
 
-    private int[] model = null;
+    private int[] modelDimacs = null;
 
+    HashMap<Variable, Integer> dictionary = new HashMap<>();
 
-    BooleanExpression(Circuit circuit) {
-        solver.newVar(MAXVAR);
-        solver.setExpectedNumberOfClauses(NBCLAUSES);
+    private List<Model> models = new ArrayList<>();
 
-        this.circuit = circuit;
+    BooleanExpression(List<Clauses> clauses) {
+        this.solver.newVar(MAXVAR);
+        this.solver.setExpectedNumberOfClauses(NBCLAUSES);
 
-        List<int[]> clauses = circuit.toBoolean();
+        this.dimacs = convertClausesToDimacs(clauses);
 
-        // add clauses to solver
-        for (int i=0; i<clauses.size(); i++) {
-            int [] clause = clauses.get(i);
+        addDimacsToSolver(this.dimacs);
+    }
+
+    private void addDimacsToSolver(List<int[]> dimacs) {
+        for (int i=0; i<dimacs.size(); i++) {
+            int [] clause = dimacs.get(i);
             try {
                 solver.addClause(new VecInt(clause));
             } catch (ContradictionException e) {
                 e.printStackTrace();
             }
-            // todo nur die klauseln hinzufügen, die es noch nicht gibt, mit set checken, reihenfolge innerhalb der klauseln
-            // todo spielt keine rolle
+
             System.out.println(reader.decode(clause));
         }
     }
 
-    public int[] solve() {
+    private List<int[]> convertClausesToDimacs(List<Clauses> allClauses) {
+
+        List<int[]> dimacsClauses = new ArrayList<>();
+
+        for (Clauses clauses : allClauses) {
+
+            for (Clause clause : clauses.getClauses()) {
+
+                int numberOfVariablesInClause = clause.getVariables().size();
+
+                int[] literalsOfClause = new int[numberOfVariablesInClause];
+
+                int index = 0;
+
+                for (Variable variable : clause.getVariables()) {
+
+                    Integer literal = null;
+
+                    boolean weight = variable.getWeight();
+
+                    if (dictionary.containsKey(variable)) {
+                        literal = dictionary.get(variable);
+                    } else {
+                        Integer nextLiteral = dictionary.size() + 1;
+                        dictionary.put(variable, nextLiteral);
+                        literal = nextLiteral;
+                    }
+
+                    if (!weight) {
+                        literal = literal * -1;
+                    }
+
+                    variable.setLiteral(literal);
+                    literalsOfClause[index] = literal;
+                    index++;
+                }
+                dimacsClauses.add(literalsOfClause);
+            }
+        }
+
+        return dimacsClauses;
+    }
+
+    public Model solveNext() {
+        if (this.models.isEmpty()) {
+            return null;
+        }
+
+        Model latestModel = models.get(models.size()-1);
+
+        Clauses negatedModel = new Clauses(0);
+        Clause clause = new Clause();
+        negatedModel.addClause(clause);
+
+        for (Connection connection : latestModel.getConnections()) {
+            Variable variable = new Variable(false, connection);
+            clause.addVariable(variable);
+        }
+
+        final List<int[]> dimacs = convertClausesToDimacs(Arrays.asList(negatedModel));
+        addDimacsToSolver(dimacs);
+
+        return solve();
+
+    }
+
+    public List<Model> solveAll() {
+        solve();
+        while(true) {
+            Model anotherModel = solveNext();
+            if (anotherModel == null) {
+                break;
+            }
+        }
+        return this.models;
+    }
+
+    public Model solve() {
         IProblem problem = solver;
         try {
             if (problem.isSatisfiable()) {
-                model = problem.model();
-                System.out.println(reader.decode(model));
+                modelDimacs = problem.model();
+                System.out.println(reader.decode(modelDimacs));
                 System.out.println("is Satisfiable");
+                Model model = retranslate(modelDimacs);
+                models.add(model);
                 return model;
 
             } else {
@@ -79,22 +158,32 @@ public class BooleanExpression {
         return null;
     }
 
-    public Set<Integer> getConnectionsFromModel() {
-        if (model == null) {
-            return Collections.emptySet();
-        }
-
-        Set<Integer> connections = new HashSet<>();
-
+    private Model retranslate(int[] model) {
+        List<Variable> translatedModel = new ArrayList<>();
         for (int i = 0; i < model.length; i++) {
-            if (model[i] > 1000) {
-                connections.add(model[i]);
+            int literal = model[i];
+
+            if (!(dictionary.containsValue(literal) || dictionary.containsValue(literal*-1))) {
+                throw new RuntimeException("something is wrong");
+            }
+
+            for (Map.Entry<Variable, Integer> entry : dictionary.entrySet()) {
+                if (literal == entry.getValue() || literal == entry.getValue() * -1) {
+                    Variable variable = entry.getKey();
+                    if (literal < 1) {
+                        variable.setWeight(false);
+                    } else {
+                        variable.setWeight(true);
+                    }
+                    translatedModel.add(variable);
+                }
             }
         }
-        return connections;
+        return new Model(translatedModel);
+
     }
 
-    public void plotCircuitForModel() {
+    /*public void plotCircuitForModel() {
         // DRAW
         MultiGraph graph = new MultiGraph("Network");
         System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
@@ -102,13 +191,13 @@ public class BooleanExpression {
         graph.addAttribute("ui.quality");
         graph.addAttribute("ui.antialias");
 
-        Node input = graph.addNode("N1"); //INPUT
-        input.addAttribute("ui.label", "1/INPUT");
+        Node inputBitStream = graph.addNode("N1"); //INPUT
+        inputBitStream.addAttribute("ui.label", "1/INPUT");
 
-        Node output = graph.addNode("N2"); //OUTPUT
-        output.addAttribute("ui.label", "2/OUTPUT");
+        Node outputBitStream = graph.addNode("N2"); //OUTPUT
+        outputBitStream.addAttribute("ui.label", "2/OUTPUT");
 
-        for (Gate gate : circuit.gates) {
+        for (Component gate : circuit.gates) {
             if (gate instanceof Xor) {
                 String nodeLabel = "N" + ((Xor) gate).in1 + ((Xor) gate).in2 + ((Xor) gate).out;
                 Node node = graph.addNode(nodeLabel);
@@ -124,9 +213,9 @@ public class BooleanExpression {
             }
         }
 
-        for (int i = 0; i < model.length; i++) {
-            if (model[i] > 1000) {
-                int connection = model[i];
+        for (int i = 0; i < modelDimacs.length; i++) {
+            if (modelDimacs[i] > 1000) {
+                int connection = modelDimacs[i];
                 int leftNode = connection / 1000;
                 int rightNode = connection % 1000;
 
@@ -152,5 +241,5 @@ public class BooleanExpression {
             e.printStackTrace();
         }
         return new String(encoded, encoding);
-    }
+    }*/
 }
