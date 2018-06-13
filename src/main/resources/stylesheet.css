@@ -10,13 +10,13 @@ node {
 
 node.xor {
     fill-mode: image-scaled;
-    fill-image: url("/home/jakob/Projects/ConvolutionalSAT/xor.png");
+    fill-image: url("/xor.png");
 }
 
 node.register {
     fill-mode: image-scaled;
     shape: box;
-    fill-image: url("/home/jakob/Projects/ConvolutionalSAT/register.png");
+    fill-image: url("/register.png");
 }
 
 edge {

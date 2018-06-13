@@ -6,10 +6,15 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
+import scala.Char;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +28,7 @@ public class MainApp {
     private JPanel panel;
 
     private JList modelList;
+
     private JTabbedPane tabbedPane;
 
     public MainApp(java.util.List<Circuit> models) {
@@ -96,9 +102,7 @@ public class MainApp {
             graph.addEdge(from+to, nodeFrom, nodeTo);
         }
 
-        ClassLoader classLoader = getClass().getClassLoader();
-        File stylesheet = new File(classLoader.getResource("stylesheet.css").getFile());
-
+        String stylesheet = readFile("stylesheet.css", Charset.forName("utf-8"));
         graph.addAttribute("ui.stylesheet", stylesheet);
 
         Viewer viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
@@ -122,5 +126,17 @@ public class MainApp {
 
     private void registerOutputPin(Gate gate, Node node, Map<String, Node> nodes) {
         nodes.put(gate.getOutputPin().toString(), node);
+    }
+
+    private String readFile(String filename, Charset encoding) {
+        ClassLoader classLoader = getClass().getClassLoader();
+        String stylesheet = classLoader.getResource(filename).getPath();
+        byte[] encoded = new byte[0];
+        try {
+            encoded = Files.readAllBytes(Paths.get(stylesheet));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new String(encoded, encoding);
     }
 }
