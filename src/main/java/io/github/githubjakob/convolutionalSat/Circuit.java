@@ -11,11 +11,52 @@ import java.util.*;
  */
 public class Circuit {
 
+    private static class EquivalentConnection {
+
+        Gate from;
+
+        Gate to;
+
+        EquivalentConnection(Connection connection) {
+
+            this.from = connection.getFrom().getGate();
+            this.to = connection.getTo().getGate();
+
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) return false;
+            if (obj == this) return true;
+            if (!(obj instanceof EquivalentConnection))return false;
+            EquivalentConnection other = (EquivalentConnection) obj;
+            return (from.getType().equals(other.from.getType())
+                    && to.getType().equals(other.to.getType()));
+         }
+
+        @Override
+        public int hashCode() {
+            return from.getType().hashCode() + to.getType().hashCode();
+        }
+
+
+    }
+
     private final Set<Connection> connections;
 
-    private final List<Gate> gates;
+    private final Set<EquivalentConnection> equivalentConnections = new HashSet<>();
+
+    private final Set<Gate> gates;
 
     private List<Variable> variables = new ArrayList<>();
+
+    public Circuit(List<Connection> connections, List<Gate> gates, boolean whatever) {
+        this.connections = new HashSet<>(connections);
+        this.gates = new HashSet<>(gates);
+        for (Connection connection : connections) {
+            equivalentConnections.add(new EquivalentConnection(connection));
+        }
+    }
 
     public Circuit(List<Variable> variables, List<Gate> gates) {
         List<Variable> cloned = new ArrayList<>();
@@ -25,12 +66,18 @@ public class Circuit {
             cloned.add(new Variable(weight, component));
         }
         this.variables = cloned;
-        this.connections = getConnections();
-        this.gates = gates;
-
+        this.connections = extractFrom(variables);
+        for (Connection connection : connections) {
+            equivalentConnections.add(new EquivalentConnection(connection));
+        }
+        this.gates = new HashSet<>(gates);
     }
 
     public Set<Connection> getConnections() {
+        return this.connections;
+    }
+
+    private Set<Connection> extractFrom(List<Variable> variables) {
         if (variables == null) {
             return Collections.emptySet();
         }
@@ -83,5 +130,19 @@ public class Circuit {
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (obj == this) return true;
+        if (!(obj instanceof Circuit))return false;
+        Circuit other = (Circuit) obj;
+        return (equivalentConnections.equals(other.equivalentConnections) && gates.equals(other.gates));
+    }
+
+    @Override
+    public int hashCode() {
+        return equivalentConnections.hashCode() * gates.hashCode();
     }
 }

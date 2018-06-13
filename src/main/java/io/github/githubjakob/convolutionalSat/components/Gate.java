@@ -12,4 +12,5 @@ public interface Gate extends Component {
     OutputPin getOutputPin();
     List<InputPin> getInputPins();
     Clauses convertToCnfAtTick(int tick);
+    String getType();
 }

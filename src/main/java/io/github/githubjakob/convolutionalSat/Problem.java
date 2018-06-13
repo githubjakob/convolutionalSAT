@@ -21,11 +21,11 @@ public class Problem {
 
     Set<Gate> gates = new HashSet<>();
 
-    private Set<Connection> connections = new HashSet<>();
+    private List<Connection> connections = new ArrayList<>();
 
-    private Set<InputPin> inputPins = new HashSet<>();
+    private List<InputPin> inputPins = new ArrayList<>();
 
-    private Set<OutputPin> outputPins = new HashSet<>();
+    private List<OutputPin> outputPins = new ArrayList<>();
 
     Input globalInput = new Input();
 
@@ -47,7 +47,7 @@ public class Problem {
         this.outputBitStream = output;
     }
 
-    public Set<Connection> getConnections() {
+    public List<Connection> getConnections() {
         return this.connections;
     }
 

@@ -1,52 +1,22 @@
 package io.github.githubjakob.convolutionalSat;
 
-import org.junit.Assert;
+import io.github.githubjakob.convolutionalSat.components.Connection;
+import io.github.githubjakob.convolutionalSat.components.Xor;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.when;
 
 /**
- * Created by jakob on 07.06.18.
+ * Created by jakob on 13.06.18.
  */
 public class CircuitTest {
 
     @Test
-    public void numberOfConnections_xorAndRegister() {
-        Problem circuit = new Problem();
+    public void testEqual() {
 
-        circuit.addXor();
-        circuit.addRegister();
 
-        Assert.assertEquals(8, circuit.getConnections().size());
-    }
 
-    @Test
-    public void numberOfConnections_xor() {
-        Problem circuit = new Problem();
-
-        circuit.addXor();
-
-        Assert.assertEquals(3, circuit.getConnections().size());
-    }
-
-    @Test
-    public void numberOfConnections_twoXorAndRegister() {
-        Problem circuit = new Problem();
-
-        circuit.addXor();
-        circuit.addXor();
-        circuit.addRegister();
-
-        Assert.assertEquals(18, circuit.getConnections().size());
-    }
-
-    @Test
-    public void numberOfConnections_threeXorAndRegister() {
-        Problem circuit = new Problem();
-
-        circuit.addXor();
-        circuit.addXor();
-        circuit.addXor();
-        circuit.addRegister();
-
-        Assert.assertEquals(32, circuit.getConnections().size());
     }
 }

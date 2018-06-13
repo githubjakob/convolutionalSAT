@@ -2,6 +2,7 @@ package io.github.githubjakob.convolutionalSat.Gui;
 
 import io.github.githubjakob.convolutionalSat.Circuit;
 import io.github.githubjakob.convolutionalSat.components.*;
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.swingViewer.ViewPanel;
@@ -72,7 +73,7 @@ public class MainApp {
         for (Register register : model.getRegisters()) {
             String id = register.getInputPins().get(0) + "_" + register.getOutputPin();
             Node registerNode = graph.addNode(id);
-            registerNode.addAttribute("ui.label", id);
+            registerNode.addAttribute("ui.label", register.toString());
             registerOutputPin(register, registerNode, nodes);
             registerInputPins(register, registerNode, nodes);
             registerNode.setAttribute("ui.class", "register");
@@ -82,7 +83,7 @@ public class MainApp {
         for (Xor xor : model.getXors()) {
             String id = xor.getInputPins().get(0) + "_" + xor.getInputPins().get(1) + "_" + xor.getOutputPin();
             Node xorNode = graph.addNode(id);
-            xorNode.addAttribute("ui.label", id);
+            xorNode.addAttribute("ui.label", xor.toString());
             registerOutputPin(xor, xorNode, nodes);
             registerInputPins(xor, xorNode, nodes);
             xorNode.setAttribute("ui.class", "xor");
@@ -99,7 +100,8 @@ public class MainApp {
             String to = connection.getTo().toString();
             Node nodeFrom = nodes.get(from);
             Node nodeTo = nodes.get(to);
-            graph.addEdge(from+to, nodeFrom, nodeTo);
+            Edge edge = graph.addEdge(from + to, nodeFrom, nodeTo);
+            edge.addAttribute("ui.label", connection.toString());
         }
 
         String stylesheet = readFile("stylesheet.css", Charset.forName("utf-8"));

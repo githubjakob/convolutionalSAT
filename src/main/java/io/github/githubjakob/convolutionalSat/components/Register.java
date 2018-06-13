@@ -72,6 +72,11 @@ public class Register implements Gate {
         return clausesAtTick;
     }
 
+    @Override
+    public String getType() {
+        return "register";
+    }
+
 
     @Override
     public OutputPin getOutputPin() {

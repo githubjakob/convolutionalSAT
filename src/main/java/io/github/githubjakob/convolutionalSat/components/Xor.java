@@ -55,6 +55,11 @@ public class Xor implements Gate {
     }
 
     @Override
+    public String getType() {
+        return "xor";
+    }
+
+    @Override
     public OutputPin getOutputPin() {
         return outputPin;
     }

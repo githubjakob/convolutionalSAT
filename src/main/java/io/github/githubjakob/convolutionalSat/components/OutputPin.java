@@ -7,17 +7,35 @@ public class OutputPin implements Pin {
 
     static int idCounter = 0;
 
-    int id;
+    Integer id;
 
-    private final Component component;
+    public Gate getGate() {
+        return gate;
+    }
 
-    public OutputPin(Component component) {
+    private final Gate gate;
+
+    public OutputPin(Gate gate) {
         this.id = idCounter++;
-        this.component = component;
+        this.gate = gate;
     }
 
     @Override
     public String toString() {
         return "Out" + id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (obj == this) return true;
+        if (!(obj instanceof OutputPin))return false;
+        OutputPin other = (OutputPin) obj;
+        return (this.id.equals(other.id));
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 }

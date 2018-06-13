@@ -7,13 +7,13 @@ public class InputPin implements Pin {
 
     static int idCounter = 0;
 
-    int id;
+    Integer id;
 
-    private final Component component;
+    private final Gate gate;
 
-    public InputPin(Component component) {
+    public InputPin(Gate gate) {
         this.id = idCounter++;
-        this.component = component;
+        this.gate = gate;
     }
 
     @Override
@@ -27,6 +27,15 @@ public class InputPin implements Pin {
         if (obj == this) return true;
         if (!(obj instanceof InputPin))return false;
         InputPin other = (InputPin) obj;
-        return (other.id==this.id);
+        return (other.id.equals(this.id));
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    public Gate getGate() {
+        return gate;
     }
 }

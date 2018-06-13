@@ -2,7 +2,10 @@ package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.Gui.MainApp;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Main {
 
@@ -21,10 +24,15 @@ public class Main {
 
         List<Circuit> circuits = booleanExpression.solveAll();
 
+        Set<Circuit> uniqueCircuits = new HashSet<>(circuits);
+
+        System.out.println("Found circuits " + circuits.size());
+        System.out.println("Unique circuits " + uniqueCircuits.size());
+
         //booleanExpression.plotCircuitForModel();
         System.out.println("done");
 
-        MainApp mainApp = new MainApp(circuits);
+        MainApp mainApp = new MainApp(new ArrayList<>(uniqueCircuits));
     }
 
 }

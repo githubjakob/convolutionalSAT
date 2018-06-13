@@ -44,4 +44,9 @@ public class Input implements Gate {
         return new Clauses(tick, clause1, clause2);
     }
 
+    @Override
+    public String getType() {
+        return "input";
+    }
+
 }

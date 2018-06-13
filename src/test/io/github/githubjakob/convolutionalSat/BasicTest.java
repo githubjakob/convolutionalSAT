@@ -1,11 +1,14 @@
 package io.github.githubjakob.convolutionalSat;
 
+import io.github.githubjakob.convolutionalSat.components.Connection;
 import io.github.githubjakob.convolutionalSat.components.Xor;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -53,6 +56,52 @@ public class BasicTest {
 
         assertThat(map.containsKey(variable), is(true));
         assertThat(map.containsKey(sameVariable), is(true));
+
+
+    }
+
+    @Test
+    public void connectionEquals() {
+        Xor xor = new Xor();
+        Xor xor2 = new Xor();
+
+        Connection connection = new Connection(xor.getOutputPin(), xor2.getInputPins().get(0));
+        Connection connection2 = new Connection(xor.getOutputPin(), xor2.getInputPins().get(1));
+
+        assertThat(connection, not(connection2));
+
+        HashSet<Connection> set = new HashSet<>();
+        set.add(connection);
+        set.add(connection2);
+
+        assertThat(set.size(), is(2));
+    }
+
+    @Test
+    public void circuitEquals() {
+        Xor xor = new Xor();
+        Xor xor2 = new Xor();
+
+        Connection connection = new Connection(xor.getOutputPin(), xor2.getInputPins().get(0));
+        Connection connection2 = new Connection(xor.getOutputPin(), xor2.getInputPins().get(1));
+
+        Circuit circuit = new Circuit(Arrays.asList(connection, connection2),
+                Arrays.asList(xor, xor2), true);
+
+        Connection sameConnection = new Connection(xor.getOutputPin(), xor2.getInputPins().get(0));
+        Connection sameConnection2 = new Connection(xor.getOutputPin(), xor2.getInputPins().get(1));
+
+        Circuit sameCircuit = new Circuit(Arrays.asList(sameConnection, sameConnection2),
+                Arrays.asList(xor, xor2), true);
+
+        assertThat(circuit, is(sameCircuit));
+        assertThat(connection, not(sameConnection));
+
+        HashSet<Circuit> set = new HashSet<>();
+        set.add(circuit);
+        set.add(sameCircuit);
+
+        assertThat(set.size(), is(1));
 
 
     }

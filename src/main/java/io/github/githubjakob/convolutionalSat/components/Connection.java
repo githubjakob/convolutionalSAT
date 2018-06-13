@@ -15,9 +15,9 @@ public class Connection implements Component {
 
     int id;
 
-    OutputPin from;
+    private OutputPin from;
 
-    InputPin to;
+    private InputPin to;
 
     public Connection(OutputPin from, InputPin to) {
         this.id = idCounter++;
