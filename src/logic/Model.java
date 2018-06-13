@@ -1,8 +1,7 @@
 package logic;
 
 import com.google.errorprone.annotations.Var;
-import components.Component;
-import components.Connection;
+import components.*;
 
 import java.util.*;
 
@@ -13,9 +12,11 @@ public class Model {
 
     private final Set<Connection> connections;
 
+    private final List<Gate> gates;
+
     private List<Variable> variables = new ArrayList<>();
 
-    public Model(List<Variable> variables) {
+    public Model(List<Variable> variables, List<Gate> gates) {
         List<Variable> cloned = new ArrayList<>();
         for (Variable variable : variables) {
             boolean weight = variable.getWeight();
@@ -24,9 +25,9 @@ public class Model {
         }
         this.variables = cloned;
         this.connections = getConnections();
+        this.gates = gates;
 
     }
-
 
     public Set<Connection> getConnections() {
         if (variables == null) {
@@ -45,5 +46,41 @@ public class Model {
         return connections;
     }
 
+    public List<Register> getRegisters() {
+        List<Register> registers = new ArrayList<>();
+        for (Gate gate : gates) {
+            if (gate instanceof Register) {
+                registers.add((Register) gate);
+            }
+        }
+        return registers;
+    }
 
+    public List<Xor> getXors() {
+        List<Xor> xors = new ArrayList<>();
+        for (Gate gate : gates) {
+            if (gate instanceof Xor) {
+                xors.add((Xor) gate);
+            }
+        }
+        return xors;
+    }
+
+    public Input getInput() {
+        for (Gate gate : gates) {
+            if (gate instanceof Input) {
+                return (Input) gate;
+            }
+        }
+        return null;
+    }
+
+    public Output getOutput() {
+        for (Gate gate : gates) {
+            if (gate instanceof Output) {
+                return (Output) gate;
+            }
+        }
+        return null;
+    }
 }

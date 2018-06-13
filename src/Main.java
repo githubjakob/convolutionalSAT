@@ -1,10 +1,7 @@
-import components.Connection;
-import logic.Clauses;
+import Gui.MainApp;
 import logic.Model;
-import logic.Variable;
 
 import java.util.List;
-import java.util.Set;
 
 public class Main {
 
@@ -12,20 +9,21 @@ public class Main {
 
         Circuit circuit = new Circuit();
 
-        circuit.addInputBitStream(new int[] { 1, 1 });
-        circuit.addOutputBitStream(new int[] { 0, 1 });
+        circuit.addInputBitStream(new int[] { 1, 1, 0, 1 });
+        circuit.addOutputBitStream(new int[] { 0, 1, 0, 0 });
 
         circuit.addXor();
         circuit.addRegister();
+        circuit.addRegister();
 
-        List<Clauses> clauses = circuit.convertCircuitToCnf();
-
-        BooleanExpression booleanExpression = new BooleanExpression(clauses);
+        BooleanExpression booleanExpression = new BooleanExpression(circuit);
 
         List<Model> models = booleanExpression.solveAll();
 
         //booleanExpression.plotCircuitForModel();
         System.out.println("done");
+
+        MainApp mainApp = new MainApp(models);
     }
 
 }

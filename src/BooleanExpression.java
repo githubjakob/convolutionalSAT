@@ -29,6 +29,10 @@ public class BooleanExpression {
 
     static Reader reader = new DimacsReader( solver );
 
+    private final List<Clauses> clauses;
+
+    private final Circuit circuit;
+
     List<int[]> dimacs;
 
     private int[] modelDimacs = null;
@@ -37,12 +41,13 @@ public class BooleanExpression {
 
     private List<Model> models = new ArrayList<>();
 
-    BooleanExpression(List<Clauses> clauses) {
+    BooleanExpression(Circuit circuit) {
+        this.circuit = circuit;
         this.solver.newVar(MAXVAR);
         this.solver.setExpectedNumberOfClauses(NBCLAUSES);
 
-        this.dimacs = convertClausesToDimacs(clauses);
-
+        this.clauses = circuit.convertCircuitToCnf();
+        this.dimacs = convertClausesToDimacs(this.clauses);
         addDimacsToSolver(this.dimacs);
     }
 
@@ -179,67 +184,7 @@ public class BooleanExpression {
                 }
             }
         }
-        return new Model(translatedModel);
+        return new Model(translatedModel, circuit.getGates());
 
     }
-
-    /*public void plotCircuitForModel() {
-        // DRAW
-        MultiGraph graph = new MultiGraph("Network");
-        System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
-        graph.addAttribute("ui.stylesheet", "edge {text-alignment: along;}");
-        graph.addAttribute("ui.quality");
-        graph.addAttribute("ui.antialias");
-
-        Node inputBitStream = graph.addNode("N1"); //INPUT
-        inputBitStream.addAttribute("ui.label", "1/INPUT");
-
-        Node outputBitStream = graph.addNode("N2"); //OUTPUT
-        outputBitStream.addAttribute("ui.label", "2/OUTPUT");
-
-        for (Component gate : circuit.gates) {
-            if (gate instanceof Xor) {
-                String nodeLabel = "N" + ((Xor) gate).in1 + ((Xor) gate).in2 + ((Xor) gate).out;
-                Node node = graph.addNode(nodeLabel);
-                node.addAttribute("ui.label", nodeLabel + "/XOR");
-                node.setAttribute("ui.class", "xor");
-            }
-
-            if (gate instanceof Register) {
-                String nodeLabel = "N" + ((Register) gate).in + ((Register) gate).out;
-                Node node = graph.addNode(nodeLabel);
-                node.addAttribute("ui.label", nodeLabel + "/REGISTER");
-                node.setAttribute("ui.class", "register");
-            }
-        }
-
-        for (int i = 0; i < modelDimacs.length; i++) {
-            if (modelDimacs[i] > 1000) {
-                int connection = modelDimacs[i];
-                int leftNode = connection / 1000;
-                int rightNode = connection % 1000;
-
-                String labelLeftNode = leftNode == 1 ? "N1" : "N" + circuit.getGateByOutput(leftNode);
-                String labelRightNode = rightNode == 2? "N2" : "N" + circuit.getGateByInput(rightNode);
-
-                Edge edge = graph.addEdge("E" + leftNode + rightNode, labelLeftNode ,labelRightNode, true);
-                edge.setAttribute("ui.label", "E" + leftNode + rightNode);
-            }
-        }
-
-        String stylesheet = readFile("/home/jakob/Projects/ConvolutionalSAT/src/stylesheet.css", StandardCharsets.UTF_8);
-        graph.addAttribute("ui.stylesheet", stylesheet);
-
-        graph.display();
-    }
-
-    private static String readFile(String path, Charset encoding) {
-        byte[] encoded = new byte[0];
-        try {
-            encoded = Files.readAllBytes(Paths.get(path));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new String(encoded, encoding);
-    }*/
 }

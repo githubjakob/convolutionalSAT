@@ -29,8 +29,7 @@ public class MainTests {
 
         Xor addedXor = circuit.addXor();
 
-        List<Clauses> clauses = circuit.convertCircuitToCnf();
-        BooleanExpression booleanExpression = new BooleanExpression(clauses);
+        BooleanExpression booleanExpression = new BooleanExpression(circuit);
 
         Model model = booleanExpression.solve();
 

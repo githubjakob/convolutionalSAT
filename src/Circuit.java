@@ -74,6 +74,12 @@ public class Circuit {
         return xor;
     };
 
+    public List<Gate> getGates() {
+        return new ArrayList<>(this.gates);
+    }
+
+
+
     private void createNewConnectionsFor(Gate justCreated) {
         for (Gate gate : getAllComponentsWithOutputs()) {
             if (gate.equals(justCreated)) {
