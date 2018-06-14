@@ -11,6 +11,13 @@ import java.util.*;
  */
 public class Circuit {
 
+    /*
+    Schaltkreise sind äquivalent, wenn sie
+    - die selbe Anzahl an Gates besitzen
+    - die selbe Anzahl an Verbindungen besitzen
+    - äquivalente Verbindungen beseitzen
+        (Verbdinungen sind äquivalent, wenn sie zwischen gleichen Typen von Komponenten besetehen)
+     */
     private static class EquivalentConnection {
 
         Gate from;
@@ -42,6 +49,7 @@ public class Circuit {
 
     }
 
+    /* Das sind nur die gesetzten, also tatsächlichen Verbindungen in einem Schaltkreis  */
     private final Set<Connection> connections;
 
     private final Set<EquivalentConnection> equivalentConnections = new HashSet<>();

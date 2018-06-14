@@ -40,6 +40,8 @@ public class BooleanExpression {
 
     private List<Circuit> models = new ArrayList<>();
 
+    int numbersOfModelsFound = 0;
+
     public BooleanExpression(Problem problem) {
         this.problem = problem;
         this.solver.newVar(MAXVAR);
@@ -59,7 +61,7 @@ public class BooleanExpression {
                 e.printStackTrace();
             }
 
-            System.out.println(reader.decode(clause));
+            //System.out.println(reader.decode(clause));
         }
     }
 
@@ -136,6 +138,10 @@ public class BooleanExpression {
             if (anotherModel == null) {
                 break;
             }
+
+            if (numbersOfModelsFound > Main.MAX_NUMBER_OF_SOLUTIONS) {
+                break;
+            }
         }
         return this.models;
     }
@@ -145,8 +151,9 @@ public class BooleanExpression {
         try {
             if (problem.isSatisfiable()) {
                 modelDimacs = problem.model();
-                System.out.println(reader.decode(modelDimacs));
-                System.out.println("is Satisfiable");
+                //System.out.println(reader.decode(modelDimacs));
+                System.out.println("found model " + numbersOfModelsFound);
+                numbersOfModelsFound++;
                 Circuit model = retranslate(modelDimacs);
                 models.add(model);
                 return model;
