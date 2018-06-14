@@ -14,12 +14,12 @@ import java.util.*;
  * Created by jakob on 07.06.18.
  */
 public class MainTests {
-
+/*
     @Test
     public void oneXor_oneBit_connectionIsCorrect() {
         Problem circuit = new Problem();
 
-        circuit.addInputBitStream(new int[] { 0 });
+        circuit.setInptBitStream(new int[] { 0 });
         circuit.addOutputBitStream(new int[] { 0 });
 
         Xor addedXor = circuit.addXor();
@@ -37,7 +37,7 @@ public class MainTests {
     public void oneXor_moreBits_connectionIsCorrect() {
         Problem circuit = new Problem();
 
-        circuit.addInputBitStream(new int[] { 0, 1, 0 });
+        circuit.setInptBitStream(new int[] { 0, 1, 0 });
         circuit.addOutputBitStream(new int[] { 0, 0, 0});
 
         Xor addedXor = circuit.addXor();
@@ -55,7 +55,7 @@ public class MainTests {
     public void oneXor_oneRegister_moreBits_connectionIsCorrect() {
         Problem circuit = new Problem();
 
-        circuit.addInputBitStream(new int[] { 1, 1, 0, 1 });
+        circuit.setInptBitStream(new int[] { 1, 1, 0, 1 });
         circuit.addOutputBitStream(new int[] { 1, 0, 1, 1 });
 
         Xor addedXor = circuit.addXor();
@@ -74,7 +74,7 @@ public class MainTests {
     public void oneXor_oneRegister_moreBits_noSolution() {
         Problem circuit = new Problem();
 
-        circuit.addInputBitStream(new int[] { 0, 0, 0, 0 });
+        circuit.setInptBitStream(new int[] { 0, 0, 0, 0 });
         circuit.addOutputBitStream(new int[] { 1, 1, 1, 1 });
 
         Xor addedXor = circuit.addXor();

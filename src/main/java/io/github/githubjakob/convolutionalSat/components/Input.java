@@ -1,9 +1,11 @@
 package io.github.githubjakob.convolutionalSat.components;
 
+import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.Clauses;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -11,15 +13,27 @@ import java.util.List;
  */
 public class Input implements Gate {
 
+    private static int idCounter = 0;
+
+    private final Enums.Group group;
+
+    private int id;
+
     private final OutputPin outputPin;
 
-    public Input() {
+    private final InputPin inputPin;
+
+    public Input(Enums.Group group) {
+        this.group = group;
+        this.id = idCounter;
+        idCounter++;
         this.outputPin = new OutputPin(this);
+        this.inputPin = new InputPin(this);
     }
 
     @Override
     public String toString() {
-        return "GlobalInput";
+        return "GlobalInput" + id;
     }
 
     public OutputPin getOutputPin() {
@@ -27,13 +41,13 @@ public class Input implements Gate {
     }
 
     public List<InputPin> getInputPins() {
-        return null;
+        return Arrays.asList(inputPin);
     }
 
     @Override
     public Clauses convertToCnfAtTick(int tick) {
-        TimeDependentVariable outputTrue = new TimeDependentVariable(tick, true, this);
-        TimeDependentVariable outputFalse = new TimeDependentVariable(tick, false, this);
+        TimeDependentVariable outputTrue = new TimeDependentVariable(tick, true, inputPin);
+        TimeDependentVariable outputFalse = new TimeDependentVariable(tick, false, inputPin);
 
         TimeDependentVariable outputPinTrue = new TimeDependentVariable(tick, true, outputPin);
         TimeDependentVariable outputPinFalse = new TimeDependentVariable(tick, false, outputPin);
@@ -42,6 +56,11 @@ public class Input implements Gate {
         Clause clause2 = new Clause(outputFalse, outputPinTrue);
 
         return new Clauses(tick, clause1, clause2);
+    }
+
+    @Override
+    public Enums.Group getGroup() {
+        return group;
     }
 
     @Override

@@ -38,4 +38,9 @@ public class InputPin implements Pin {
     public Gate getGate() {
         return gate;
     }
+
+    @Override
+    public String getType() {
+        return "input-pin";
+    }
 }

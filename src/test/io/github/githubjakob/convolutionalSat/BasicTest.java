@@ -18,7 +18,7 @@ import static org.hamcrest.CoreMatchers.*;
  * Created by jakob on 07.06.18.
  */
 public class BasicTest {
-
+/*
     @Test
     public void testEquals() {
         Xor xor = new Xor();
@@ -104,5 +104,5 @@ public class BasicTest {
         assertThat(set.size(), is(1));
 
 
-    }
+    }*/
 }

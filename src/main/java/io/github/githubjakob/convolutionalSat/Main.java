@@ -3,38 +3,53 @@ package io.github.githubjakob.convolutionalSat;
 import io.github.githubjakob.convolutionalSat.Gui.MainApp;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Main {
 
     /* Nach n gefundenen Modellen das Lösen abbrechen */
-    public static final int MAX_NUMBER_OF_SOLUTIONS = 500;
+    public static final int MAX_NUMBER_OF_SOLUTIONS = 10000;
 
     public static void main(String[] args) {
 
-        Problem problem = new Problem();
 
-        problem.addInputBitStream(new int[] { 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0 });
-        problem.addOutputBitStream(new int[] { 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1});
+        Encoder encoder = new Encoder(3);
 
-        problem.addXor();
-        problem.addXor();
-        problem.addXor();
-        problem.addRegister();
-        problem.addRegister();
+        encoder.addXor();
+        encoder.addXor();
+        encoder.addRegister();
+        encoder.addRegister();
+
+        Decoder decoder = new Decoder(3);
+
+        decoder.addXor();
+        decoder.addXor();
+        decoder.addXor();
+        decoder.addXor();
+        //decoder.addRegister();
+
+        int[] inputBitStream = new int[] { 1, 1, 0, 1 };
+
+        Problem problem = new Problem(encoder, decoder, inputBitStream );
+
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
         Instant start = Instant.now();
 
         List<Circuit> circuits = booleanExpression.solveAll();
+        //Circuit circuits = booleanExpression.solve();
 
         Instant end = Instant.now();
 
         Set<Circuit> uniqueCircuits = new HashSet<>(circuits);
+
+        int numberOfSolutions = circuits.size();
+
+        if (numberOfSolutions == 0) {
+            System.out.println("No circuits for this input");
+            return;
+        }
 
         System.out.println("Found circuits " + circuits.size());
 

@@ -9,8 +9,13 @@ public class TimeDependentVariable extends Variable {
 
     int tick;
 
+    public int getTick() {
+        return tick;
+    }
+
     public TimeDependentVariable(int tick, boolean weight, Component component) {
         super(weight, component);
+
         this.tick = tick;
     }
 

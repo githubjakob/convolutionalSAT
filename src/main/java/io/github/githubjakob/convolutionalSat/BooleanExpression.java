@@ -47,7 +47,7 @@ public class BooleanExpression {
         this.solver.newVar(MAXVAR);
         this.solver.setExpectedNumberOfClauses(NBCLAUSES);
 
-        this.clauses = problem.convertCircuitToCnf();
+        this.clauses = problem.convertProblemToCnf();
         this.dimacs = convertClausesToDimacs(this.clauses);
         addDimacsToSolver(this.dimacs);
     }
@@ -155,6 +155,7 @@ public class BooleanExpression {
                 System.out.println("found model " + numbersOfModelsFound);
                 numbersOfModelsFound++;
                 Circuit model = retranslate(modelDimacs);
+                model.inputBitStream = this.problem.inputBitStream;
                 models.add(model);
                 return model;
 
@@ -179,15 +180,17 @@ public class BooleanExpression {
             }
 
             for (Map.Entry<Variable, Integer> entry : dictionary.entrySet()) {
-                if (literal == entry.getValue() || literal == entry.getValue() * -1) {
-                    Variable variable = entry.getKey();
-                    if (literal < 1) {
-                        variable.setWeight(false);
-                    } else {
-                        variable.setWeight(true);
-                    }
-                    translatedModel.add(variable);
+                if (!(literal == entry.getValue() || literal == entry.getValue() * -1)) {
+                    continue;
                 }
+                Variable variable = entry.getKey();
+                if (literal < 0) {
+                    variable.setWeight(false);
+                } else {
+                    variable.setWeight(true);
+                }
+                translatedModel.add(variable);
+
             }
         }
         return new Circuit(translatedModel, problem.getGates());

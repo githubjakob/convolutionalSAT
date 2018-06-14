@@ -1,5 +1,6 @@
 package io.github.githubjakob.convolutionalSat.components;
 
+import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.Clauses;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
@@ -19,11 +20,14 @@ public class Register implements Gate {
 
     private final OutputPin outputPin;
 
+    private final Enums.Group group;
+
     private int id;
 
     public int in;
 
-    public Register() {
+    public Register(Enums.Group group) {
+        this.group = group;
         this.id = idCounter++;
         this.inputPin = new InputPin(this);
         this.outputPin = new OutputPin(this);
@@ -70,6 +74,11 @@ public class Register implements Gate {
         }
 
         return clausesAtTick;
+    }
+
+    @Override
+    public Enums.Group getGroup() {
+        return group;
     }
 
     @Override

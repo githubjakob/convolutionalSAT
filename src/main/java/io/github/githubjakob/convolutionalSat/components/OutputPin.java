@@ -38,4 +38,9 @@ public class OutputPin implements Pin {
     public int hashCode() {
         return id.hashCode();
     }
+
+    @Override
+    public String getType() {
+        return "output-pin";
+    }
 }

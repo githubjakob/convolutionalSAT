@@ -1,5 +1,6 @@
 package io.github.githubjakob.convolutionalSat.components;
 
+import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.Clauses;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
@@ -12,18 +13,30 @@ import java.util.List;
  */
 public class Output implements Gate {
 
+    private static int idCounter = 0;
+
+    private final Enums.Group group;
+
+    private int id;
+
     private final InputPin inputPin;
 
-    public Output() {
+    private final OutputPin outputPin;
+
+    public Output(Enums.Group group) {
+        this.group = group;
+        this.id = idCounter;
+        idCounter++;
+        this.outputPin = new OutputPin(this);
         this.inputPin = new InputPin(this);
     }
     @Override
     public String toString() {
-        return "GlobalOutput";
+        return "GlobalOutput" + id;
     }
 
     public OutputPin getOutputPin() {
-        return null;
+        return outputPin;
     }
 
     public List<InputPin> getInputPins() {
@@ -32,8 +45,8 @@ public class Output implements Gate {
 
     @Override
     public Clauses convertToCnfAtTick(int tick) {
-        TimeDependentVariable outputTrue = new TimeDependentVariable(tick, true, this);
-        TimeDependentVariable outputFalse = new TimeDependentVariable(tick, false, this);
+        TimeDependentVariable outputTrue = new TimeDependentVariable(tick, true, outputPin);
+        TimeDependentVariable outputFalse = new TimeDependentVariable(tick, false, outputPin);
 
         TimeDependentVariable inputPinTrue = new TimeDependentVariable(tick, true, inputPin);
         TimeDependentVariable inputPinFalse = new TimeDependentVariable(tick, false, inputPin);
@@ -43,6 +56,11 @@ public class Output implements Gate {
         Clause clause2 = new Clause(outputFalse, inputPinTrue);
 
         return new Clauses(tick, clause1, clause2);
+    }
+
+    @Override
+    public Enums.Group getGroup() {
+        return group;
     }
 
     @Override

@@ -3,20 +3,24 @@ graph {
 }
 
 node {
-    size: 50px;
-    text-size: 30;
-    text-offset: 40px;
+    size: 30px;
+    text-size: 15;
+    text-offset: 30px;
 }
 
 node.xor {
     fill-mode: image-scaled;
-    fill-image: url("/xor.png");
+    fill-image: url("xor.png");
 }
 
 node.register {
     fill-mode: image-scaled;
     shape: box;
-    fill-image: url("/register.png");
+    fill-image: url("register.png");
+}
+
+node.decoder {
+    fill-color: darkgrey;
 }
 
 edge {

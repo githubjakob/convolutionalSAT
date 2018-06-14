@@ -7,7 +7,7 @@ import org.junit.Test;
  * Created by jakob on 07.06.18.
  */
 public class ProblemTest {
-
+/*
     @Test
     public void numberOfConnections_xorAndRegister() {
         Problem circuit = new Problem();
@@ -48,5 +48,5 @@ public class ProblemTest {
         circuit.addRegister();
 
         Assert.assertEquals(32, circuit.getConnections().size());
-    }
+    }*/
 }

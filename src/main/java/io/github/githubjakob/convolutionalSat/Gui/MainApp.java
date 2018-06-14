@@ -1,21 +1,22 @@
 package io.github.githubjakob.convolutionalSat.Gui;
 
 import io.github.githubjakob.convolutionalSat.Circuit;
+import io.github.githubjakob.convolutionalSat.Main;
 import io.github.githubjakob.convolutionalSat.components.*;
+import io.github.githubjakob.convolutionalSat.components.Component;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
-import scala.Char;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +32,9 @@ public class MainApp {
     private JList modelList;
 
     private JTabbedPane tabbedPane;
+    private JLabel label;
+    private JLabel legend;
+    private JLabel solutions;
 
     public MainApp(java.util.List<Circuit> models) {
         jFrame = new JFrame("main/java/io/github/githubjakob/convolutionalSat/Gui");
@@ -39,6 +43,17 @@ public class MainApp {
         jFrame.setSize(1600, 1200);
         jFrame.setLocationRelativeTo(null);
         jFrame.setVisible(true);
+
+        String inputBits = "Input Bit Stream: ";
+        int[] inputBitStream = models.get(0).inputBitStream;
+        for (int i = 0; i < inputBitStream.length; i++) {
+            inputBits = inputBits + inputBitStream[i];
+        }
+        legend.setFont(new Font(Font.DIALOG, Font.BOLD, 25));
+        label.setText(inputBits);
+        solutions.setText("Maximale Lösungen: " + Main.MAX_NUMBER_OF_SOLUTIONS);
+        solutions.setFont(new Font(Font.DIALOG, Font.BOLD, 25));
+        label.setFont(new Font(Font.DIALOG, Font.BOLD, 25));
 
         // graphs
         tabbedPane.remove(0);
@@ -61,14 +76,27 @@ public class MainApp {
 
         Map<String, Node> nodes = new HashMap<>();
 
+        final Map<Component, int[]> bitsAtNodes = model.getBitsAtNodes();
 
-        Node inputBitStream = graph.addNode("INPUT"); //INPUT
-        inputBitStream.addAttribute("ui.label", "1/INPUT");
-        registerOutputPin(model.getInput(), inputBitStream, nodes);
+        for (Input input : model.getInputs()) {
+            Node inputBitStream = graph.addNode("INPUT" + input.toString()); //INPUT
+            int[] bits = bitsAtNodes.get(input);
+            inputBitStream.addAttribute("ui.label", "INPUT");
+            inputBitStream.addAttribute("ui.class", input.getGroup().toString());
+            registerOutputPin(input, inputBitStream, nodes);
+            registerInputPins(input, inputBitStream, nodes);
+        }
 
-        Node outputBitStream = graph.addNode("OUTPUT"); //OUTPUT
-        outputBitStream.addAttribute("ui.label", "2/OUTPUT");
-        registerInputPins(model.getOutput(), outputBitStream, nodes);
+
+        for (Output output : model.getOutputs()) {
+            Node outputBitStream = graph.addNode("OUTPUT" + output.toString()); //OUTPUT
+            int[] bits = bitsAtNodes.get(output);
+            outputBitStream.addAttribute("ui.label", "OUTPUT");
+            outputBitStream.addAttribute("ui.class", output.getGroup().toString());
+            registerInputPins(output, outputBitStream, nodes);
+            registerOutputPin(output, outputBitStream, nodes);
+        }
+
 
         for (Register register : model.getRegisters()) {
             String id = register.getInputPins().get(0) + "_" + register.getOutputPin();
@@ -77,6 +105,7 @@ public class MainApp {
             registerOutputPin(register, registerNode, nodes);
             registerInputPins(register, registerNode, nodes);
             registerNode.setAttribute("ui.class", "register");
+            registerNode.addAttribute("ui.class", register.getGroup().toString());
 
         }
 
@@ -87,6 +116,7 @@ public class MainApp {
             registerOutputPin(xor, xorNode, nodes);
             registerInputPins(xor, xorNode, nodes);
             xorNode.setAttribute("ui.class", "xor");
+            xorNode.addAttribute("ui.class", xor.getGroup().toString());
         }
 
         for (Connection connection : model.getConnections()) {
@@ -100,8 +130,9 @@ public class MainApp {
             String to = connection.getTo().toString();
             Node nodeFrom = nodes.get(from);
             Node nodeTo = nodes.get(to);
-            Edge edge = graph.addEdge(from + to, nodeFrom, nodeTo);
+            Edge edge = graph.addEdge(from + to, nodeFrom, nodeTo, true);
             edge.addAttribute("ui.label", connection.toString());
+            edge.addAttribute("layout.weight", 2);
         }
 
         String stylesheet = readFile("stylesheet.css", Charset.forName("utf-8"));
@@ -115,7 +146,6 @@ public class MainApp {
         panel.setLayout(new BorderLayout());
         panel.add(view, BorderLayout.CENTER);
         viewer.enableAutoLayout();
-
         tabbedPane.add(panel);
 
     }

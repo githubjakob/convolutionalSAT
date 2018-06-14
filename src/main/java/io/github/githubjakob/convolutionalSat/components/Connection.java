@@ -52,4 +52,9 @@ public class Connection implements Component {
     public OutputPin getFrom() {
         return from;
     }
+
+    @Override
+    public String getType() {
+        return "connection";
+    }
 }

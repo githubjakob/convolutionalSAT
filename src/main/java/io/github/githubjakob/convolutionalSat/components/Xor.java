@@ -1,6 +1,7 @@
 package io.github.githubjakob.convolutionalSat.components;
 
 
+import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.Clauses;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
@@ -16,6 +17,8 @@ public class Xor implements Gate {
 
     private static int idCounter = 0;
 
+    private final Enums.Group group;
+
     private int id;
 
     public InputPin inputPin1;
@@ -24,7 +27,8 @@ public class Xor implements Gate {
 
     public OutputPin outputPin;
 
-    public Xor() {
+    public Xor(Enums.Group group) {
+        this.group = group;
         this.id = idCounter++;
         this.inputPin1 = new InputPin(this);
         this.inputPin2 = new InputPin(this);
@@ -52,6 +56,11 @@ public class Xor implements Gate {
         Clause clause4 = new Clause(outputTrue, input1True, input2False);
 
         return new Clauses(tick, clause1, clause2, clause3, clause4);
+    }
+
+    @Override
+    public Enums.Group getGroup() {
+        return group;
     }
 
     @Override

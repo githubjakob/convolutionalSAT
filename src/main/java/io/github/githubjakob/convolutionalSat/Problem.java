@@ -4,7 +4,6 @@ package io.github.githubjakob.convolutionalSat;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.Clauses;
-import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
 
 import java.util.*;
@@ -15,168 +14,122 @@ import java.util.stream.Collectors;
  */
 public class Problem {
 
-    int[] inputBitStream;
+    Encoder encoder;
 
-    int[] outputBitStream;
+    Decoder decoder;
 
-    Set<Gate> gates = new HashSet<>();
+    List<Connection> connections = new ArrayList<>();
 
-    private List<Connection> connections = new ArrayList<>();
+    List<OutputPin> inputPins = new ArrayList<>();
 
-    private List<InputPin> inputPins = new ArrayList<>();
+    List<InputPin> outputPins = new ArrayList<>();
 
-    private List<OutputPin> outputPins = new ArrayList<>();
+    public int[] inputBitStream;
 
-    Input globalInput = new Input();
+    public Problem(Encoder encoder, Decoder decoder, int[] inputBitStream) {
+        this.inputBitStream = inputBitStream;
+        this.encoder = encoder;
+        encoder.setInptBitStream(inputBitStream);
+        this.decoder = decoder;
+        decoder.setOutputBitStream(inputBitStream);
 
-    Output globalOutput = new Output();
+        // für jedes output von encoder: verbindung zu input von decoder
+        for (Output output : encoder.globalOutputs) {
+            for (Input input : decoder.globalInputs) {
+                OutputPin outputPin = output.getOutputPin();
+                InputPin inputPin = input.getInputPins().get(0);
+                connections.add(new Connection(outputPin, inputPin));
+                inputPins.add(outputPin);
+                outputPins.add(inputPin);
+            }
+        }
 
-    public Problem() {
-        gates.add(globalInput);
-        gates.add(globalOutput);
-
-        inputPins.addAll(globalOutput.getInputPins());
-        outputPins.add(globalInput.getOutputPin());
     }
 
     public void addInputBitStream(int[] input) {
         this.inputBitStream = input;
     }
 
-    public void addOutputBitStream(int[] output) {
-        this.outputBitStream = output;
-    }
+    public List<Clauses> convertProblemToCnf() {
 
-    public List<Connection> getConnections() {
-        return this.connections;
-    }
-
-    public Register addRegister() {
-        Register register = new Register();
-        gates.add(register);
-        inputPins.addAll(register.getInputPins());
-        outputPins.add(register.getOutputPin());
-        createNewConnectionsFor(register);
-        return register;
-    };
-
-    public Xor addXor() {
-        Xor xor = new Xor();
-        gates.add(xor);
-        inputPins.addAll(xor.getInputPins());
-        outputPins.add(xor.getOutputPin());
-        createNewConnectionsFor(xor);
-        return xor;
-    };
-
-    public List<Gate> getGates() {
-        return new ArrayList<>(this.gates);
-    }
-
-
-
-    private void createNewConnectionsFor(Gate justCreated) {
-        for (Gate gate : getAllComponentsWithOutputs()) {
-            if (gate.equals(justCreated)) {
-                continue;
-            }
-
-            for (InputPin xorInputPin : justCreated.getInputPins()) {
-                connections.add(new Connection(gate.getOutputPin(), xorInputPin));
-            }
-        }
-
-        for (Gate gate : getAllComponentsWithInputs()) {
-            if (gate.equals(justCreated)) {
-                continue;
-            }
-
-            for (InputPin componentInputPin : gate.getInputPins()) {
-                connections.add(new Connection(justCreated.getOutputPin(), componentInputPin));
-            }
-        }
-    }
-
-    private Clauses convertCircuitToCnfForTick(int tick) {
-        Clauses clausesForTick = new Clauses(tick);
-
-        //für jede Verbindung
-        for (Connection connection : connections) {
-            clausesForTick.addAllClauses(connection.convertToCnfAtTick(tick));
-        }
-
-        // für jedes Bauteil
-        for (Gate gate : gates) {
-            clausesForTick.addAllClauses(gate.convertToCnfAtTick(tick));
-        }
-
-        // für jedes bit
-        boolean inputBit = inputBitStream[tick] == 1;
-        Clause inputClause = new Clause(new TimeDependentVariable(tick, inputBit, globalInput));
-        clausesForTick.addClause(inputClause);
-
-        boolean outputBit = outputBitStream[tick] == 1;
-        Clause outputClause = new Clause(new TimeDependentVariable(tick, outputBit, globalOutput));
-        clausesForTick.addClause(outputClause);
-
-        // für jeden Output pin
-        for (OutputPin outputPin : outputPins) {
-            Clause possibleConnections = new Clause();
-            for (Connection connection : connections) {
-                if (connection.getFrom().equals(outputPin)) {
-                    possibleConnections.addVariable(new Variable(true, connection));
-                }
-            }
-            clausesForTick.addClause(possibleConnections);
-        }
-
-        // für jeden Input pin
-
-        for (InputPin inputPin : inputPins) {
-
-            List<Connection> connectionsWithSameTo = connections.stream().filter(connection -> connection.getTo().equals(inputPin)).collect(Collectors.toList());
-
-            Clause possibleConnections = new Clause();
-            for (Connection connection : connectionsWithSameTo) {
-                possibleConnections.addVariable(new Variable(true, connection));
-
-            }
-            clausesForTick.addClause(possibleConnections);
-
-
-            for (Connection connection : connectionsWithSameTo) {
-                for (Connection other : connectionsWithSameTo) {
-                    if (connection.equals(other)) {
-                        continue;
-                    }
-                    Variable connectionFalse = new Variable(false, connection);
-                    Variable otherFalse = new Variable(false, other);
-                    Clause exclude = new Clause(connectionFalse, otherFalse);
-                    clausesForTick.addClause(exclude);
-                }
-
-            }
-        }
-
-
-        return clausesForTick;
-    }
-
-    public List<Clauses> convertCircuitToCnf() {
-        List<Clauses> allClauses = new ArrayList<>();
+        List<Clauses> cnf = new ArrayList<>();
 
         for (int tick = 0; tick < inputBitStream.length; tick++) {
-            allClauses.add(convertCircuitToCnfForTick(tick));
+
+            Clauses clausesForTick = new Clauses(tick);
+
+            // für jede verbindung zwischen encoder und decoder
+            for (Connection connection : connections) {
+                clausesForTick.addAllClauses(connection.convertToCnfAtTick(tick));
+            }
+
+            /**
+             * Für alle Verbindungen, die vom selben Output Pin weg gehen, muss mindestens eine gesetzt sein.
+             */
+            for (OutputPin outputPin : inputPins) {
+                // for alle Connections die von diesem Output Pin weg geht
+                Clause possibleConnections = new Clause();
+                for (Connection connection : connections) {
+                    if (connection.getFrom().equals(outputPin)) {
+                        possibleConnections.addVariable(new Variable(true, connection));
+                    }
+                }
+                clausesForTick.addClause(possibleConnections);
+            }
+
+            // für jeden Input pin
+
+            for (InputPin inputPin : outputPins) {
+
+                List<Connection> connectionsWithSameTo = connections.stream().filter(connection -> connection.getTo().equals(inputPin)).collect(Collectors.toList());
+
+                /**
+                 * Für alle Verbindungen, die zum selben Input Pin führen, muss mindestens eine gesetzt sein.
+                 */
+                Clause possibleConnections = new Clause();
+                for (Connection connection : connectionsWithSameTo) {
+                    possibleConnections.addVariable(new Variable(true, connection));
+
+                }
+                clausesForTick.addClause(possibleConnections);
+
+                /**
+                 * Für eine bestimmte Verbindung zu einem Input Pin, dürfen alle anderen Verbindungen zum selben Pin nicht gesetzt sein.
+                 */
+                for (Connection connection : connectionsWithSameTo) {
+                    for (Connection other : connectionsWithSameTo) {
+                        if (connection.equals(other)) {
+                            continue;
+                        }
+                        Variable connectionFalse = new Variable(false, connection);
+                        Variable otherFalse = new Variable(false, other);
+                        Clause exclude = new Clause(connectionFalse, otherFalse);
+                        clausesForTick.addClause(exclude);
+                    }
+
+                }
+            }
+
+            cnf.add(clausesForTick);
+
         }
 
-        return allClauses;
+
+
+        List<Clauses> encoder = this.encoder.convertCircuitToCnf();
+        cnf.addAll(encoder);
+
+        List<Clauses> decoder = this.decoder.convertCircuitToCnf();
+        cnf.addAll(decoder);
+
+        return cnf;
+
     }
 
-    public List<Gate> getAllComponentsWithOutputs() {
-        return gates.stream().filter(gate -> !(gate instanceof Output)).collect(Collectors.toList());
-    }
-
-    public List<Gate> getAllComponentsWithInputs() {
-        return gates.stream().filter(gate -> !(gate instanceof Input)).collect(Collectors.toList());
+    public List<Gate> getGates() {
+        List<Gate> gates = new ArrayList<>();
+        gates.addAll(encoder.getGates());
+        gates.addAll(decoder.getGates());
+        return gates;
     }
 }

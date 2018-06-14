@@ -1,7 +1,12 @@
 package io.github.githubjakob.convolutionalSat;
 
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.errorprone.annotations.Var;
 import io.github.githubjakob.convolutionalSat.components.*;
+import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
 
 import java.util.*;
@@ -58,6 +63,8 @@ public class Circuit {
 
     private List<Variable> variables = new ArrayList<>();
 
+    public int[] inputBitStream;
+
     public Circuit(List<Connection> connections, List<Gate> gates, boolean whatever) {
         this.connections = new HashSet<>(connections);
         this.gates = new HashSet<>(gates);
@@ -69,9 +76,14 @@ public class Circuit {
     public Circuit(List<Variable> variables, List<Gate> gates) {
         List<Variable> cloned = new ArrayList<>();
         for (Variable variable : variables) {
-            boolean weight = variable.getWeight();
             Component component = variable.getComponent();
-            cloned.add(new Variable(weight, component));
+            boolean weight = variable.getWeight();
+            if (variable instanceof TimeDependentVariable) {
+                TimeDependentVariable old = (TimeDependentVariable) variable;
+                cloned.add(new TimeDependentVariable(old.getTick(), weight, component));
+            } else {
+                cloned.add(new Variable(weight, component));
+            }
         }
         this.variables = cloned;
         this.connections = extractFrom(variables);
@@ -79,6 +91,32 @@ public class Circuit {
             equivalentConnections.add(new EquivalentConnection(connection));
         }
         this.gates = new HashSet<>(gates);
+    }
+
+    public Map<Component, int[]> getBitsAtNodes() {
+
+        Map<Component, int[]> bitsAtNodes = new HashMap<>();
+
+        for (Variable variable : variables) {
+            if (!(variable instanceof TimeDependentVariable)) {
+                continue;
+            }
+            TimeDependentVariable underConsideration = (TimeDependentVariable) variable;
+            Component component = underConsideration.getComponent();
+            int tick = underConsideration.getTick();
+            int value = underConsideration.getWeight() ? 1 : 0;
+
+            if (bitsAtNodes.containsKey(component)) {
+                int[] savedBits = bitsAtNodes.get(component);
+                savedBits[tick] = value;
+
+            } else {
+                int[] bits = new int[inputBitStream.length];
+                bits[tick] = value;
+                bitsAtNodes.put(component, bits);
+            }
+        }
+        return bitsAtNodes;
     }
 
     public Set<Connection> getConnections() {
@@ -122,22 +160,24 @@ public class Circuit {
         return xors;
     }
 
-    public Input getInput() {
+    public List<Input> getInputs() {
+        List<Input> inputs = new ArrayList<>();
         for (Gate gate : gates) {
             if (gate instanceof Input) {
-                return (Input) gate;
+                inputs.add((Input) gate);
             }
         }
-        return null;
+        return inputs;
     }
 
-    public Output getOutput() {
+    public List<Output> getOutputs() {
+        List<Output> outputs = new ArrayList<>();
         for (Gate gate : gates) {
             if (gate instanceof Output) {
-                return (Output) gate;
+                outputs.add((Output) gate);
             }
         }
-        return null;
+        return outputs;
     }
 
     @Override
