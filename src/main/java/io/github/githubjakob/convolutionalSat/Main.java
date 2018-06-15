@@ -1,6 +1,8 @@
 package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.Gui.MainApp;
+import io.github.githubjakob.convolutionalSat.modules.Decoder;
+import io.github.githubjakob.convolutionalSat.modules.Encoder;
 
 import java.time.Instant;
 import java.util.*;
@@ -8,21 +10,20 @@ import java.util.*;
 public class Main {
 
     /* Nach n gefundenen Modellen das Lösen abbrechen */
-    public static final int MAX_NUMBER_OF_SOLUTIONS = 10000;
+    public static final int MAX_NUMBER_OF_SOLUTIONS = 50;
 
     public static void main(String[] args) {
 
 
-        Encoder encoder = new Encoder(3);
+        Encoder encoder = new Encoder(2);
 
         encoder.addXor();
         encoder.addXor();
         encoder.addRegister();
         encoder.addRegister();
 
-        Decoder decoder = new Decoder(3);
+        Decoder decoder = new Decoder(encoder.getNumberOfOutputs());
 
-        decoder.addXor();
         decoder.addXor();
         decoder.addXor();
         decoder.addXor();
@@ -30,7 +31,7 @@ public class Main {
 
         int[] inputBitStream = new int[] { 1, 1, 0, 1 };
 
-        Problem problem = new Problem(encoder, decoder, inputBitStream );
+        Problem problem = new Problem(encoder, decoder, inputBitStream);
 
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);

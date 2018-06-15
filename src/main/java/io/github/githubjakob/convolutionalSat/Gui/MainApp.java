@@ -9,6 +9,7 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.view.ViewerPipe;
 
 import javax.swing.*;
 import java.awt.*;
@@ -80,8 +81,8 @@ public class MainApp {
 
         for (Input input : model.getInputs()) {
             Node inputBitStream = graph.addNode("INPUT" + input.toString()); //INPUT
-            int[] bits = bitsAtNodes.get(input);
-            inputBitStream.addAttribute("ui.label", "INPUT");
+            int[] bits = bitsAtNodes.get(input.getOutputPin());
+            inputBitStream.addAttribute("ui.label", "INPUT" + Arrays.toString(bits));
             inputBitStream.addAttribute("ui.class", input.getGroup().toString());
             registerOutputPin(input, inputBitStream, nodes);
             registerInputPins(input, inputBitStream, nodes);
@@ -90,8 +91,8 @@ public class MainApp {
 
         for (Output output : model.getOutputs()) {
             Node outputBitStream = graph.addNode("OUTPUT" + output.toString()); //OUTPUT
-            int[] bits = bitsAtNodes.get(output);
-            outputBitStream.addAttribute("ui.label", "OUTPUT");
+            int[] bits = bitsAtNodes.get(output.getOutputPin());
+            outputBitStream.addAttribute("ui.label", "OUTPUT" + Arrays.toString(bits));
             outputBitStream.addAttribute("ui.class", output.getGroup().toString());
             registerInputPins(output, outputBitStream, nodes);
             registerOutputPin(output, outputBitStream, nodes);
@@ -99,9 +100,11 @@ public class MainApp {
 
 
         for (Register register : model.getRegisters()) {
+            int[] bits = bitsAtNodes.get(register.getOutputPin());
+
             String id = register.getInputPins().get(0) + "_" + register.getOutputPin();
             Node registerNode = graph.addNode(id);
-            registerNode.addAttribute("ui.label", register.toString());
+            registerNode.addAttribute("ui.label", register.toString() + Arrays.toString(bits));
             registerOutputPin(register, registerNode, nodes);
             registerInputPins(register, registerNode, nodes);
             registerNode.setAttribute("ui.class", "register");
@@ -109,10 +112,25 @@ public class MainApp {
 
         }
 
+        for (Identity identity : model.getIdentities()) {
+            int[] bits = bitsAtNodes.get(identity.getOutputPin());
+
+            String id = identity.getInputPins().get(0) + "_" + identity.getOutputPin();
+            Node registerNode = graph.addNode(id);
+            registerNode.addAttribute("ui.label", identity.toString() + Arrays.toString(bits));
+            registerOutputPin(identity, registerNode, nodes);
+            registerInputPins(identity, registerNode, nodes);
+            registerNode.setAttribute("ui.class", "identity");
+            registerNode.addAttribute("ui.class", identity.getGroup().toString());
+
+        }
+
         for (Xor xor : model.getXors()) {
+            int[] bits = bitsAtNodes.get(xor.getOutputPin());
+
             String id = xor.getInputPins().get(0) + "_" + xor.getInputPins().get(1) + "_" + xor.getOutputPin();
             Node xorNode = graph.addNode(id);
-            xorNode.addAttribute("ui.label", xor.toString());
+            xorNode.addAttribute("ui.label", xor.toString()+ Arrays.toString(bits));
             registerOutputPin(xor, xorNode, nodes);
             registerInputPins(xor, xorNode, nodes);
             xorNode.setAttribute("ui.class", "xor");
@@ -147,6 +165,9 @@ public class MainApp {
         panel.add(view, BorderLayout.CENTER);
         viewer.enableAutoLayout();
         tabbedPane.add(panel);
+
+        // listener
+        //Clicks clicks = new Clicks(viewer, graph, model);
 
     }
 

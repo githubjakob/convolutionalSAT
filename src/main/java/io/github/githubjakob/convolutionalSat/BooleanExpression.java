@@ -26,8 +26,6 @@ public class BooleanExpression {
 
     private static ISolver solver = SolverFactory.newDefault();
 
-    static Reader reader = new DimacsReader( solver );
-
     private final List<Clauses> clauses;
 
     private final Problem problem;

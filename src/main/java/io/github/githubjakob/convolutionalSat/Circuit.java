@@ -160,6 +160,16 @@ public class Circuit {
         return xors;
     }
 
+    public List<Identity> getIdentities() {
+        List<Identity> identities = new ArrayList<>();
+        for (Gate gate : gates) {
+            if (gate instanceof Identity) {
+                identities.add((Identity) gate);
+            }
+        }
+        return identities;
+    }
+
     public List<Input> getInputs() {
         List<Input> inputs = new ArrayList<>();
         for (Gate gate : gates) {

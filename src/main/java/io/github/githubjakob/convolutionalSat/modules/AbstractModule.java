@@ -1,10 +1,11 @@
-package io.github.githubjakob.convolutionalSat;
+package io.github.githubjakob.convolutionalSat.modules;
 
+import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.Clauses;
-import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -12,75 +13,48 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Created by jakob on 14.06.18.
- */
-public class Encoder {
 
-    public int getNumberOfOutputs() {
-        return numberOfOutputs;
-    }
+public class AbstractModule {
 
-    private final int numberOfOutputs;
-
-    int[] inputBitStream;
-
+    @Getter
     Set<Gate> gates = new HashSet<>();
 
-    private List<Connection> connections = new ArrayList<>();
+    List<Connection> connections = new ArrayList<>();
 
-    private List<InputPin> inputPins = new ArrayList<>();
+    List<InputPin> inputPins = new ArrayList<>();
 
-    private List<OutputPin> outputPins = new ArrayList<>();
+    List<OutputPin> outputPins = new ArrayList<>();
 
-    Input globalInput = new Input(Enums.Group.ENCODER);
-
-    public List<Output> globalOutputs = new ArrayList<>();
-
-    public Encoder(int numberOfOutputs) {
-        this.numberOfOutputs = numberOfOutputs;
-        gates.add(globalInput);
-        outputPins.add(globalInput.getOutputPin());
-
-        for (int i = 0; i < numberOfOutputs; i++) {
-            Output globalOutput = new Output(Enums.Group.ENCODER);
-            globalOutputs.add(globalOutput);
-            gates.add(globalOutput);
-            inputPins.addAll(globalOutput.getInputPins());
-        }
-    }
-
-    public void setInptBitStream(int[] input) {
-        this.inputBitStream = input;
-    }
-
-    public List<Connection> getConnections() {
-        return this.connections;
-    }
+    Enums.Group group;
 
     public Register addRegister() {
-        Register register = new Register(Enums.Group.ENCODER);
-        gates.add(register);
-        inputPins.addAll(register.getInputPins());
-        outputPins.add(register.getOutputPin());
-        createNewConnectionsFor(register);
+        Register register = new Register(group);
+        setupNewGate(register);
         return register;
     };
 
     public Xor addXor() {
-        Xor xor = new Xor(Enums.Group.ENCODER);
-        gates.add(xor);
-        inputPins.addAll(xor.getInputPins());
-        outputPins.add(xor.getOutputPin());
-        createNewConnectionsFor(xor);
+        Xor xor = new Xor(group);
+        setupNewGate(xor);
         return xor;
     };
 
-    public List<Gate> getGates() {
-        return new ArrayList<>(this.gates);
+    public Identity addIdentity() {
+        Identity identity = new Identity(group);
+        setupNewGate(identity);
+        return identity;
     }
 
-
+    /**
+     * Nach dem Hinzufügen eines neuen Gates zum Modul muss diese Methode aufgerufen werden
+     *
+     */
+    private void setupNewGate(Gate newGate) {
+        gates.add(newGate);
+        inputPins.addAll(newGate.getInputPins());
+        outputPins.add(newGate.getOutputPin());
+        createNewConnectionsFor(newGate);
+    }
 
     private void createNewConnectionsFor(Gate justCreated) {
         for (Gate gate : getAllComponentsWithOutputs()) {
@@ -104,31 +78,23 @@ public class Encoder {
         }
     }
 
-    private Clauses convertCircuitToCnfForTick(int tick) {
+    Clauses convertGatesToCnf(int tick) {
+        Clauses clausesForTick = new Clauses(tick);
+
+        // für jedes Bauteil
+        for (Gate gate : gates) {
+            clausesForTick.addAllClauses(gate.convertToCnfAtTick(tick));
+        }
+        return clausesForTick;
+    }
+
+    Clauses convertConnectionsToCnf(int tick) {
         Clauses clausesForTick = new Clauses(tick);
 
         //für jede Verbindung
         for (Connection connection : connections) {
             clausesForTick.addAllClauses(connection.convertToCnfAtTick(tick));
         }
-
-        // für jedes Bauteil
-        for (Gate gate : gates) {
-            clausesForTick.addAllClauses(gate.convertToCnfAtTick(tick));
-        }
-
-        // für jedes bit
-        boolean inputBit = inputBitStream[tick] == 1;
-        Clause inputClause = new Clause(new TimeDependentVariable(tick, inputBit, globalInput.getOutputPin()));
-        clausesForTick.addClause(inputClause);
-/*
-        boolean outputBit = outputBitStream[tick] == 1;
-        for (Output globalOutput : globalOutputs) {
-            Clause outputClause = new Clause(new TimeDependentVariable(tick, outputBit, globalOutput));
-            clausesForTick.addClause(outputClause);
-        }
-        */
-
 
         /**
          * Für alle Verbindungen, die vom selben Output Pin weg gehen, muss mindestens eine gesetzt sein.
@@ -144,7 +110,6 @@ public class Encoder {
             clausesForTick.addClause(possibleConnections);
         }
 
-        // für jeden Input pin
 
         for (InputPin inputPin : inputPins) {
 
@@ -177,18 +142,7 @@ public class Encoder {
             }
         }
 
-
         return clausesForTick;
-    }
-
-    public List<Clauses> convertCircuitToCnf() {
-        List<Clauses> allClauses = new ArrayList<>();
-
-        for (int tick = 0; tick < inputBitStream.length; tick++) {
-            allClauses.add(convertCircuitToCnfForTick(tick));
-        }
-
-        return allClauses;
     }
 
     public List<Gate> getAllComponentsWithOutputs() {
@@ -198,4 +152,5 @@ public class Encoder {
     public List<Gate> getAllComponentsWithInputs() {
         return gates.stream().filter(gate -> !(gate instanceof Input)).collect(Collectors.toList());
     }
+
 }
