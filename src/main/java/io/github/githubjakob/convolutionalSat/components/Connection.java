@@ -2,9 +2,11 @@ package io.github.githubjakob.convolutionalSat.components;
 
 
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.Clauses;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by jakob on 07.06.18.
@@ -30,7 +32,7 @@ public class Connection implements Component {
         return "C" + id;
     }
 
-    public Clauses convertToCnfAtTick(int tick) {
+    public List<Clause> convertToCnfAtTick(int tick) {
 
         Variable connectionNotSet = new Variable(false, this);
 
@@ -42,7 +44,7 @@ public class Connection implements Component {
 
         Clause clause1 = new Clause(inputFalse, outputTrue, connectionNotSet);
         Clause clause2 = new Clause(inputTrue, outputFalse, connectionNotSet);
-        return new Clauses(tick, clause1, clause2);
+        return Arrays.asList(clause1, clause2);
     }
 
     public InputPin getTo() {

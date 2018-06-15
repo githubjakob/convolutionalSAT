@@ -1,4 +1,4 @@
-package io.github.githubjakob.convolutionalSat.Gui;
+package io.github.githubjakob.convolutionalSat.gui;
 
 import io.github.githubjakob.convolutionalSat.Circuit;
 import io.github.githubjakob.convolutionalSat.Main;
@@ -9,7 +9,6 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
-import org.graphstream.ui.view.ViewerPipe;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,9 +45,9 @@ public class MainApp {
         jFrame.setVisible(true);
 
         String inputBits = "Input Bit Stream: ";
-        int[] inputBitStream = models.get(0).inputBitStream;
-        for (int i = 0; i < inputBitStream.length; i++) {
-            inputBits = inputBits + inputBitStream[i];
+        int numberOfBits = models.get(0).getNumberOfBits();
+        for (int i = 0; i < numberOfBits; i++) {
+            inputBits = inputBits + Main.inputBitStream[i];
         }
         legend.setFont(new Font(Font.DIALOG, Font.BOLD, 25));
         label.setText(inputBits);

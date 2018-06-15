@@ -3,21 +3,31 @@ package io.github.githubjakob.convolutionalSat.modules;
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.Clauses;
+import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class AbstractModule {
+public abstract class AbstractModule implements Module {
 
     @Getter
-    Set<Gate> gates = new HashSet<>();
+    Integer numberOfBits = null;
+
+    HashMap<Input, int[]> inputBitStreams = new HashMap<>();
+
+    HashMap<Output, int[]> outputBitStreams = new HashMap<>();
+
+    @Getter
+    List<Input> inputs = new ArrayList<>();
+
+    @Getter
+    List<Output> outputs = new ArrayList<>();
+
+    @Getter
+    List<Gate> gates = new ArrayList<>();
 
     List<Connection> connections = new ArrayList<>();
 
@@ -26,6 +36,41 @@ public class AbstractModule {
     List<OutputPin> outputPins = new ArrayList<>();
 
     Enums.Group group;
+
+
+    public void addInputBitStream(int[] inputBitStream, Input input) {
+        inputBitStreams.put(input, inputBitStream);
+        setNumberOfBits(inputBitStream);
+    }
+
+    public void addOutputBitStream(int[] outputBitStream, Output output) {
+        outputBitStreams.put(output, outputBitStream);
+        setNumberOfBits(outputBitStream);
+    }
+
+    private void setNumberOfBits(int[] bitStream) {
+        int newNumber = bitStream.length;
+        if (numberOfBits != null && !numberOfBits.equals(newNumber)) {
+            throw new RuntimeException("Wrong lenght of input/output stream");
+        }
+        this.numberOfBits = newNumber;
+    }
+
+    public Output addOutput() {
+        Output output = new Output(group);
+        outputs.add(output);
+        gates.add(output);
+        inputPins.addAll(output.getInputPins());
+        return output;
+    }
+
+     public Input addInput() {
+        Input input = new Input(group);
+        this.inputs.add(input);
+        this.gates.add(input);
+        this.outputPins.add(input.getOutputPin());
+        return input;
+    }
 
     public Register addRegister() {
         Register register = new Register(group);
@@ -78,22 +123,22 @@ public class AbstractModule {
         }
     }
 
-    Clauses convertGatesToCnf(int tick) {
-        Clauses clausesForTick = new Clauses(tick);
+    List<Clause> convertGatesToCnf(int tick) {
+        List<Clause> clausesForTick = new ArrayList<>();
 
         // für jedes Bauteil
         for (Gate gate : gates) {
-            clausesForTick.addAllClauses(gate.convertToCnfAtTick(tick));
+            clausesForTick.addAll(gate.convertToCnfAtTick(tick));
         }
         return clausesForTick;
     }
 
-    Clauses convertConnectionsToCnf(int tick) {
-        Clauses clausesForTick = new Clauses(tick);
+    List<Clause> convertConnectionsToCnf(int tick) {
+        List<Clause> clausesForTick = new ArrayList<>();
 
         //für jede Verbindung
         for (Connection connection : connections) {
-            clausesForTick.addAllClauses(connection.convertToCnfAtTick(tick));
+            clausesForTick.addAll(connection.convertToCnfAtTick(tick));
         }
 
         /**
@@ -107,7 +152,7 @@ public class AbstractModule {
                     possibleConnections.addVariable(new Variable(true, connection));
                 }
             }
-            clausesForTick.addClause(possibleConnections);
+            clausesForTick.add(possibleConnections);
         }
 
 
@@ -123,7 +168,7 @@ public class AbstractModule {
                 possibleConnections.addVariable(new Variable(true, connection));
 
             }
-            clausesForTick.addClause(possibleConnections);
+            clausesForTick.add(possibleConnections);
 
             /**
              * Für eine bestimmte Verbindung zu einem Input Pin, dürfen alle anderen Verbindungen zum selben Pin nicht gesetzt sein.
@@ -136,12 +181,56 @@ public class AbstractModule {
                     Variable connectionFalse = new Variable(false, connection);
                     Variable otherFalse = new Variable(false, other);
                     Clause exclude = new Clause(connectionFalse, otherFalse);
-                    clausesForTick.addClause(exclude);
+                    clausesForTick.add(exclude);
                 }
 
             }
         }
 
+        return clausesForTick;
+    }
+
+    List<Clause>  convertBitStreams(int tick) {
+        List<Clause> clausesForTick = new ArrayList<>();
+        if (inputBitStreams.size() > 0 ) {
+            for (Map.Entry<Input, int[]> entry : inputBitStreams.entrySet()) {
+                List<Clause> clauses = convertInputBitStream(tick, entry);
+                clausesForTick.addAll(clauses);
+            }
+
+        }
+
+        if (outputBitStreams.size() > 0 ) {
+            for (Map.Entry<Output, int[]> entry : outputBitStreams.entrySet()) {
+                List<Clause> clauses = convertOutputBitStream(tick, entry);
+                clausesForTick.addAll(clauses);
+            }
+
+        }
+
+        return clausesForTick;
+
+    }
+
+    private  List<Clause> convertOutputBitStream(int tick, Map.Entry<Output, int[]> entry) {
+        List<Clause> clausesForTick = new ArrayList<>();
+
+        // für jedes bit
+        boolean outputBit = entry.getValue()[tick] == 1;
+        for (InputPin inputPin : entry.getKey().getInputPins()) {
+            Clause outputClause = new Clause(new TimeDependentVariable(tick, outputBit, inputPin));
+            clausesForTick.add(outputClause);
+        }
+
+        return clausesForTick;
+    }
+
+    private List<Clause> convertInputBitStream(int tick, Map.Entry<Input, int[]> entry) {
+        List<Clause> clausesForTick = new ArrayList<>();
+        // für jedes bit
+        boolean inputBit = entry.getValue()[tick] == 1;
+        Clause inputClause = new Clause(new TimeDependentVariable(tick, inputBit, entry.getKey().getOutputPin()));
+        clausesForTick.add(inputClause);
         return clausesForTick;
     }
 
@@ -153,4 +242,6 @@ public class AbstractModule {
         return gates.stream().filter(gate -> !(gate instanceof Input)).collect(Collectors.toList());
     }
 
+    @Override
+    public abstract List<Clause> convertModuleToCnf();
 }

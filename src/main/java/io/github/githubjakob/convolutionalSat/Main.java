@@ -1,6 +1,9 @@
 package io.github.githubjakob.convolutionalSat;
 
-import io.github.githubjakob.convolutionalSat.Gui.MainApp;
+import io.github.githubjakob.convolutionalSat.components.Input;
+import io.github.githubjakob.convolutionalSat.components.Output;
+import io.github.githubjakob.convolutionalSat.gui.MainApp;
+import io.github.githubjakob.convolutionalSat.modules.Channel;
 import io.github.githubjakob.convolutionalSat.modules.Decoder;
 import io.github.githubjakob.convolutionalSat.modules.Encoder;
 
@@ -12,27 +15,33 @@ public class Main {
     /* Nach n gefundenen Modellen das Lösen abbrechen */
     public static final int MAX_NUMBER_OF_SOLUTIONS = 50;
 
+    public static int[] inputBitStream = new int[] { 1, 1, 0, 1, 0, 1, 0, 1 };
+
     public static void main(String[] args) {
 
-
-        Encoder encoder = new Encoder(2);
-
+        Encoder encoder = new Encoder();
+        Input input = encoder.addInput();
+        encoder.addOutput();
+        encoder.addOutput();
+        encoder.addOutput();
         encoder.addXor();
         encoder.addXor();
         encoder.addRegister();
         encoder.addRegister();
+        encoder.addInputBitStream(inputBitStream, input);
 
-        Decoder decoder = new Decoder(encoder.getNumberOfOutputs());
-
+        Decoder decoder = new Decoder();
+        decoder.addInput();
+        decoder.addInput();
+        decoder.addInput();
+        Output decoderOutput = decoder.addOutput();
         decoder.addXor();
         decoder.addXor();
-        decoder.addXor();
-        //decoder.addRegister();
+        decoder.addOutputBitStream(inputBitStream, decoderOutput);
 
-        int[] inputBitStream = new int[] { 1, 1, 0, 1 };
+        Channel channel = new Channel(encoder, decoder);
 
-        Problem problem = new Problem(encoder, decoder, inputBitStream);
-
+        Problem problem = new Problem(Arrays.asList(encoder, decoder, channel), inputBitStream.length);
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 

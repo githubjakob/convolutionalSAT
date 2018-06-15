@@ -2,7 +2,6 @@ package io.github.githubjakob.convolutionalSat.components;
 
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.Clauses;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
 
@@ -35,7 +34,7 @@ public class Identity implements Gate {
         return "Identity" + id;
     }
 
-    public Clauses convertToCnfAtTick(int tick) {
+    public List<Clause> convertToCnfAtTick(int tick) {
         Variable outputTrue = new TimeDependentVariable(tick, true, outputPin);
         Variable outputFalse = new TimeDependentVariable(tick, false, outputPin);
 
@@ -45,7 +44,7 @@ public class Identity implements Gate {
         Clause clause1 = new Clause(outputFalse, inputTrue);
         Clause clause2 = new Clause(outputTrue, inputFalse);
 
-        return new Clauses(tick, clause1, clause2);
+        return Arrays.asList(clause1, clause2);
     }
 
     @Override

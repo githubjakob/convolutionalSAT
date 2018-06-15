@@ -1,7 +1,7 @@
 package io.github.githubjakob.convolutionalSat.components;
 
 import io.github.githubjakob.convolutionalSat.Enums;
-import io.github.githubjakob.convolutionalSat.logic.Clauses;
+import io.github.githubjakob.convolutionalSat.logic.Clause;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ public interface Gate extends Component {
 
     OutputPin getOutputPin();
     List<InputPin> getInputPins();
-    Clauses convertToCnfAtTick(int tick);
+    List<Clause> convertToCnfAtTick(int tick);
     Enums.Group getGroup();
 
 }

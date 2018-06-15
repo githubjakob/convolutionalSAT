@@ -1,19 +1,13 @@
 package io.github.githubjakob.convolutionalSat;
 
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-import com.google.errorprone.annotations.Var;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
-/**
- * Created by jakob on 11.06.18.
- */
 public class Circuit {
 
     /*
@@ -63,7 +57,9 @@ public class Circuit {
 
     private List<Variable> variables = new ArrayList<>();
 
-    public int[] inputBitStream;
+    @Setter
+    @Getter
+    private int numberOfBits;
 
     public Circuit(List<Connection> connections, List<Gate> gates, boolean whatever) {
         this.connections = new HashSet<>(connections);
@@ -111,7 +107,7 @@ public class Circuit {
                 savedBits[tick] = value;
 
             } else {
-                int[] bits = new int[inputBitStream.length];
+                int[] bits = new int[numberOfBits];
                 bits[tick] = value;
                 bitsAtNodes.put(component, bits);
             }

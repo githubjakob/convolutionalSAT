@@ -1,7 +1,7 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
 import io.github.githubjakob.convolutionalSat.components.*;
-import io.github.githubjakob.convolutionalSat.logic.Clauses;
+import io.github.githubjakob.convolutionalSat.logic.Clause;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +26,8 @@ public class Channel extends AbstractModule {
      * Erzeugt die Verbindungen des Kanals, zwischen Ausgang des Encoders und Eingang des Decoders
      */
     private void createConnections() {
-        for (Output output : encoder.globalOutputs) {
-            for (Input input : decoder.getGlobalInputs()) {
+        for (Output output : encoder.getOutputs()) {
+            for (Input input : decoder.getInputs()) {
                 OutputPin outputPin = output.getOutputPin();
                 InputPin inputPin = input.getInputPins().get(0);
                 connections.add(new Connection(outputPin, inputPin));
@@ -37,11 +37,11 @@ public class Channel extends AbstractModule {
         }
     }
 
-    public List<Clauses> convertModuleToCnf() {
-        List<Clauses> allClauses = new ArrayList<>();
+    public List<Clause> convertModuleToCnf() {
+        List<Clause> allClauses = new ArrayList<>();
 
         for (int tick = 0; tick < numberOfBits; tick++) {
-            allClauses.add(convertConnectionsToCnf(tick));
+            allClauses.addAll(convertConnectionsToCnf(tick));
         }
 
         return allClauses;

@@ -3,7 +3,6 @@ package io.github.githubjakob.convolutionalSat.components;
 
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.Clauses;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
 
@@ -40,7 +39,7 @@ public class Xor implements Gate {
         return "Xor" + id;
     }
 
-    public Clauses convertToCnfAtTick(int tick) {
+    public List<Clause> convertToCnfAtTick(int tick) {
         Variable outputTrue = new TimeDependentVariable(tick, true, outputPin);
         Variable outputFalse = new TimeDependentVariable(tick, false, outputPin);
 
@@ -55,7 +54,7 @@ public class Xor implements Gate {
         Clause clause3 = new Clause(outputTrue, input1False, input2True);
         Clause clause4 = new Clause(outputTrue, input1True, input2False);
 
-        return new Clauses(tick, clause1, clause2, clause3, clause4);
+        return Arrays.asList(clause1, clause2, clause3, clause4);
     }
 
     @Override

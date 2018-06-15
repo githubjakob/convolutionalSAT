@@ -1,4 +1,4 @@
-package io.github.githubjakob.convolutionalSat.Gui;
+package io.github.githubjakob.convolutionalSat.gui;
 
 import io.github.githubjakob.convolutionalSat.Circuit;
 import org.graphstream.graph.Graph;

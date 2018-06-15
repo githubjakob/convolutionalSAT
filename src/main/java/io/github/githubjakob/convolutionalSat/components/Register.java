@@ -2,10 +2,10 @@ package io.github.githubjakob.convolutionalSat.components;
 
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.Clauses;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,14 +39,14 @@ public class Register implements Gate {
     }
 
     @Override
-    public Clauses convertToCnfAtTick(int tick) {
+    public List<Clause> convertToCnfAtTick(int tick) {
 
-        Clauses clausesAtTick = new Clauses(tick);
+        List<Clause> clausesAtTick = new ArrayList<>();
 
         if (tick == 0) {
             Variable variable = new TimeDependentVariable(tick, false, outputPin);
             Clause clause = new Clause(variable);
-            clausesAtTick.addClause(clause);
+            clausesAtTick.add(clause);
         } else {
             /*
             Bedingungen:
@@ -68,9 +68,9 @@ public class Register implements Gate {
             Clause clause1 = new Clause(outputFalse, previousInputTrue);
             Clause clause2 = new Clause(outputTrue, previousInputFalse);
 
-            Clauses clauses = new Clauses(tick, clause1, clause2);
+            List<Clause> clauses = Arrays.asList(clause1, clause2);
 
-            clausesAtTick.addAllClauses(clauses);
+            clausesAtTick.addAll(clauses);
         }
 
         return clausesAtTick;

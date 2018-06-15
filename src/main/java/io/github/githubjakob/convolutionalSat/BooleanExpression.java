@@ -2,18 +2,18 @@ package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.components.Connection;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.Clauses;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
-import org.sat4j.reader.DimacsReader;
-import org.sat4j.reader.Reader;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IProblem;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.TimeoutException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by jakob on 07.06.18.
@@ -26,7 +26,7 @@ public class BooleanExpression {
 
     private static ISolver solver = SolverFactory.newDefault();
 
-    private final List<Clauses> clauses;
+    private final List<Clause> clauses;
 
     private final Problem problem;
 
@@ -63,44 +63,41 @@ public class BooleanExpression {
         }
     }
 
-    private List<int[]> convertClausesToDimacs(List<Clauses> allClauses) {
+    private List<int[]> convertClausesToDimacs(List<Clause> allClauses) {
 
         List<int[]> dimacsClauses = new ArrayList<>();
 
-        for (Clauses clauses : allClauses) {
+        for (Clause clause : allClauses) {
 
-            for (Clause clause : clauses.getClauses()) {
+            int numberOfVariablesInClause = clause.getVariables().size();
 
-                int numberOfVariablesInClause = clause.getVariables().size();
+            int[] literalsOfClause = new int[numberOfVariablesInClause];
 
-                int[] literalsOfClause = new int[numberOfVariablesInClause];
+            int index = 0;
 
-                int index = 0;
+            for (Variable variable : clause.getVariables()) {
 
-                for (Variable variable : clause.getVariables()) {
+                Integer literal = null;
 
-                    Integer literal = null;
+                boolean weight = variable.getWeight();
 
-                    boolean weight = variable.getWeight();
-
-                    if (dictionary.containsKey(variable)) {
-                        literal = dictionary.get(variable);
-                    } else {
-                        Integer nextLiteral = dictionary.size() + 1;
-                        dictionary.put(variable, nextLiteral);
-                        literal = nextLiteral;
-                    }
-
-                    if (!weight) {
-                        literal = literal * -1;
-                    }
-
-                    variable.setLiteral(literal);
-                    literalsOfClause[index] = literal;
-                    index++;
+                if (dictionary.containsKey(variable)) {
+                    literal = dictionary.get(variable);
+                } else {
+                    Integer nextLiteral = dictionary.size() + 1;
+                    dictionary.put(variable, nextLiteral);
+                    literal = nextLiteral;
                 }
-                dimacsClauses.add(literalsOfClause);
+
+                if (!weight) {
+                    literal = literal * -1;
+                }
+
+                variable.setLiteral(literal);
+                literalsOfClause[index] = literal;
+                index++;
             }
+            dimacsClauses.add(literalsOfClause);
         }
 
         return dimacsClauses;
@@ -113,16 +110,16 @@ public class BooleanExpression {
 
         Circuit latestModel = models.get(models.size()-1);
 
-        Clauses negatedModel = new Clauses(0);
+        List<Clause> negatedModel = new ArrayList<>();
         Clause clause = new Clause();
-        negatedModel.addClause(clause);
+        negatedModel.add(clause);
 
         for (Connection connection : latestModel.getConnections()) {
             Variable variable = new Variable(false, connection);
             clause.addVariable(variable);
         }
 
-        final List<int[]> dimacs = convertClausesToDimacs(Arrays.asList(negatedModel));
+        final List<int[]> dimacs = convertClausesToDimacs(negatedModel);
         addDimacsToSolver(dimacs);
 
         return solve();
@@ -153,7 +150,7 @@ public class BooleanExpression {
                 System.out.println("found model " + numbersOfModelsFound);
                 numbersOfModelsFound++;
                 Circuit model = retranslate(modelDimacs);
-                model.inputBitStream = this.problem.inputBitStream;
+                model.setNumberOfBits(this.problem.getNumberOfBits());
                 models.add(model);
                 return model;
 

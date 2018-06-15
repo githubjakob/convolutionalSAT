@@ -2,10 +2,12 @@ package io.github.githubjakob.convolutionalSat;
 
 
 import io.github.githubjakob.convolutionalSat.components.*;
-import io.github.githubjakob.convolutionalSat.logic.Clauses;
+import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.modules.Channel;
 import io.github.githubjakob.convolutionalSat.modules.Decoder;
 import io.github.githubjakob.convolutionalSat.modules.Encoder;
+import io.github.githubjakob.convolutionalSat.modules.Module;
+import lombok.Getter;
 
 import java.util.*;
 
@@ -14,45 +16,37 @@ import java.util.*;
  */
 public class Problem {
 
-    Encoder encoder;
+    @Getter
+    private int numberOfBits;
 
-    Decoder decoder;
+    private List<Module> modules;
 
-    Channel channel;
-
-    public int[] inputBitStream;
-
-    public Problem(Encoder encoder, Decoder decoder, int[] inputBitStream) {
-        this.inputBitStream = inputBitStream;
-        this.encoder = encoder;
-        this.decoder = decoder;
-        encoder.setInputBitStream(inputBitStream);
-        decoder.setOutputBitStream(inputBitStream);
-        this.channel = new Channel(encoder, decoder);
-
+    public Problem(List<Module> modules, int numberOfBits) {
+        this.numberOfBits = numberOfBits;
+        this.modules = modules;
     }
 
-    public List<Clauses> convertProblemToCnf() {
+    public List<Clause> convertProblemToCnf() {
+        List<Clause> cnf = new ArrayList<>();
 
-        List<Clauses> cnf = new ArrayList<>();
-
-        List<Clauses> channel = this.channel.convertModuleToCnf();
-        cnf.addAll(channel);
-
-        List<Clauses> encoder = this.encoder.convertCircuitToCnf();
-        cnf.addAll(encoder);
-
-        List<Clauses> decoder = this.decoder.convertModuleToCnf();
-        cnf.addAll(decoder);
+        for (Module module : modules) {
+            List<Clause> clauses = module.convertModuleToCnf();
+            cnf.addAll(clauses);
+        }
 
         return cnf;
 
     }
 
     public List<Gate> getGates() {
-        List<Gate> gates = new ArrayList<>();
-        gates.addAll(encoder.getGates());
-        gates.addAll(decoder.getGates());
-        return gates;
+        List<Gate> allGates = new ArrayList<>();
+
+        for (Module module : modules) {
+            List<Gate> gatesFromModule = module.getGates();
+            allGates.addAll(gatesFromModule);
+        }
+
+
+        return allGates;
     }
 }
