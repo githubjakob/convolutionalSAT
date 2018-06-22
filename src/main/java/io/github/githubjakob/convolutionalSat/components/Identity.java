@@ -14,7 +14,7 @@ import java.util.List;
 public class Identity implements Gate {
     private static int idCounter = 0;
 
-    private final Enums.Group group;
+    private final Enums.Module module;
 
     private int id;
 
@@ -22,8 +22,8 @@ public class Identity implements Gate {
 
     public OutputPin outputPin;
 
-    public Identity(Enums.Group group) {
-        this.group = group;
+    public Identity(Enums.Module module) {
+        this.module = module;
         this.id = idCounter++;
         this.inputPin = new InputPin(this);
         this.outputPin = new OutputPin(this);
@@ -48,8 +48,8 @@ public class Identity implements Gate {
     }
 
     @Override
-    public Enums.Group getGroup() {
-        return group;
+    public Enums.Module getModule() {
+        return module;
     }
 
     @Override
@@ -71,9 +71,9 @@ public class Identity implements Gate {
     public boolean equals(Object obj) {
         if (obj == null) return false;
         if (obj == this) return true;
-        if (!(obj instanceof Xor))return false;
-        Xor other = (Xor)obj;
-        return (this.inputPin == other.inputPin1
+        if (!(obj instanceof Identity))return false;
+        Identity other = (Identity)obj;
+        return (this.inputPin == other.inputPin
                 && this.outputPin == other.outputPin);
     }
 }

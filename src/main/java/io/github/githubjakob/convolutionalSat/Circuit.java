@@ -186,6 +186,10 @@ public class Circuit {
         return outputs;
     }
 
+    public Set<Gate> getGates() {
+        return gates;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;

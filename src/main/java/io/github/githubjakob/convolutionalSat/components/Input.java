@@ -14,7 +14,7 @@ public class Input implements Gate {
 
     private static int idCounter = 0;
 
-    private final Enums.Group group;
+    private final Enums.Module module;
 
     private int id;
 
@@ -22,8 +22,8 @@ public class Input implements Gate {
 
     private final InputPin inputPin;
 
-    public Input(Enums.Group group) {
-        this.group = group;
+    public Input(Enums.Module module) {
+        this.module = module;
         this.id = idCounter;
         idCounter++;
         this.outputPin = new OutputPin(this);
@@ -58,8 +58,8 @@ public class Input implements Gate {
     }
 
     @Override
-    public Enums.Group getGroup() {
-        return group;
+    public Enums.Module getModule() {
+        return module;
     }
 
     @Override

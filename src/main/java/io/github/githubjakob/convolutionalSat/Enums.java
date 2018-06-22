@@ -5,14 +5,14 @@ package io.github.githubjakob.convolutionalSat;
  */
 public class Enums {
 
-    public enum Group {
+    public enum Module {
         ENCODER("encoder"),
         DECODER("decoder"),
         CHANNEL("channel");
 
         private String name;
 
-        Group(String name) {
+        Module(String name) {
             this.name = name;
         }
 

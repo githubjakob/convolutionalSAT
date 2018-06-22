@@ -78,62 +78,13 @@ public class MainApp {
 
         final Map<Component, int[]> bitsAtNodes = model.getBitsAtNodes();
 
-        for (Input input : model.getInputs()) {
-            Node inputBitStream = graph.addNode("INPUT" + input.toString()); //INPUT
-            int[] bits = bitsAtNodes.get(input.getOutputPin());
-            inputBitStream.addAttribute("ui.label", "INPUT" + Arrays.toString(bits));
-            inputBitStream.addAttribute("ui.class", input.getGroup().toString());
-            registerOutputPin(input, inputBitStream, nodes);
-            registerInputPins(input, inputBitStream, nodes);
-        }
-
-
-        for (Output output : model.getOutputs()) {
-            Node outputBitStream = graph.addNode("OUTPUT" + output.toString()); //OUTPUT
-            int[] bits = bitsAtNodes.get(output.getOutputPin());
-            outputBitStream.addAttribute("ui.label", "OUTPUT" + Arrays.toString(bits));
-            outputBitStream.addAttribute("ui.class", output.getGroup().toString());
-            registerInputPins(output, outputBitStream, nodes);
-            registerOutputPin(output, outputBitStream, nodes);
-        }
-
-
-        for (Register register : model.getRegisters()) {
-            int[] bits = bitsAtNodes.get(register.getOutputPin());
-
-            String id = register.getInputPins().get(0) + "_" + register.getOutputPin();
-            Node registerNode = graph.addNode(id);
-            registerNode.addAttribute("ui.label", register.toString() + Arrays.toString(bits));
-            registerOutputPin(register, registerNode, nodes);
-            registerInputPins(register, registerNode, nodes);
-            registerNode.setAttribute("ui.class", "register");
-            registerNode.addAttribute("ui.class", register.getGroup().toString());
-
-        }
-
-        for (Identity identity : model.getIdentities()) {
-            int[] bits = bitsAtNodes.get(identity.getOutputPin());
-
-            String id = identity.getInputPins().get(0) + "_" + identity.getOutputPin();
-            Node registerNode = graph.addNode(id);
-            registerNode.addAttribute("ui.label", identity.toString() + Arrays.toString(bits));
-            registerOutputPin(identity, registerNode, nodes);
-            registerInputPins(identity, registerNode, nodes);
-            registerNode.setAttribute("ui.class", "identity");
-            registerNode.addAttribute("ui.class", identity.getGroup().toString());
-
-        }
-
-        for (Xor xor : model.getXors()) {
-            int[] bits = bitsAtNodes.get(xor.getOutputPin());
-
-            String id = xor.getInputPins().get(0) + "_" + xor.getInputPins().get(1) + "_" + xor.getOutputPin();
-            Node xorNode = graph.addNode(id);
-            xorNode.addAttribute("ui.label", xor.toString()+ Arrays.toString(bits));
-            registerOutputPin(xor, xorNode, nodes);
-            registerInputPins(xor, xorNode, nodes);
-            xorNode.setAttribute("ui.class", "xor");
-            xorNode.addAttribute("ui.class", xor.getGroup().toString());
+        for (Gate gate : model.getGates()) {
+            Node inputBitStream = graph.addNode(gate.toString());
+            int[] bits = bitsAtNodes.get(gate.getOutputPin());
+            inputBitStream.addAttribute("ui.label", gate.getType() + Arrays.toString(bits));
+            inputBitStream.addAttribute("ui.class", gate.getModule().toString());
+            registerOutputPin(gate, inputBitStream, nodes);
+            registerInputPins(gate, inputBitStream, nodes);
         }
 
         for (Connection connection : model.getConnections()) {

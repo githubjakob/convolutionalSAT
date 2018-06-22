@@ -9,7 +9,7 @@ import java.util.List;
 public class Encoder extends AbstractModule {
 
     public Encoder() {
-        this.group = Enums.Group.ENCODER;
+        this.module = Enums.Module.ENCODER;
     }
 
     public List<Clause> convertModuleToCnf() {

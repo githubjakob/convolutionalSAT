@@ -35,7 +35,7 @@ public abstract class AbstractModule implements Module {
 
     List<OutputPin> outputPins = new ArrayList<>();
 
-    Enums.Group group;
+    Enums.Module module;
 
 
     public void addInputBitStream(int[] inputBitStream, Input input) {
@@ -57,7 +57,7 @@ public abstract class AbstractModule implements Module {
     }
 
     public Output addOutput() {
-        Output output = new Output(group);
+        Output output = new Output(module);
         outputs.add(output);
         gates.add(output);
         inputPins.addAll(output.getInputPins());
@@ -65,7 +65,7 @@ public abstract class AbstractModule implements Module {
     }
 
      public Input addInput() {
-        Input input = new Input(group);
+        Input input = new Input(module);
         this.inputs.add(input);
         this.gates.add(input);
         this.outputPins.add(input.getOutputPin());
@@ -73,19 +73,31 @@ public abstract class AbstractModule implements Module {
     }
 
     public Register addRegister() {
-        Register register = new Register(group);
+        Register register = new Register(module);
         setupNewGate(register);
         return register;
     };
 
+    public And addAnd() {
+        And and = new And(module);
+        setupNewGate(and);
+        return and;
+    };
+
+    public Not addNot() {
+        Not not = new Not(module);
+        setupNewGate(not);
+        return not;
+    };
+
     public Xor addXor() {
-        Xor xor = new Xor(group);
+        Xor xor = new Xor(module);
         setupNewGate(xor);
         return xor;
     };
 
     public Identity addIdentity() {
-        Identity identity = new Identity(group);
+        Identity identity = new Identity(module);
         setupNewGate(identity);
         return identity;
     }

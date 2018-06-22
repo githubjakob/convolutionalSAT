@@ -24,8 +24,13 @@ public class Main {
         encoder.addOutput();
         encoder.addOutput();
         encoder.addOutput();
-        encoder.addXor();
-        encoder.addXor();
+        encoder.addAnd();
+        encoder.addAnd();
+        encoder.addAnd();
+        encoder.addNot();
+        encoder.addNot();
+        encoder.addNot();
+        encoder.addNot();
         encoder.addRegister();
         encoder.addRegister();
         encoder.addInputBitStream(inputBitStream, input);
@@ -35,8 +40,13 @@ public class Main {
         decoder.addInput();
         decoder.addInput();
         Output decoderOutput = decoder.addOutput();
-        decoder.addXor();
-        decoder.addXor();
+        decoder.addAnd();
+        decoder.addAnd();
+        decoder.addAnd();
+        decoder.addNot();
+        decoder.addNot();
+        decoder.addNot();
+        decoder.addNot();
         decoder.addOutputBitStream(inputBitStream, decoderOutput);
 
         Channel channel = new Channel(encoder, decoder);

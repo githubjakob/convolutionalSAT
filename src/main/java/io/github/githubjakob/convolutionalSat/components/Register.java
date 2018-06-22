@@ -20,14 +20,14 @@ public class Register implements Gate {
 
     private final OutputPin outputPin;
 
-    private final Enums.Group group;
+    private final Enums.Module module;
 
     private int id;
 
     public int in;
 
-    public Register(Enums.Group group) {
-        this.group = group;
+    public Register(Enums.Module module) {
+        this.module = module;
         this.id = idCounter++;
         this.inputPin = new InputPin(this);
         this.outputPin = new OutputPin(this);
@@ -77,8 +77,8 @@ public class Register implements Gate {
     }
 
     @Override
-    public Enums.Group getGroup() {
-        return group;
+    public Enums.Module getModule() {
+        return module;
     }
 
     @Override

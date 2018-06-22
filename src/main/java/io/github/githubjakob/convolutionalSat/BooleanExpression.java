@@ -10,10 +10,7 @@ import org.sat4j.specs.IProblem;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.TimeoutException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by jakob on 07.06.18.
@@ -56,7 +53,7 @@ public class BooleanExpression {
             try {
                 solver.addClause(new VecInt(clause));
             } catch (ContradictionException e) {
-                e.printStackTrace();
+                System.err.println("Empty clause " + Arrays.toString(clause));
             }
 
             //System.out.println(reader.decode(clause));

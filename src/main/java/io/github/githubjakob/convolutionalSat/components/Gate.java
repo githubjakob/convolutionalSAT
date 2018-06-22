@@ -13,6 +13,6 @@ public interface Gate extends Component {
     OutputPin getOutputPin();
     List<InputPin> getInputPins();
     List<Clause> convertToCnfAtTick(int tick);
-    Enums.Group getGroup();
+    Enums.Module getModule();
 
 }
