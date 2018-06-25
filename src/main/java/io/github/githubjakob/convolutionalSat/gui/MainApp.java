@@ -1,10 +1,12 @@
 package io.github.githubjakob.convolutionalSat.gui;
 
 import io.github.githubjakob.convolutionalSat.Circuit;
+import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.Main;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.components.Component;
 import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.swingViewer.ViewPanel;
@@ -18,7 +20,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+
+import static io.github.githubjakob.convolutionalSat.Main.onlyShowFullyConnectedGraphs;
 
 /**
  * Created by jakob on 11.06.18.
@@ -35,6 +40,8 @@ public class MainApp {
     private JLabel label;
     private JLabel legend;
     private JLabel solutions;
+    private String stylesheet = readFile("stylesheet.css", Charset.forName("utf-8"));
+    ;
 
     public MainApp(java.util.List<Circuit> models) {
         jFrame = new JFrame("main/java/io/github/githubjakob/convolutionalSat/Gui");
@@ -57,8 +64,26 @@ public class MainApp {
 
         // graphs
         tabbedPane.remove(0);
+
         for (Circuit model : models) {
-            plotCircuitForModel(model);
+            MultiGraph graph = createGraph(model);
+            Viewer viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+
+            ViewPanel view = viewer.addDefaultView(false);
+
+            boolean fullyConnected = graph.getAttribute("fullyConnected");
+
+            if (!onlyShowFullyConnectedGraphs || fullyConnected ) {
+                Panel panel = new Panel();
+                panel.setLayout(new BorderLayout());
+                panel.add(view, BorderLayout.CENTER);
+                viewer.enableAutoLayout();
+                tabbedPane.add(panel);
+            }
+
+
+            // listener
+            //Clicks clicks = new Clicks(viewer, graph, model);
         }
     }
 
@@ -66,7 +91,7 @@ public class MainApp {
         return this.panel;
     }
 
-    public void plotCircuitForModel(Circuit model) {
+    public MultiGraph createGraph(Circuit model) {
         // DRAW
         MultiGraph graph = new MultiGraph("Network");
         System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
@@ -78,19 +103,25 @@ public class MainApp {
 
         final Map<Component, int[][]> bitsAtNodes = model.getBitsAtNodes();
 
+        Node root = null;
+
         for (Gate gate : model.getGates()) {
-            Node inputBitStream = graph.addNode(gate.toString());
+            Node node = graph.addNode(gate.toString());
             int[][] bitsStreams = bitsAtNodes.get(gate.getOutputPin());
+
+            if (gate.getType().equals("input") && gate.getModule().equals(Enums.Module.ENCODER)) {
+                root = node;
+            }
 
             String bitsStreamsOfNode = "";
             for (int[] bits : bitsStreams) {
                 bitsStreamsOfNode = bitsStreamsOfNode +":" + Arrays.toString(bits);
             }
 
-            inputBitStream.addAttribute("ui.label", gate.getType() + bitsStreamsOfNode);
-            inputBitStream.addAttribute("ui.class", gate.getModule().toString());
-            registerOutputPin(gate, inputBitStream, nodes);
-            registerInputPins(gate, inputBitStream, nodes);
+            node.addAttribute("ui.label", gate.getType() + bitsStreamsOfNode);
+            node.addAttribute("ui.class", gate.getModule().toString());
+            registerOutputPin(gate, node, nodes);
+            registerInputPins(gate, node, nodes);
         }
 
         for (Connection connection : model.getConnections()) {
@@ -109,21 +140,12 @@ public class MainApp {
             edge.addAttribute("layout.weight", 2);
         }
 
-        String stylesheet = readFile("stylesheet.css", Charset.forName("utf-8"));
         graph.addAttribute("ui.stylesheet", stylesheet);
 
-        Viewer viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+        boolean connected = isGraphFullyConnected(graph, root);
+        graph.setAttribute("fullyConnected", true);
 
-        ViewPanel view = viewer.addDefaultView(false);
-
-        Panel panel = new Panel();
-        panel.setLayout(new BorderLayout());
-        panel.add(view, BorderLayout.CENTER);
-        viewer.enableAutoLayout();
-        tabbedPane.add(panel);
-
-        // listener
-        //Clicks clicks = new Clicks(viewer, graph, model);
+        return graph;
 
     }
 
@@ -147,5 +169,17 @@ public class MainApp {
             e.printStackTrace();
         }
         return new String(encoded, encoding);
+    }
+
+    private boolean isGraphFullyConnected(Graph graph, Node root) {
+        Iterator<Node> it = root.getBreadthFirstIterator();
+
+        int reachableNodes = 0;
+        while(it.hasNext()) {
+            Node next = it.next();
+            reachableNodes++;
+        }
+
+        return graph.getNodeCount() == reachableNodes;
     }
 }

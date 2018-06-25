@@ -16,6 +16,8 @@ public class Main {
     /* Nach n gefundenen Modellen das Lösen abbrechen */
     public static final int MAX_NUMBER_OF_SOLUTIONS = 50;
 
+    public static boolean onlyShowFullyConnectedGraphs = false;
+
     public static int[] inputBits1 = new int[] { 0, 0, 1, 0, 1, 1, 0 };
     public static int[] inputBits2 = new int[] { 1, 0, 0, 1, 1, 0, 1 };
 
@@ -84,8 +86,10 @@ public class Main {
         long millis = (end.toEpochMilli() - start.toEpochMilli());
         System.out.println("Time " + millis + " ms");
         System.out.println("Unique circuits " + uniqueCircuits.size());
+        System.out.println("OnlyShowFullyConnectedGraphs: " + onlyShowFullyConnectedGraphs);
 
-        //booleanExpression.plotCircuitForModel();
+
+        //booleanExpression.createGraph();
         System.out.println("done");
 
         MainApp mainApp = new MainApp(new ArrayList<>(uniqueCircuits));
