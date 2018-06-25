@@ -16,9 +16,7 @@ public abstract class AbstractModule implements Module {
     @Getter
     Integer numberOfBits = null;
 
-    HashMap<Input, int[]> inputBitStreams = new HashMap<>();
-
-    HashMap<Output, int[]> outputBitStreams = new HashMap<>();
+    List<BitStream> bitstreams = new ArrayList<>();
 
     @Getter
     List<Input> inputs = new ArrayList<>();
@@ -38,18 +36,13 @@ public abstract class AbstractModule implements Module {
     Enums.Module module;
 
 
-    public void addInputBitStream(int[] inputBitStream, Input input) {
-        inputBitStreams.put(input, inputBitStream);
-        setNumberOfBits(inputBitStream);
+    public void addBitStream(BitStream bitStream) {
+        bitstreams.add(bitStream);
+        setNumberOfBits(bitStream.getLength());
     }
 
-    public void addOutputBitStream(int[] outputBitStream, Output output) {
-        outputBitStreams.put(output, outputBitStream);
-        setNumberOfBits(outputBitStream);
-    }
-
-    private void setNumberOfBits(int[] bitStream) {
-        int newNumber = bitStream.length;
+    private void setNumberOfBits(int numberOfBitsInInputStream) {
+        int newNumber = numberOfBitsInInputStream;
         if (numberOfBits != null && !numberOfBits.equals(newNumber)) {
             throw new RuntimeException("Wrong lenght of input/output stream");
         }
@@ -119,8 +112,8 @@ public abstract class AbstractModule implements Module {
                 continue;
             }
 
-            for (InputPin xorInputPin : justCreated.getInputPins()) {
-                connections.add(new Connection(gate.getOutputPin(), xorInputPin));
+            for (InputPin inputPin : justCreated.getInputPins()) {
+                connections.add(new Connection(gate.getOutputPin(), inputPin));
             }
         }
 
@@ -135,22 +128,22 @@ public abstract class AbstractModule implements Module {
         }
     }
 
-    List<Clause> convertGatesToCnf(int tick) {
+    List<Clause> convertGatesToCnf(BitStream bitStream) {
         List<Clause> clausesForTick = new ArrayList<>();
 
         // für jedes Bauteil
         for (Gate gate : gates) {
-            clausesForTick.addAll(gate.convertToCnfAtTick(tick));
+            clausesForTick.addAll(gate.convertToCnf(bitStream));
         }
         return clausesForTick;
     }
 
-    List<Clause> convertConnectionsToCnf(int tick) {
+    List<Clause> convertConnectionsToCnf(BitStream bitStream) {
         List<Clause> clausesForTick = new ArrayList<>();
 
         //für jede Verbindung
         for (Connection connection : connections) {
-            clausesForTick.addAll(connection.convertToCnfAtTick(tick));
+            clausesForTick.addAll(connection.convertToCnfAtTick(bitStream));
         }
 
         /**
@@ -202,47 +195,45 @@ public abstract class AbstractModule implements Module {
         return clausesForTick;
     }
 
-    List<Clause>  convertBitStreams(int tick) {
+    List<Clause>  convertBitStreams() {
         List<Clause> clausesForTick = new ArrayList<>();
-        if (inputBitStreams.size() > 0 ) {
-            for (Map.Entry<Input, int[]> entry : inputBitStreams.entrySet()) {
-                List<Clause> clauses = convertInputBitStream(tick, entry);
+        if (bitstreams.size() > 0 ) {
+            for (BitStream bitStream : bitstreams) {
+                List<Clause> clauses = convertBitStreamToCnf(bitStream);
                 clausesForTick.addAll(clauses);
             }
-
-        }
-
-        if (outputBitStreams.size() > 0 ) {
-            for (Map.Entry<Output, int[]> entry : outputBitStreams.entrySet()) {
-                List<Clause> clauses = convertOutputBitStream(tick, entry);
-                clausesForTick.addAll(clauses);
-            }
-
         }
 
         return clausesForTick;
 
     }
 
-    private  List<Clause> convertOutputBitStream(int tick, Map.Entry<Output, int[]> entry) {
+    private  List<Clause> convertBitStreamToCnf(BitStream bitStream) {
         List<Clause> clausesForTick = new ArrayList<>();
 
-        // für jedes bit
-        boolean outputBit = entry.getValue()[tick] == 1;
-        for (InputPin inputPin : entry.getKey().getInputPins()) {
-            Clause outputClause = new Clause(new TimeDependentVariable(tick, outputBit, inputPin));
-            clausesForTick.add(outputClause);
+        List<Gate> gates = bitStream.getGates();
+
+        for (Gate gate : gates) {
+            if ("output".equals(gate.getType())) {
+                for (Bit bit : bitStream) {
+                    for (InputPin inputPin : gate.getInputPins()) {
+                        Clause outputClause = new Clause(
+                                new TimeDependentVariable(bit.getTick(), bitStream.getId(), bit.getBit(), inputPin));
+                        clausesForTick.add(outputClause);
+                    }
+
+                }
+            }
+
+            if ("input".equals(gate.getType())) {
+                for (Bit bit : bitStream) {
+                    Clause outputClause = new Clause(
+                            new TimeDependentVariable(bit.getTick(), bitStream.getId(), bit.getBit(), gate.getOutputPin()));
+                    clausesForTick.add(outputClause);
+                }
+            }
         }
 
-        return clausesForTick;
-    }
-
-    private List<Clause> convertInputBitStream(int tick, Map.Entry<Input, int[]> entry) {
-        List<Clause> clausesForTick = new ArrayList<>();
-        // für jedes bit
-        boolean inputBit = entry.getValue()[tick] == 1;
-        Clause inputClause = new Clause(new TimeDependentVariable(tick, inputBit, entry.getKey().getOutputPin()));
-        clausesForTick.add(inputClause);
         return clausesForTick;
     }
 
@@ -255,5 +246,23 @@ public abstract class AbstractModule implements Module {
     }
 
     @Override
-    public abstract List<Clause> convertModuleToCnf();
+    public List<Clause> convertModuleToCnf() {
+
+        List<Clause> allClauses = new ArrayList<>();
+
+        for (BitStream bitStream : bitstreams) {
+            allClauses.addAll(convertGatesToCnf(bitStream));
+            allClauses.addAll(convertConnectionsToCnf(bitStream));
+
+        }
+
+        allClauses.addAll(convertBitStreams());
+
+        return allClauses;
+
+    };
+
+    public List<Connection> getConnections() {
+        return connections;
+    }
 }

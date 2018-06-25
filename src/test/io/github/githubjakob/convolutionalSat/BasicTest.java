@@ -18,10 +18,10 @@ import static org.hamcrest.CoreMatchers.*;
  * Created by jakob on 07.06.18.
  */
 public class BasicTest {
-/*
+
     @Test
     public void testEquals() {
-        Xor xor = new Xor();
+        Xor xor = new Xor(Enums.Module.ENCODER);
         Xor xor2 = xor;
 
         assertThat(xor, is(xor2));
@@ -29,15 +29,21 @@ public class BasicTest {
         assertThat(xor.inputPin1, is(xor.inputPin1));
         assertThat(xor.inputPin1, not(xor.inputPin2));
 
-        TimeDependentVariable variable = new TimeDependentVariable(0, true, xor);
-        TimeDependentVariable variable2 = new TimeDependentVariable(0, true, xor);
-        TimeDependentVariable variable3 = new TimeDependentVariable(0, false, xor);
-        TimeDependentVariable variable4 = new TimeDependentVariable(0, true, xor2);
+        TimeDependentVariable variable = new TimeDependentVariable(0, 0, true, xor);
+        TimeDependentVariable variable2 = new TimeDependentVariable(0, 0, true, xor);
+        TimeDependentVariable variable3 = new TimeDependentVariable(0, 0, false, xor);
+        TimeDependentVariable variable4 = new TimeDependentVariable(0, 0, true, xor2);
+        TimeDependentVariable variable5 = new TimeDependentVariable(0, 1, true, xor2);
+        TimeDependentVariable variable6 = new TimeDependentVariable(1, 0, true, xor2);
+        TimeDependentVariable variable7 = new TimeDependentVariable(1, 1, true, xor2);
 
         assertThat(variable, is(variable2));
         assertThat(variable, is(variable4));
         assertThat(variable2, is(variable4));
-        assertFalse(variable==variable2);
+        assertNotSame(variable, variable2);
+        assertThat(variable5, not(variable4));
+        assertThat(variable5, not(variable6));
+        assertThat(variable5, not(variable7));
 
         assertThat(variable, is(variable3));
     }
@@ -46,7 +52,7 @@ public class BasicTest {
     public void testHashMap() {
         Map<Variable, Integer> map = new HashMap<>();
 
-        Xor xor = new Xor();
+        Xor xor = new Xor(Enums.Module.ENCODER);
         Variable variable = new Variable(false, xor);
         Variable sameVariable = new Variable(false, xor);
 
@@ -60,10 +66,33 @@ public class BasicTest {
 
     }
 
+
+    @Test
+    public void testHashMapTimeDependentVariable() {
+        Map<Variable, Integer> map = new HashMap<>();
+
+        Xor xor = new Xor(Enums.Module.ENCODER);
+        TimeDependentVariable variable = new TimeDependentVariable(0, 0, false, xor);
+        TimeDependentVariable same = new TimeDependentVariable(0, 0, false, xor);
+        TimeDependentVariable notSame = new TimeDependentVariable(0, 1, false, xor);
+
+        assertThat(variable, is(same));
+        assertThat(variable, not(notSame));
+
+        map.put(variable, 1);
+
+        assertThat(map.containsKey(variable), is(true));
+        assertThat(map.containsKey(same), is(true));
+        assertThat(map.containsKey(same), is(false));
+
+
+    }
+
+
     @Test
     public void connectionEquals() {
-        Xor xor = new Xor();
-        Xor xor2 = new Xor();
+        Xor xor = new Xor(Enums.Module.ENCODER);
+        Xor xor2 = new Xor(Enums.Module.ENCODER);
 
         Connection connection = new Connection(xor.getOutputPin(), xor2.getInputPins().get(0));
         Connection connection2 = new Connection(xor.getOutputPin(), xor2.getInputPins().get(1));
@@ -79,8 +108,8 @@ public class BasicTest {
 
     @Test
     public void circuitEquals() {
-        Xor xor = new Xor();
-        Xor xor2 = new Xor();
+        Xor xor = new Xor(Enums.Module.ENCODER);
+        Xor xor2 = new Xor(Enums.Module.ENCODER);
 
         Connection connection = new Connection(xor.getOutputPin(), xor2.getInputPins().get(0));
         Connection connection2 = new Connection(xor.getOutputPin(), xor2.getInputPins().get(1));
@@ -104,5 +133,5 @@ public class BasicTest {
         assertThat(set.size(), is(1));
 
 
-    }*/
+    }
 }

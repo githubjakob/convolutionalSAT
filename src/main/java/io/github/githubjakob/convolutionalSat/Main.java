@@ -1,5 +1,6 @@
 package io.github.githubjakob.convolutionalSat;
 
+import io.github.githubjakob.convolutionalSat.components.BitStream;
 import io.github.githubjakob.convolutionalSat.components.Input;
 import io.github.githubjakob.convolutionalSat.components.Output;
 import io.github.githubjakob.convolutionalSat.gui.MainApp;
@@ -15,7 +16,8 @@ public class Main {
     /* Nach n gefundenen Modellen das Lösen abbrechen */
     public static final int MAX_NUMBER_OF_SOLUTIONS = 50;
 
-    public static int[] inputBitStream = new int[] { 1, 1, 0, 1, 0, 1, 0, 1 };
+    public static int[] inputBits1 = new int[] { 0, 0, 1, 0, 1, 1, 0 };
+    public static int[] inputBits2 = new int[] { 1, 0, 0, 1, 1, 0, 1 };
 
     public static void main(String[] args) {
 
@@ -23,35 +25,41 @@ public class Main {
         Input input = encoder.addInput();
         encoder.addOutput();
         encoder.addOutput();
-        encoder.addOutput();
         encoder.addAnd();
         encoder.addAnd();
         encoder.addAnd();
         encoder.addNot();
         encoder.addNot();
-        encoder.addNot();
-        encoder.addNot();
-        encoder.addRegister();
-        encoder.addRegister();
-        encoder.addInputBitStream(inputBitStream, input);
+
+        BitStream bitsStreamIn = new BitStream(0, inputBits1, input);
+        BitStream bitsStreamIn2 = new BitStream(1, inputBits2, input);
+
+        encoder.addBitStream(bitsStreamIn);
+        encoder.addBitStream(bitsStreamIn2);
 
         Decoder decoder = new Decoder();
-        decoder.addInput();
         decoder.addInput();
         decoder.addInput();
         Output decoderOutput = decoder.addOutput();
         decoder.addAnd();
         decoder.addAnd();
-        decoder.addAnd();
         decoder.addNot();
-        decoder.addNot();
-        decoder.addNot();
-        decoder.addNot();
-        decoder.addOutputBitStream(inputBitStream, decoderOutput);
+        decoder.addXor();
+
+        BitStream outputBitsStream = new BitStream(0, inputBits1, decoderOutput);
+        BitStream outputBitsStream2 = new BitStream(1, inputBits2, decoderOutput);
+
+        decoder.addBitStream(outputBitsStream);
+        decoder.addBitStream(outputBitsStream2);
+
+        BitStream channelBitStream = new BitStream(0, inputBits1);
+        BitStream channelBitStream2 = new BitStream(1, inputBits2);
 
         Channel channel = new Channel(encoder, decoder);
+        channel.addBitStream(channelBitStream);
+        channel.addBitStream(channelBitStream2);
 
-        Problem problem = new Problem(Arrays.asList(encoder, decoder, channel), inputBitStream.length);
+        Problem problem = new Problem(Arrays.asList(encoder, decoder, channel), inputBits1.length, 2);
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 

@@ -4,7 +4,9 @@ import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.modules.AbstractModule;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,17 +36,25 @@ public class Identity implements Gate {
         return "Identity" + id;
     }
 
-    public List<Clause> convertToCnfAtTick(int tick) {
-        Variable outputTrue = new TimeDependentVariable(tick, true, outputPin);
-        Variable outputFalse = new TimeDependentVariable(tick, false, outputPin);
+    public List<Clause> convertToCnf(BitStream bitStream) {
+        List<Clause> clausesForAllTicks = new ArrayList<>();
 
-        Variable inputTrue = new TimeDependentVariable(tick, true, inputPin);
-        Variable inputFalse = new TimeDependentVariable(tick, false, inputPin);
+        int bits = bitStream.getLength();
+        for (int tick = 0; tick < bits; tick++) {
+            Variable outputTrue = new TimeDependentVariable(tick, bitStream.getId(), true, outputPin);
+            Variable outputFalse = new TimeDependentVariable(tick, bitStream.getId(), false, outputPin);
 
-        Clause clause1 = new Clause(outputFalse, inputTrue);
-        Clause clause2 = new Clause(outputTrue, inputFalse);
+            Variable inputTrue = new TimeDependentVariable(tick, bitStream.getId(), true, inputPin);
+            Variable inputFalse = new TimeDependentVariable(tick, bitStream.getId(), false, inputPin);
 
-        return Arrays.asList(clause1, clause2);
+            Clause clause1 = new Clause(outputFalse, inputTrue);
+            Clause clause2 = new Clause(outputTrue, inputFalse);
+
+            clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+        }
+
+        return clausesForAllTicks;
+
     }
 
     @Override

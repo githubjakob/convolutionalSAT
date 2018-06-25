@@ -5,7 +5,9 @@ import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.modules.AbstractModule;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,22 +41,29 @@ public class Xor implements Gate {
         return "Xor" + id;
     }
 
-    public List<Clause> convertToCnfAtTick(int tick) {
-        Variable outputTrue = new TimeDependentVariable(tick, true, outputPin);
-        Variable outputFalse = new TimeDependentVariable(tick, false, outputPin);
+    public List<Clause> convertToCnf(BitStream bitStream) {
+        List<Clause> clausesForAllTicks = new ArrayList<>();
 
-        Variable input1True = new TimeDependentVariable(tick, true, inputPin1);
-        Variable input1False = new TimeDependentVariable(tick, false, inputPin1);
+        int bits = bitStream.getLength();
+        for (int tick = 0; tick < bits; tick++) {
+            Variable outputTrue = new TimeDependentVariable(tick, bitStream.getId(), true, outputPin);
+            Variable outputFalse = new TimeDependentVariable(tick, bitStream.getId(), false, outputPin);
 
-        Variable input2True = new TimeDependentVariable(tick, true, inputPin2);
-        Variable input2False = new TimeDependentVariable(tick, false, inputPin2);
+            Variable input1True = new TimeDependentVariable(tick, bitStream.getId(), true, inputPin1);
+            Variable input1False = new TimeDependentVariable(tick, bitStream.getId(), false, inputPin1);
 
-        Clause clause1 = new Clause(outputFalse, input1False, input2False);
-        Clause clause2 = new Clause(outputFalse, input1True, input2True);
-        Clause clause3 = new Clause(outputTrue, input1False, input2True);
-        Clause clause4 = new Clause(outputTrue, input1True, input2False);
+            Variable input2True = new TimeDependentVariable(tick, bitStream.getId(), true, inputPin2);
+            Variable input2False = new TimeDependentVariable(tick, bitStream.getId(), false, inputPin2);
 
-        return Arrays.asList(clause1, clause2, clause3, clause4);
+            Clause clause1 = new Clause(outputFalse, input1False, input2False);
+            Clause clause2 = new Clause(outputFalse, input1True, input2True);
+            Clause clause3 = new Clause(outputTrue, input1False, input2True);
+            Clause clause4 = new Clause(outputTrue, input1True, input2False);
+
+            clausesForAllTicks.addAll(Arrays.asList(clause1, clause2, clause3, clause4));
+        }
+
+        return clausesForAllTicks;
     }
 
     @Override

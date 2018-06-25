@@ -1,7 +1,8 @@
 package io.github.githubjakob.convolutionalSat;
 
-import io.github.githubjakob.convolutionalSat.components.Connection;
-import io.github.githubjakob.convolutionalSat.components.Xor;
+import io.github.githubjakob.convolutionalSat.components.*;
+import io.github.githubjakob.convolutionalSat.modules.Encoder;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -14,17 +15,23 @@ import java.util.*;
  * Created by jakob on 07.06.18.
  */
 public class MainTests {
-/*
+
     @Test
     public void oneXor_oneBit_connectionIsCorrect() {
-        Problem circuit = new Problem();
+        Encoder encoder = new Encoder();
+        Input input = encoder.addInput();
+        Output output = encoder.addOutput();
+        encoder.addXor();
 
-        circuit.setInptBitStream(new int[] { 0 });
-        circuit.addOutputBitStream(new int[] { 0 });
+        BitStream inputBitStream = new BitStream(0, new int[] { 0 }, input);
+        BitStream outputBitStream = new BitStream(0, new int[] { 0 }, output);
 
-        Xor addedXor = circuit.addXor();
+        encoder.addBitStream(inputBitStream);
+        encoder.addBitStream(outputBitStream);
 
-        BooleanExpression booleanExpression = new BooleanExpression(circuit);
+        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
+
+        BooleanExpression booleanExpression = new BooleanExpression(problem);
 
         Circuit model = booleanExpression.solve();
 
@@ -33,59 +40,146 @@ public class MainTests {
         assertThat(connections.size(), is(3));
     }
 
-    /*@Test
+    @Test
     public void oneXor_moreBits_connectionIsCorrect() {
-        Problem circuit = new Problem();
+        Encoder encoder = new Encoder();
+        Input input = encoder.addInput();
+        Output output = encoder.addOutput();
+        encoder.addXor();
 
-        circuit.setInptBitStream(new int[] { 0, 1, 0 });
-        circuit.addOutputBitStream(new int[] { 0, 0, 0});
+        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 }, input);
+        BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0}, output);
 
-        Xor addedXor = circuit.addXor();
+        encoder.addBitStream(inputBitStream);
+        encoder.addBitStream(outputBitStream);
 
-        BooleanExpression booleanExpression = new BooleanExpression(circuit);
+        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
 
-        int[] model = booleanExpression.solve();
+        BooleanExpression booleanExpression = new BooleanExpression(problem);
 
-        Set<Integer> connections = booleanExpression.getConnectionsFromModel();
+        Circuit model = booleanExpression.solve();
 
-        Assert.assertEquals(new HashSet<>(Arrays.asList(1003, 1004, 5002)), connections);
+        Set<Connection> connections = model.getConnections();
+
+        assertThat(connections.size(), is(3));
+    }
+
+    @Test
+    public void numberOfConnections_xorAndRegister() {
+        Encoder encoder = new Encoder();
+        Input input = encoder.addInput();
+        Output output = encoder.addOutput();
+        encoder.addXor();
+        encoder.addRegister();
+
+        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 }, input);
+        BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0}, output);
+
+        encoder.addBitStream(inputBitStream);
+        encoder.addBitStream(outputBitStream);
+
+        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
+
+        BooleanExpression booleanExpression = new BooleanExpression(problem);
+
+        Circuit model = booleanExpression.solve();
+
+        Set<Connection> connections = model.getConnections();
+
+        assertThat(problem.getConnections().size(), is(8));
+    }
+
+    @Test
+    public void numberOfConnections_twoXorAndRegister() {
+        Encoder encoder = new Encoder();
+        Input input = encoder.addInput();
+        Output output = encoder.addOutput();
+        encoder.addXor();
+        encoder.addXor();
+        encoder.addRegister();
+
+        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 }, input);
+        BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0}, output);
+
+        encoder.addBitStream(inputBitStream);
+        encoder.addBitStream(outputBitStream);
+
+        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
+
+        BooleanExpression booleanExpression = new BooleanExpression(problem);
+
+        Circuit model = booleanExpression.solve();
+
+        Set<Connection> connections = model.getConnections();
+
+        assertThat(problem.getConnections().size(), is(18));
+    }
+
+    @Test
+    public void numberOfConnections_threeXorAndRegister() {
+        Encoder encoder = new Encoder();
+        Input input = encoder.addInput();
+        Output output = encoder.addOutput();
+        encoder.addXor();
+        encoder.addXor();
+        encoder.addXor();
+        encoder.addRegister();
+
+        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 }, input);
+        BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0}, output);
+
+        encoder.addBitStream(inputBitStream);
+        encoder.addBitStream(outputBitStream);
+
+        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
+
+        assertThat(problem.getConnections().size(), is(32));
     }
 
     @Test
     public void oneXor_oneRegister_moreBits_connectionIsCorrect() {
-        Problem circuit = new Problem();
+        Encoder encoder = new Encoder();
+        Input input = encoder.addInput();
+        Output output = encoder.addOutput();
+        encoder.addXor();
+        encoder.addRegister();
 
-        circuit.setInptBitStream(new int[] { 1, 1, 0, 1 });
-        circuit.addOutputBitStream(new int[] { 1, 0, 1, 1 });
+        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 }, input);
+        BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0}, output);
 
-        Xor addedXor = circuit.addXor();
-        Register addedRegister = circuit.addRegister();
+        encoder.addBitStream(inputBitStream);
+        encoder.addBitStream(outputBitStream);
 
-        BooleanExpression booleanExpression = new BooleanExpression(circuit);
+        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
 
-        int[] model = booleanExpression.solve();
+        BooleanExpression booleanExpression = new BooleanExpression(problem);
 
-        Set<Integer> connections = booleanExpression.getConnectionsFromModel();
+        Circuit model = booleanExpression.solve();
 
-        Assert.assertEquals(new HashSet<>(Arrays.asList(5002, 7003, 1004, 1006)), connections);
+        Set<Connection> connections = model.getConnections();
+
+        assertThat(connections.size(), is(4));
     }
 
     @Test
     public void oneXor_oneRegister_moreBits_noSolution() {
-        Problem circuit = new Problem();
+        Encoder encoder = new Encoder();
+        Input input = encoder.addInput();
+        Output output = encoder.addOutput();
+        encoder.addXor();
 
-        circuit.setInptBitStream(new int[] { 0, 0, 0, 0 });
-        circuit.addOutputBitStream(new int[] { 1, 1, 1, 1 });
+        BitStream inputBitStream = new BitStream(0, new int[] { 0, 0, 0 }, input);
+        BitStream outputBitStream = new BitStream(0, new int[] { 1, 1, 1}, output);
 
-        Xor addedXor = circuit.addXor();
-        Register addedRegister = circuit.addRegister();
+        encoder.addBitStream(inputBitStream);
+        encoder.addBitStream(outputBitStream);
 
-        BooleanExpression booleanExpression = new BooleanExpression(circuit);
+        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
 
-        int[] model = booleanExpression.solve();
+        BooleanExpression booleanExpression = new BooleanExpression(problem);
 
-        Set<Integer> connections = booleanExpression.getConnectionsFromModel();
+        Circuit model = booleanExpression.solve();
 
-        Assert.assertEquals(Collections.emptySet(), connections);
-    }*/
+        assertTrue(model==null);
+    }
 }

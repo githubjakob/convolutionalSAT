@@ -12,7 +12,7 @@ public interface Gate extends Component {
 
     OutputPin getOutputPin();
     List<InputPin> getInputPins();
-    List<Clause> convertToCnfAtTick(int tick);
+    List<Clause> convertToCnf(BitStream bitStream);
     Enums.Module getModule();
 
 }

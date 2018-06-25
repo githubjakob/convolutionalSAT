@@ -12,15 +12,4 @@ public class Encoder extends AbstractModule {
         this.module = Enums.Module.ENCODER;
     }
 
-    public List<Clause> convertModuleToCnf() {
-        List<Clause> allClauses = new ArrayList<>();
-
-        for (int tick = 0; tick < getNumberOfBits(); tick++) {
-            allClauses.addAll(convertConnectionsToCnf(tick));
-            allClauses.addAll(convertBitStreams(tick));
-            allClauses.addAll(convertGatesToCnf(tick));
-        }
-
-        return allClauses;
-    }
 }

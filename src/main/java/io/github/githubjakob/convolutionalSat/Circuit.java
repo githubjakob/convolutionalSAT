@@ -59,7 +59,11 @@ public class Circuit {
 
     @Setter
     @Getter
-    private int numberOfBits;
+    private int numberOfBitsPerBitStream;
+
+    @Setter
+    @Getter
+    private int numberOfBitStreams;
 
     public Circuit(List<Connection> connections, List<Gate> gates, boolean whatever) {
         this.connections = new HashSet<>(connections);
@@ -76,7 +80,7 @@ public class Circuit {
             boolean weight = variable.getWeight();
             if (variable instanceof TimeDependentVariable) {
                 TimeDependentVariable old = (TimeDependentVariable) variable;
-                cloned.add(new TimeDependentVariable(old.getTick(), weight, component));
+                cloned.add(new TimeDependentVariable(old.getTick(), old.getBitStreamId(), weight, component));
             } else {
                 cloned.add(new Variable(weight, component));
             }
@@ -89,9 +93,9 @@ public class Circuit {
         this.gates = new HashSet<>(gates);
     }
 
-    public Map<Component, int[]> getBitsAtNodes() {
+    public Map<Component, int[][]> getBitsAtNodes() {
 
-        Map<Component, int[]> bitsAtNodes = new HashMap<>();
+        Map<Component, int[][]> bitsAtNodes = new HashMap<>();
 
         for (Variable variable : variables) {
             if (!(variable instanceof TimeDependentVariable)) {
@@ -101,15 +105,19 @@ public class Circuit {
             Component component = underConsideration.getComponent();
             int tick = underConsideration.getTick();
             int value = underConsideration.getWeight() ? 1 : 0;
+            int bitStream = underConsideration.getBitStreamId();
 
             if (bitsAtNodes.containsKey(component)) {
-                int[] savedBits = bitsAtNodes.get(component);
-                savedBits[tick] = value;
+                int[][] bitStreams = bitsAtNodes.get(component);
+                int[] bits = bitStreams[bitStream];
+                bits[tick] = value;
 
             } else {
-                int[] bits = new int[numberOfBits];
+                int[][] bitStreams = new int[numberOfBitStreams][numberOfBitsPerBitStream];
+                int[] bits = new int[numberOfBitsPerBitStream];
                 bits[tick] = value;
-                bitsAtNodes.put(component, bits);
+                bitStreams[underConsideration.getBitStreamId()] = bits;
+                bitsAtNodes.put(component, bitStreams);
             }
         }
         return bitsAtNodes;

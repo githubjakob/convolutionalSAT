@@ -3,7 +3,9 @@ package io.github.githubjakob.convolutionalSat.components;
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
+import io.github.githubjakob.convolutionalSat.modules.AbstractModule;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,18 +45,24 @@ public class Output implements Gate {
     }
 
     @Override
-    public List<Clause> convertToCnfAtTick(int tick) {
-        TimeDependentVariable outputTrue = new TimeDependentVariable(tick, true, outputPin);
-        TimeDependentVariable outputFalse = new TimeDependentVariable(tick, false, outputPin);
+    public List<Clause> convertToCnf(BitStream bitStream) {
+        List<Clause> clausesForAllTicks = new ArrayList<>();
 
-        TimeDependentVariable inputPinTrue = new TimeDependentVariable(tick, true, inputPin);
-        TimeDependentVariable inputPinFalse = new TimeDependentVariable(tick, false, inputPin);
+        int bits = bitStream.getLength();
+        for (int tick = 0; tick < bits; tick++) {
+            TimeDependentVariable outputTrue = new TimeDependentVariable(tick, bitStream.getId(), true, outputPin);
+            TimeDependentVariable outputFalse = new TimeDependentVariable(tick, bitStream.getId(), false, outputPin);
 
+            TimeDependentVariable inputPinTrue = new TimeDependentVariable(tick, bitStream.getId(), true, inputPin);
+            TimeDependentVariable inputPinFalse = new TimeDependentVariable(tick, bitStream.getId(), false, inputPin);
 
-        Clause clause1 = new Clause(outputTrue, inputPinFalse);
-        Clause clause2 = new Clause(outputFalse, inputPinTrue);
+            Clause clause1 = new Clause(outputTrue, inputPinFalse);
+            Clause clause2 = new Clause(outputFalse, inputPinTrue);
 
-        return Arrays.asList(clause1, clause2);
+            clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+        }
+
+        return clausesForAllTicks;
     }
 
     @Override

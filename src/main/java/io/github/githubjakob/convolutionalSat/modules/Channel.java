@@ -40,8 +40,8 @@ public class Channel extends AbstractModule {
     public List<Clause> convertModuleToCnf() {
         List<Clause> allClauses = new ArrayList<>();
 
-        for (int tick = 0; tick < numberOfBits; tick++) {
-            allClauses.addAll(convertConnectionsToCnf(tick));
+        for (BitStream bitStream : bitstreams) {
+            allClauses.addAll(convertConnectionsToCnf(bitStream));
         }
 
         return allClauses;

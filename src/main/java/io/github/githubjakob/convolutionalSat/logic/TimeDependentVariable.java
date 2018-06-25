@@ -1,5 +1,6 @@
 package io.github.githubjakob.convolutionalSat.logic;
 
+import io.github.githubjakob.convolutionalSat.components.Bit;
 import io.github.githubjakob.convolutionalSat.components.Component;
 
 /**
@@ -9,23 +10,32 @@ public class TimeDependentVariable extends Variable {
 
     int tick;
 
+    public TimeDependentVariable(int tick, int bitstreamId, boolean weight, Component component) {
+        super(weight, component);
+        this.bitStreamId = bitstreamId;
+        this.tick = tick;
+    }
+
     public int getTick() {
         return tick;
     }
 
-    public TimeDependentVariable(int tick, boolean weight, Component component) {
-        super(weight, component);
-
-        this.tick = tick;
+    public int getBitStreamId() {
+        return bitStreamId;
     }
 
     @Override
     public String toString() {
         if (this.weight) {
-            return this.component.toString() + "/" + tick;
+            return this.component.toString() + "/" + bitStreamId + "/" + tick;
         } else {
-            return "~" + this.component.toString() + "/" + tick;
+            return "~" + this.component.toString() + "/" + bitStreamId + "/" + tick;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return bitStreamId * super.hashCode();
     }
 
     @Override
@@ -35,6 +45,7 @@ public class TimeDependentVariable extends Variable {
         if (!(obj instanceof TimeDependentVariable))return false;
         TimeDependentVariable other = (TimeDependentVariable) obj;
         return (other.tick ==this.tick
+                && this.bitStreamId == other.bitStreamId
                 && other.component.equals(this.component));
     }
 

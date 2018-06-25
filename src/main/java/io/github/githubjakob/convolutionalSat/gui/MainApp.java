@@ -45,9 +45,9 @@ public class MainApp {
         jFrame.setVisible(true);
 
         String inputBits = "Input Bit Stream: ";
-        int numberOfBits = models.get(0).getNumberOfBits();
+        int numberOfBits = models.get(0).getNumberOfBitsPerBitStream();
         for (int i = 0; i < numberOfBits; i++) {
-            inputBits = inputBits + Main.inputBitStream[i];
+            inputBits = inputBits + Main.inputBits1[i];
         }
         legend.setFont(new Font(Font.DIALOG, Font.BOLD, 25));
         label.setText(inputBits);
@@ -76,12 +76,18 @@ public class MainApp {
 
         Map<String, Node> nodes = new HashMap<>();
 
-        final Map<Component, int[]> bitsAtNodes = model.getBitsAtNodes();
+        final Map<Component, int[][]> bitsAtNodes = model.getBitsAtNodes();
 
         for (Gate gate : model.getGates()) {
             Node inputBitStream = graph.addNode(gate.toString());
-            int[] bits = bitsAtNodes.get(gate.getOutputPin());
-            inputBitStream.addAttribute("ui.label", gate.getType() + Arrays.toString(bits));
+            int[][] bitsStreams = bitsAtNodes.get(gate.getOutputPin());
+
+            String bitsStreamsOfNode = "";
+            for (int[] bits : bitsStreams) {
+                bitsStreamsOfNode = bitsStreamsOfNode +":" + Arrays.toString(bits);
+            }
+
+            inputBitStream.addAttribute("ui.label", gate.getType() + bitsStreamsOfNode);
             inputBitStream.addAttribute("ui.class", gate.getModule().toString());
             registerOutputPin(gate, inputBitStream, nodes);
             registerInputPins(gate, inputBitStream, nodes);

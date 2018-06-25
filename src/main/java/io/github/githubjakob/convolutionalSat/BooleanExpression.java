@@ -21,7 +21,7 @@ public class BooleanExpression {
 
     private final static int NBCLAUSES = 1000000;
 
-    private static ISolver solver = SolverFactory.newDefault();
+    private ISolver solver;
 
     private final List<Clause> clauses;
 
@@ -39,6 +39,7 @@ public class BooleanExpression {
 
     public BooleanExpression(Problem problem) {
         this.problem = problem;
+        this.solver = SolverFactory.newDefault();
         this.solver.newVar(MAXVAR);
         this.solver.setExpectedNumberOfClauses(NBCLAUSES);
 
@@ -147,7 +148,8 @@ public class BooleanExpression {
                 System.out.println("found model " + numbersOfModelsFound);
                 numbersOfModelsFound++;
                 Circuit model = retranslate(modelDimacs);
-                model.setNumberOfBits(this.problem.getNumberOfBits());
+                model.setNumberOfBitsPerBitStream(this.problem.getNumberOfBits());
+                model.setNumberOfBitStreams(this.problem.getNumberOfBitStreams());
                 models.add(model);
                 return model;
 

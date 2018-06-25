@@ -5,6 +5,7 @@ import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,19 +33,28 @@ public class Connection implements Component {
         return "C" + id;
     }
 
-    public List<Clause> convertToCnfAtTick(int tick) {
+    public List<Clause> convertToCnfAtTick(BitStream bitStream) {
+        int bitstreamId = bitStream.getId();
+        List<Clause> clausesForAllTicks = new ArrayList<>();
 
-        Variable connectionNotSet = new Variable(false, this);
+        int bits = bitStream.getLength();
+        for (int tick = 0; tick < bits; tick++) {
 
-        TimeDependentVariable inputTrue = new TimeDependentVariable(tick, true, from);
-        TimeDependentVariable inputFalse = new TimeDependentVariable(tick, false, from);
+            Variable connectionNotSet = new Variable(false, this);
 
-        TimeDependentVariable outputTrue = new TimeDependentVariable(tick, true, to);
-        TimeDependentVariable outputFalse = new TimeDependentVariable(tick, false, to);
+            TimeDependentVariable inputTrue = new TimeDependentVariable(tick, bitstreamId, true, from);
+            TimeDependentVariable inputFalse = new TimeDependentVariable(tick, bitstreamId, false, from);
 
-        Clause clause1 = new Clause(inputFalse, outputTrue, connectionNotSet);
-        Clause clause2 = new Clause(inputTrue, outputFalse, connectionNotSet);
-        return Arrays.asList(clause1, clause2);
+            TimeDependentVariable outputTrue = new TimeDependentVariable(tick, bitstreamId, true, to);
+            TimeDependentVariable outputFalse = new TimeDependentVariable(tick, bitstreamId, false, to);
+
+            Clause clause1 = new Clause(inputFalse, outputTrue, connectionNotSet);
+            Clause clause2 = new Clause(inputTrue, outputFalse, connectionNotSet);
+            clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+        }
+
+        return clausesForAllTicks;
+
     }
 
     public InputPin getTo() {

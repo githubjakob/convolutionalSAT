@@ -17,13 +17,17 @@ import java.util.*;
 public class Problem {
 
     @Getter
+    private final int numberOfBitStreams;
+
+    @Getter
     private int numberOfBits;
 
     private List<Module> modules;
 
-    public Problem(List<Module> modules, int numberOfBits) {
+    public Problem(List<Module> modules, int numberOfBits, int numberOfBitStreams) {
         this.numberOfBits = numberOfBits;
         this.modules = modules;
+        this.numberOfBitStreams = numberOfBitStreams;
     }
 
     public List<Clause> convertProblemToCnf() {
@@ -46,6 +50,16 @@ public class Problem {
             allGates.addAll(gatesFromModule);
         }
 
+        return allGates;
+    }
+
+    public List<Connection> getConnections() {
+        List<Connection> allGates = new ArrayList<>();
+
+        for (Module module : modules) {
+            List<Connection> connectionsFromModule = module.getConnections();
+            allGates.addAll(connectionsFromModule);
+        }
 
         return allGates;
     }

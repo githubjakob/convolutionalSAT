@@ -13,6 +13,8 @@ public class Variable {
 
     int literal;
 
+    int bitStreamId = -1;
+
     public Variable(boolean weight, Component component) {
         this.weight = weight;
         this.component = component;
