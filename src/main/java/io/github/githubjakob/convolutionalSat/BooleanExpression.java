@@ -103,7 +103,7 @@ public class BooleanExpression {
 
     public Circuit solveNext() {
         if (this.models.isEmpty()) {
-            return null;
+            return solve();
         }
 
         Circuit latestModel = models.get(models.size()-1);
@@ -129,10 +129,6 @@ public class BooleanExpression {
         while(true) {
             Circuit anotherModel = solveNext();
             if (anotherModel == null) {
-                break;
-            }
-
-            if (numbersOfModelsFound > Main.MAX_NUMBER_OF_SOLUTIONS) {
                 break;
             }
         }

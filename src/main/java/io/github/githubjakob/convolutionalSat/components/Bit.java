@@ -28,4 +28,9 @@ public class Bit {
     public int getBitStreamid() {
         return this.correspondingBitStream.getId();
     }
+
+    @Override
+    public String toString() {
+        return getBit() ? "1" : "0";
+    }
 }

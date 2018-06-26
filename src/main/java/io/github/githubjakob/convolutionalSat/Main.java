@@ -3,7 +3,8 @@ package io.github.githubjakob.convolutionalSat;
 import io.github.githubjakob.convolutionalSat.components.BitStream;
 import io.github.githubjakob.convolutionalSat.components.Input;
 import io.github.githubjakob.convolutionalSat.components.Output;
-import io.github.githubjakob.convolutionalSat.gui.MainApp;
+import io.github.githubjakob.convolutionalSat.gui.Graph;
+import io.github.githubjakob.convolutionalSat.gui.MainGui;
 import io.github.githubjakob.convolutionalSat.modules.Channel;
 import io.github.githubjakob.convolutionalSat.modules.Decoder;
 import io.github.githubjakob.convolutionalSat.modules.Encoder;
@@ -14,9 +15,7 @@ import java.util.*;
 public class Main {
 
     /* Nach n gefundenen Modellen das Lösen abbrechen */
-    public static final int MAX_NUMBER_OF_SOLUTIONS = 50;
-
-    public static boolean onlyShowFullyConnectedGraphs = false;
+    public static final int MAX_NUMBER_OF_SOLUTIONS = 2;
 
     public static int[] inputBits1 = new int[] { 0, 0, 1, 0, 1, 1, 0 };
     public static int[] inputBits2 = new int[] { 1, 0, 0, 1, 1, 0, 1 };
@@ -61,38 +60,28 @@ public class Main {
         channel.addBitStream(channelBitStream);
         channel.addBitStream(channelBitStream2);
 
+        MainGui mainGui = new MainGui(Arrays.asList(bitsStreamIn, bitsStreamIn2));
+
         Problem problem = new Problem(Arrays.asList(encoder, decoder, channel), inputBits1.length, 2);
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
         Instant start = Instant.now();
 
-        List<Circuit> circuits = booleanExpression.solveAll();
-        //Circuit circuits = booleanExpression.solve();
+        int counter = 0;
+        while (counter < MAX_NUMBER_OF_SOLUTIONS) {
+            Circuit circuit = booleanExpression.solveNext();
+            Graph graph = new Graph(circuit);
 
-        Instant end = Instant.now();
-
-        Set<Circuit> uniqueCircuits = new HashSet<>(circuits);
-
-        int numberOfSolutions = circuits.size();
-
-        if (numberOfSolutions == 0) {
-            System.out.println("No circuits for this input");
-            return;
+            if (graph.isGraphFullyConnected()) {
+                mainGui.addPanel(graph);
+                counter++;
+            }
         }
 
-        System.out.println("Found circuits " + circuits.size());
-
+        Instant end = Instant.now();
         long millis = (end.toEpochMilli() - start.toEpochMilli());
         System.out.println("Time " + millis + " ms");
-        System.out.println("Unique circuits " + uniqueCircuits.size());
-        System.out.println("OnlyShowFullyConnectedGraphs: " + onlyShowFullyConnectedGraphs);
-
-
-        //booleanExpression.createGraph();
-        System.out.println("done");
-
-        MainApp mainApp = new MainApp(new ArrayList<>(uniqueCircuits));
     }
 
 }
