@@ -65,6 +65,8 @@ public class MainApp {
         // graphs
         tabbedPane.remove(0);
 
+        int index = 0;
+
         for (Circuit model : models) {
             MultiGraph graph = createGraph(model);
             Viewer viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
@@ -72,15 +74,17 @@ public class MainApp {
             ViewPanel view = viewer.addDefaultView(false);
 
             boolean fullyConnected = graph.getAttribute("fullyConnected");
-
+            
             if (!onlyShowFullyConnectedGraphs || fullyConnected ) {
                 Panel panel = new Panel();
+                panel.setName("panel" + index + (fullyConnected ? "*" : ""));
                 panel.setLayout(new BorderLayout());
                 panel.add(view, BorderLayout.CENTER);
                 viewer.enableAutoLayout();
                 tabbedPane.add(panel);
             }
 
+            index++;
 
             // listener
             //Clicks clicks = new Clicks(viewer, graph, model);
@@ -143,7 +147,7 @@ public class MainApp {
         graph.addAttribute("ui.stylesheet", stylesheet);
 
         boolean connected = isGraphFullyConnected(graph, root);
-        graph.setAttribute("fullyConnected", true);
+        graph.setAttribute("fullyConnected", connected);
 
         return graph;
 
