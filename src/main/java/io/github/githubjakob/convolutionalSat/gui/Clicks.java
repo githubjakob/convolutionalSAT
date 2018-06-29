@@ -15,24 +15,19 @@ public class Clicks implements ViewerListener {
 
     private final Viewer viewer;
     private final Graph graph;
-    private final Circuit model;
     protected boolean loop = true;
 
     Map<String, String> cache = new HashMap<>();
 
-    public Clicks(Viewer viewer, Graph graph, Circuit model) {
-        this.model = model;
+    public Clicks(Viewer viewer, Graph graph) {
         this.viewer = viewer;
         this.graph = graph;
 
         viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
 
-
         ViewerPipe fromViewer = viewer.newViewerPipe();
         fromViewer.addViewerListener(this);
         fromViewer.addSink(graph);
-
-
 
         while(loop) {
             fromViewer.pump();
@@ -44,25 +39,12 @@ public class Clicks implements ViewerListener {
     }
 
     public void buttonPushed(String id) {
-
         Node node = graph.getNode(id);
-
-        if (cache.containsKey(id)) {
-            node.setAttribute("ui.label", cache.get(id));
-            cache.remove(id);
-        } else {
-
-        }
-
-
-
-        System.out.println("Button pushed on node "+id);
+        System.out.println((String)node.getAttribute("ui.type"));
     }
 
     public void buttonReleased(String id) {
-
-
-
-        System.out.println("Button released on node "+id);
+        //Node node = graph.getNode(id);
+        //System.out.println((String)node.getAttribute("ui.type"));
     }
 }

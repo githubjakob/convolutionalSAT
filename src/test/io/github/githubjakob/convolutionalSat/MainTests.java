@@ -1,7 +1,7 @@
 package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.components.*;
-import io.github.githubjakob.convolutionalSat.modules.Encoder;
+import io.github.githubjakob.convolutionalSat.modules.Module;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class MainTests {
 
     @Test
     public void oneXor_oneBit_connectionIsCorrect() {
-        Encoder encoder = new Encoder();
+        Module encoder = new Module(Enums.Module.ENCODER);
         Input input = encoder.addInput();
         Output output = encoder.addOutput();
         encoder.addXor();
@@ -42,7 +42,7 @@ public class MainTests {
 
     @Test
     public void oneXor_moreBits_connectionIsCorrect() {
-        Encoder encoder = new Encoder();
+        Module encoder = new Module(Enums.Module.ENCODER);
         Input input = encoder.addInput();
         Output output = encoder.addOutput();
         encoder.addXor();
@@ -66,7 +66,7 @@ public class MainTests {
 
     @Test
     public void numberOfConnections_xorAndRegister() {
-        Encoder encoder = new Encoder();
+        Module encoder = new Module(Enums.Module.ENCODER);
         Input input = encoder.addInput();
         Output output = encoder.addOutput();
         encoder.addXor();
@@ -91,7 +91,7 @@ public class MainTests {
 
     @Test
     public void numberOfConnections_twoXorAndRegister() {
-        Encoder encoder = new Encoder();
+        Module encoder = new Module(Enums.Module.ENCODER);
         Input input = encoder.addInput();
         Output output = encoder.addOutput();
         encoder.addXor();
@@ -117,7 +117,7 @@ public class MainTests {
 
     @Test
     public void numberOfConnections_threeXorAndRegister() {
-        Encoder encoder = new Encoder();
+        Module encoder = new Module(Enums.Module.ENCODER);
         Input input = encoder.addInput();
         Output output = encoder.addOutput();
         encoder.addXor();
@@ -138,7 +138,7 @@ public class MainTests {
 
     @Test
     public void oneXor_oneRegister_moreBits_connectionIsCorrect() {
-        Encoder encoder = new Encoder();
+        Module encoder = new Module(Enums.Module.ENCODER);
         Input input = encoder.addInput();
         Output output = encoder.addOutput();
         encoder.addXor();
@@ -163,7 +163,7 @@ public class MainTests {
 
     @Test
     public void oneXor_oneRegister_moreBits_noSolution() {
-        Encoder encoder = new Encoder();
+        Module encoder = new Module(Enums.Module.ENCODER);
         Input input = encoder.addInput();
         Output output = encoder.addOutput();
         encoder.addXor();

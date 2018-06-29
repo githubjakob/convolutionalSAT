@@ -1,24 +1,22 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
+import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Channel extends AbstractModule {
+public class Channel extends Module {
 
-    private final Encoder encoder;
+    private final Module encoder;
 
-    private final Decoder decoder;
+    private final Module decoder;
 
-    private int numberOfBits;
-
-    public Channel(Encoder encoder, Decoder decoder) {
+    public Channel(Module encoder, Module decoder) {
+        super(Enums.Module.CHANNEL);
         this.encoder = encoder;
-        this.numberOfBits = encoder.getNumberOfBits();
         this.decoder = decoder;
-
         createConnections();
     }
 

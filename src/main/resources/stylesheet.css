@@ -7,7 +7,7 @@ node {
     text-size: 15;
     text-offset: 30px;
 }
-
+/*
 node.xor {
     fill-mode: image-scaled;
     fill-image: url("xor.png");
@@ -19,8 +19,24 @@ node.register {
     fill-image: url("register.png");
 }
 
+node.not {
+    fill-mode: image-scaled;
+    shape: box;
+    fill-image: url("not.png");
+}
+
+node.and {
+    fill-mode: image-scaled;
+    shape: box;
+    fill-image: url("and.png");
+}
+*/
 node.decoder {
     fill-color: darkgrey;
+}
+
+node.globalinput {
+    fill-color: red;
 }
 
 edge {

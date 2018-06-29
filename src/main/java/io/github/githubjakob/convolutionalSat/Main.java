@@ -6,8 +6,7 @@ import io.github.githubjakob.convolutionalSat.components.Output;
 import io.github.githubjakob.convolutionalSat.gui.Graph;
 import io.github.githubjakob.convolutionalSat.gui.MainGui;
 import io.github.githubjakob.convolutionalSat.modules.Channel;
-import io.github.githubjakob.convolutionalSat.modules.Decoder;
-import io.github.githubjakob.convolutionalSat.modules.Encoder;
+import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.time.Instant;
 import java.util.*;
@@ -22,7 +21,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Encoder encoder = new Encoder();
+        Module encoder = new Module(Enums.Module.ENCODER);
         Input input = encoder.addInput();
         encoder.addOutput();
         encoder.addOutput();
@@ -38,7 +37,7 @@ public class Main {
         encoder.addBitStream(bitsStreamIn);
         encoder.addBitStream(bitsStreamIn2);
 
-        Decoder decoder = new Decoder();
+        Module decoder = new Module(Enums.Module.DECODER);
         decoder.addInput();
         decoder.addInput();
         Output decoderOutput = decoder.addOutput();
@@ -73,7 +72,8 @@ public class Main {
             Circuit circuit = booleanExpression.solveNext();
             Graph graph = new Graph(circuit);
 
-            if (graph.isGraphFullyConnected()) {
+            //if (graph.isGraphFullyConnected()) {
+            if (true) {
                 mainGui.addPanel(graph);
                 counter++;
             }

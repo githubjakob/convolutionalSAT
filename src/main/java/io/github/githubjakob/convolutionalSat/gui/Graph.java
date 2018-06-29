@@ -61,19 +61,24 @@ public class Graph extends MultiGraph {
 
         for (Gate gate : model.getGates()) {
             Node node = this.addNode(gate.toString());
+
             int[][] bitsStreams = bitsAtNodes.get(gate.getOutputPin());
 
             if (gate.getType().equals("input") && gate.getModule().equals(Enums.Module.ENCODER)) {
                 root = node;
+                node.addAttribute("ui.class", "globalinput");
             }
 
-            String bitsStreamsOfNode = "";
+            int count = 0;
             for (int[] bits : bitsStreams) {
-                bitsStreamsOfNode = bitsStreamsOfNode +":" + Arrays.toString(bits);
+                node.addAttribute("ui.bitstream" + count, gate.getType() + Arrays.toString(bits));
+                count++;
             }
 
-            node.addAttribute("ui.label", gate.getType() + bitsStreamsOfNode);
+            node.addAttribute("ui.label", gate.getType());
+            node.addAttribute("ui.type", gate.getType());
             node.addAttribute("ui.class", gate.getModule().toString());
+            //node.addAttribute("ui.class", gate.getType());
             registerOutputPin(gate, node, nodes);
             registerInputPins(gate, node, nodes);
         }
@@ -90,7 +95,7 @@ public class Graph extends MultiGraph {
             Node nodeFrom = nodes.get(from);
             Node nodeTo = nodes.get(to);
             Edge edge = this.addEdge(from + to, nodeFrom, nodeTo, true);
-            edge.addAttribute("ui.label", connection.toString());
+            //edge.addAttribute("ui.label", connection.toString());
             edge.addAttribute("layout.weight", 2);
         }
 
@@ -123,5 +128,20 @@ public class Graph extends MultiGraph {
             e.printStackTrace();
         }
         return new String(encoded, encoding);
+    }
+
+    public void setLabel(String attribute) {
+        for (Node node : this.getEachNode()) {
+
+            if (attribute.equals("ui.type")) {
+                String value = node.getAttribute("ui.type");
+                node.setAttribute("ui.label", value);
+            } else if (attribute.contains("bitstream")) {
+                System.out.println(attribute);
+                String value = node.getAttribute(attribute);
+                node.setAttribute("ui.label", value);
+            }
+
+        }
     }
 }

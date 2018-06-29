@@ -4,7 +4,6 @@ import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
-import io.github.githubjakob.convolutionalSat.modules.AbstractModule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
