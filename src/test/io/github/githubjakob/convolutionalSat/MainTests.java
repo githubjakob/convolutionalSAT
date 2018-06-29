@@ -28,7 +28,7 @@ public class MainTests {
         encoder.addBitStream(bitStream, input);
         encoder.addBitStream(bitStream, output);
 
-        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
+        Problem problem = new Problem(Arrays.asList(encoder));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -52,7 +52,7 @@ public class MainTests {
         encoder.addBitStream(inputBitStream, input);
         encoder.addBitStream(outputBitStream, output);
 
-        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
+        Problem problem = new Problem(Arrays.asList(encoder));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -76,7 +76,7 @@ public class MainTests {
         encoder.addBitStream(bitStream, input);
         encoder.addBitStream(bitStream, output);
 
-        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
+        Problem problem = new Problem(Arrays.asList(encoder));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -101,7 +101,7 @@ public class MainTests {
         encoder.addBitStream(bitStream, input);
         encoder.addBitStream(bitStream, output);
 
-        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
+        Problem problem = new Problem(Arrays.asList(encoder));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -127,7 +127,7 @@ public class MainTests {
         encoder.addBitStream(bitStream, input);
         encoder.addBitStream(bitStream, output);
 
-        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
+        Problem problem = new Problem(Arrays.asList(encoder));
 
         assertThat(problem.getConnections().size(), is(32));
     }
@@ -144,7 +144,7 @@ public class MainTests {
 
         encoder.addBitStream(bitStream, input);
 
-        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
+        Problem problem = new Problem(Arrays.asList(encoder));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -168,7 +168,7 @@ public class MainTests {
         encoder.addBitStream(inputBitStream, input);
         encoder.addBitStream(outputBitStream, output);
 
-        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
+        Problem problem = new Problem(Arrays.asList(encoder));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -196,7 +196,7 @@ public class MainTests {
         encoder.addBitStream(inputBitStream1, input);
         encoder.addBitStream(outputBitStream1, output);
 
-        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
+        Problem problem = new Problem(Arrays.asList(encoder));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 

@@ -1,6 +1,7 @@
 package io.github.githubjakob.convolutionalSat;
 
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.modules.Module;
@@ -14,17 +15,15 @@ import java.util.*;
 public class Problem {
 
     @Getter
-    private final int numberOfBitStreams;
+    private int numberOfBitStreams = 0;
 
     @Getter
-    private int numberOfBits;
+    private int numberOfBits = 0;
 
     private List<Module> modules;
 
-    public Problem(List<Module> modules, int numberOfBits, int numberOfBitStreams) {
-        this.numberOfBits = numberOfBits;
+    public Problem(List<Module> modules) {
         this.modules = modules;
-        this.numberOfBitStreams = numberOfBitStreams;
     }
 
     public List<Clause> convertProblemToCnf() {
@@ -36,7 +35,27 @@ public class Problem {
         }
 
         return cnf;
+    }
 
+    public Module getEncoder() {
+        for (Module module :modules) {
+            if (module.getType().equals(Enums.Module.ENCODER)) return module;
+        }
+        return null;
+    }
+
+    public Module getDecoder() {
+        for (Module module :modules) {
+            if (module.getType().equals(Enums.Module.DECODER)) return module;
+        }
+        return null;
+    }
+
+    public Module getChannel() {
+        for (Module module :modules) {
+            if (module.getType().equals(Enums.Module.CHANNEL)) return module;
+        }
+        return null;
     }
 
     public List<Gate> getGates() {
@@ -59,5 +78,20 @@ public class Problem {
         }
 
         return allGates;
+    }
+
+    public void registerBitStreamsAsInputOutputRequirement(List<BitStream> bitStreams) {
+        Module encoder = getEncoder();
+        Module decoder = getDecoder();
+        Module channel = getChannel();
+
+        for (BitStream bitStream : bitStreams) {
+            numberOfBitStreams++;
+            numberOfBits = bitStream.getLength();
+            encoder.addBitStream(bitStream, encoder.getInputs().get(0));
+            decoder.addBitStream(bitStream, decoder.getOutputs().get(0));
+            channel.addBitStream(bitStream);
+        }
+
     }
 }

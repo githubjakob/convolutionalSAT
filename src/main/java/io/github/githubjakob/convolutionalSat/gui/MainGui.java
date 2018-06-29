@@ -71,7 +71,13 @@ public class MainGui {
         panel.add(view, BorderLayout.CENTER);
         viewer.enableAutoLayout();
         tabbedPane.add(panel);
-        Clicks clicks = new Clicks(viewer, graph);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                new Clicks(viewer, graph);
+            }
+        });
+
     }
 
     public void showBitStreamInLabel(String attribute) {
