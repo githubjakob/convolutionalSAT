@@ -16,9 +16,6 @@ public class Main {
     /* Nach n gefundenen Modellen das Lösen abbrechen */
     public static final int MAX_NUMBER_OF_SOLUTIONS = 2;
 
-    public static int[] inputBits1 = new int[] { 0, 0, 1, 0, 1, 1, 0 };
-    public static int[] inputBits2 = new int[] { 1, 0, 0, 1, 1, 0, 1 };
-
     public static void main(String[] args) {
 
         Module encoder = new Module(Enums.Module.ENCODER);
@@ -31,11 +28,11 @@ public class Main {
         encoder.addNot();
         encoder.addNot();
 
-        BitStream bitsStreamIn = new BitStream(0, inputBits1, input);
-        BitStream bitsStreamIn2 = new BitStream(1, inputBits2, input);
+        BitStream bitsStreamIn0 = new BitStream(0, new int[] { 0, 0, 1, 0, 1, 1, 0 });
+        BitStream bitsStreamIn1 = new BitStream(1, new int[] { 1, 0, 0, 1, 1, 0, 1 });
 
-        encoder.addBitStream(bitsStreamIn);
-        encoder.addBitStream(bitsStreamIn2);
+        encoder.addBitStream(bitsStreamIn0, input);
+        encoder.addBitStream(bitsStreamIn1, input);
 
         Module decoder = new Module(Enums.Module.DECODER);
         decoder.addInput();
@@ -46,22 +43,16 @@ public class Main {
         decoder.addNot();
         decoder.addXor();
 
-        BitStream outputBitsStream = new BitStream(0, inputBits1, decoderOutput);
-        BitStream outputBitsStream2 = new BitStream(1, inputBits2, decoderOutput);
-
-        decoder.addBitStream(outputBitsStream);
-        decoder.addBitStream(outputBitsStream2);
-
-        BitStream channelBitStream = new BitStream(0, inputBits1);
-        BitStream channelBitStream2 = new BitStream(1, inputBits2);
+        decoder.addBitStream(bitsStreamIn0, decoderOutput);
+        decoder.addBitStream(bitsStreamIn1, decoderOutput);
 
         Channel channel = new Channel(encoder, decoder);
-        channel.addBitStream(channelBitStream);
-        channel.addBitStream(channelBitStream2);
+        channel.addBitStream(bitsStreamIn0);
+        channel.addBitStream(bitsStreamIn1);
 
-        MainGui mainGui = new MainGui(Arrays.asList(bitsStreamIn, bitsStreamIn2));
+        MainGui mainGui = new MainGui(Arrays.asList(bitsStreamIn0, bitsStreamIn1));
 
-        Problem problem = new Problem(Arrays.asList(encoder, decoder, channel), inputBits1.length, 2);
+        Problem problem = new Problem(Arrays.asList(encoder, decoder, channel), bitsStreamIn0.getLength(), 2);
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 

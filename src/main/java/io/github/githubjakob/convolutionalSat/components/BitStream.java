@@ -14,12 +14,7 @@ public class BitStream implements Iterable<Bit> {
 
     int id;
 
-    List<Gate> gates = new ArrayList<>();
-
-    public BitStream(int id, int[] bits, Gate... gates) {
-        for (Gate gate : gates) {
-            this.gates.add(gate);
-        }
+    public BitStream(int id, int[] bits) {
         this.id = id;
 
         for (int tick = 0; tick < bits.length; tick++) {
@@ -30,10 +25,6 @@ public class BitStream implements Iterable<Bit> {
 
     public int getId() {
         return id;
-    }
-
-    public List<Gate> getGates() {
-        return gates;
     }
 
     public int getLength() {

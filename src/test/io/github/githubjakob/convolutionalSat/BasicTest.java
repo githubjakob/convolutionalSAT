@@ -4,6 +4,7 @@ import io.github.githubjakob.convolutionalSat.components.Connection;
 import io.github.githubjakob.convolutionalSat.components.Xor;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.modules.Module;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -21,7 +22,7 @@ public class BasicTest {
 
     @Test
     public void testEquals() {
-        Xor xor = new Xor(Enums.Module.ENCODER);
+        Xor xor = new Xor(new Module(Enums.Module.ENCODER));
         Xor xor2 = xor;
 
         assertThat(xor, is(xor2));
@@ -52,7 +53,7 @@ public class BasicTest {
     public void testHashMap() {
         Map<Variable, Integer> map = new HashMap<>();
 
-        Xor xor = new Xor(Enums.Module.ENCODER);
+        Xor xor = new Xor(new Module(Enums.Module.ENCODER));
         Variable variable = new Variable(false, xor);
         Variable sameVariable = new Variable(false, xor);
 
@@ -71,7 +72,7 @@ public class BasicTest {
     public void testHashMapTimeDependentVariable() {
         Map<Variable, Integer> map = new HashMap<>();
 
-        Xor xor = new Xor(Enums.Module.ENCODER);
+        Xor xor = new Xor(new Module(Enums.Module.ENCODER));
         TimeDependentVariable variable = new TimeDependentVariable(0, 0, false, xor);
         TimeDependentVariable same = new TimeDependentVariable(0, 0, false, xor);
         TimeDependentVariable notSame = new TimeDependentVariable(0, 1, false, xor);
@@ -91,8 +92,8 @@ public class BasicTest {
 
     @Test
     public void connectionEquals() {
-        Xor xor = new Xor(Enums.Module.ENCODER);
-        Xor xor2 = new Xor(Enums.Module.ENCODER);
+        Xor xor = new Xor(new Module(Enums.Module.ENCODER));
+        Xor xor2 = new Xor(new Module(Enums.Module.ENCODER));
 
         Connection connection = new Connection(xor.getOutputPin(), xor2.getInputPins().get(0));
         Connection connection2 = new Connection(xor.getOutputPin(), xor2.getInputPins().get(1));
@@ -108,8 +109,8 @@ public class BasicTest {
 
     @Test
     public void circuitEquals() {
-        Xor xor = new Xor(Enums.Module.ENCODER);
-        Xor xor2 = new Xor(Enums.Module.ENCODER);
+        Xor xor = new Xor(new Module(Enums.Module.ENCODER));
+        Xor xor2 = new Xor(new Module(Enums.Module.ENCODER));
 
         Connection connection = new Connection(xor.getOutputPin(), xor2.getInputPins().get(0));
         Connection connection2 = new Connection(xor.getOutputPin(), xor2.getInputPins().get(1));

@@ -64,20 +64,22 @@ public class Graph extends MultiGraph {
 
             int[][] bitsStreams = bitsAtNodes.get(gate.getOutputPin());
 
-            if (gate.getType().equals("input") && gate.getModule().equals(Enums.Module.ENCODER)) {
+            if (gate.getType().equals("input") && gate.getModule().getType().equals(Enums.Module.ENCODER)) {
                 root = node;
                 node.addAttribute("ui.class", "globalinput");
             }
 
             int count = 0;
             for (int[] bits : bitsStreams) {
+                if (count == 0) {
+                    node.addAttribute("ui.label", gate.getType() + Arrays.toString(bits));
+                }
                 node.addAttribute("ui.bitstream" + count, gate.getType() + Arrays.toString(bits));
                 count++;
             }
 
-            node.addAttribute("ui.label", gate.getType());
             node.addAttribute("ui.type", gate.getType());
-            node.addAttribute("ui.class", gate.getModule().toString());
+            node.addAttribute("ui.class", gate.getModule().getType().toString());
             //node.addAttribute("ui.class", gate.getType());
             registerOutputPin(gate, node, nodes);
             registerInputPins(gate, node, nodes);
@@ -137,7 +139,6 @@ public class Graph extends MultiGraph {
                 String value = node.getAttribute("ui.type");
                 node.setAttribute("ui.label", value);
             } else if (attribute.contains("bitstream")) {
-                System.out.println(attribute);
                 String value = node.getAttribute(attribute);
                 node.setAttribute("ui.label", value);
             }

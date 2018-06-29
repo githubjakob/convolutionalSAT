@@ -38,9 +38,7 @@ public class Channel extends Module {
     public List<Clause> convertModuleToCnf() {
         List<Clause> allClauses = new ArrayList<>();
 
-        for (BitStream bitStream : bitstreams) {
-            allClauses.addAll(convertConnectionsToCnf(bitStream));
-        }
+        allClauses.addAll(convertConnectionsToCnf());
 
         return allClauses;
     }

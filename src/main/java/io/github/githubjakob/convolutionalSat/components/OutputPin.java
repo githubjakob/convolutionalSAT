@@ -1,5 +1,7 @@
 package io.github.githubjakob.convolutionalSat.components;
 
+import io.github.githubjakob.convolutionalSat.modules.Module;
+
 /**
  * Created by jakob on 07.06.18.
  */
@@ -42,5 +44,10 @@ public class OutputPin implements Pin {
     @Override
     public String getType() {
         return "output-pin";
+    }
+
+    @Override
+    public Module getModule() {
+        return this.gate.getModule();
     }
 }

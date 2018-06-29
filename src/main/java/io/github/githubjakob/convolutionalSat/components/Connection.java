@@ -4,6 +4,7 @@ package io.github.githubjakob.convolutionalSat.components;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,25 +34,28 @@ public class Connection implements Component {
         return "C" + id;
     }
 
-    public List<Clause> convertToCnfAtTick(BitStream bitStream) {
-        int bitstreamId = bitStream.getId();
+    public List<Clause> convertToCnfAtTick() {
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
-        int bits = bitStream.getLength();
-        for (int tick = 0; tick < bits; tick++) {
+        for (BitStream bitStream : this.getModule().getBitstreams()) {
+            int bitstreamId = bitStream.getId();
+            int bits = bitStream.getLength();
+            for (int tick = 0; tick < bits; tick++) {
 
-            Variable connectionNotSet = new Variable(false, this);
+                Variable connectionNotSet = new Variable(false, this);
 
-            TimeDependentVariable inputTrue = new TimeDependentVariable(tick, bitstreamId, true, from);
-            TimeDependentVariable inputFalse = new TimeDependentVariable(tick, bitstreamId, false, from);
+                TimeDependentVariable inputTrue = new TimeDependentVariable(tick, bitstreamId, true, from);
+                TimeDependentVariable inputFalse = new TimeDependentVariable(tick, bitstreamId, false, from);
 
-            TimeDependentVariable outputTrue = new TimeDependentVariable(tick, bitstreamId, true, to);
-            TimeDependentVariable outputFalse = new TimeDependentVariable(tick, bitstreamId, false, to);
+                TimeDependentVariable outputTrue = new TimeDependentVariable(tick, bitstreamId, true, to);
+                TimeDependentVariable outputFalse = new TimeDependentVariable(tick, bitstreamId, false, to);
 
-            Clause clause1 = new Clause(inputFalse, outputTrue, connectionNotSet);
-            Clause clause2 = new Clause(inputTrue, outputFalse, connectionNotSet);
-            clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+                Clause clause1 = new Clause(inputFalse, outputTrue, connectionNotSet);
+                Clause clause2 = new Clause(inputTrue, outputFalse, connectionNotSet);
+                clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+            }
         }
+
 
         return clausesForAllTicks;
 
@@ -68,5 +72,10 @@ public class Connection implements Component {
     @Override
     public String getType() {
         return "connection";
+    }
+
+    @Override
+    public Module getModule() {
+        return this.from.getModule();
     }
 }

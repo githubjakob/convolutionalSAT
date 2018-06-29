@@ -23,11 +23,10 @@ public class MainTests {
         Output output = encoder.addOutput();
         encoder.addXor();
 
-        BitStream inputBitStream = new BitStream(0, new int[] { 0 }, input);
-        BitStream outputBitStream = new BitStream(0, new int[] { 0 }, output);
+        BitStream bitStream = new BitStream(0, new int[] { 0 });
 
-        encoder.addBitStream(inputBitStream);
-        encoder.addBitStream(outputBitStream);
+        encoder.addBitStream(bitStream, input);
+        encoder.addBitStream(bitStream, output);
 
         Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
 
@@ -47,11 +46,11 @@ public class MainTests {
         Output output = encoder.addOutput();
         encoder.addXor();
 
-        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 }, input);
-        BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0}, output);
+        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 });
+        BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0});
 
-        encoder.addBitStream(inputBitStream);
-        encoder.addBitStream(outputBitStream);
+        encoder.addBitStream(inputBitStream, input);
+        encoder.addBitStream(outputBitStream, output);
 
         Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
 
@@ -72,11 +71,10 @@ public class MainTests {
         encoder.addXor();
         encoder.addRegister();
 
-        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 }, input);
-        BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0}, output);
+        BitStream bitStream = new BitStream(0, new int[] { 0, 1, 0 });
 
-        encoder.addBitStream(inputBitStream);
-        encoder.addBitStream(outputBitStream);
+        encoder.addBitStream(bitStream, input);
+        encoder.addBitStream(bitStream, output);
 
         Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
 
@@ -98,11 +96,10 @@ public class MainTests {
         encoder.addXor();
         encoder.addRegister();
 
-        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 }, input);
-        BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0}, output);
+        BitStream bitStream = new BitStream(0, new int[] { 0, 1, 0 });
 
-        encoder.addBitStream(inputBitStream);
-        encoder.addBitStream(outputBitStream);
+        encoder.addBitStream(bitStream, input);
+        encoder.addBitStream(bitStream, output);
 
         Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
 
@@ -125,11 +122,10 @@ public class MainTests {
         encoder.addXor();
         encoder.addRegister();
 
-        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 }, input);
-        BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0}, output);
+        BitStream bitStream = new BitStream(0, new int[] { 0, 1, 0 });
 
-        encoder.addBitStream(inputBitStream);
-        encoder.addBitStream(outputBitStream);
+        encoder.addBitStream(bitStream, input);
+        encoder.addBitStream(bitStream, output);
 
         Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
 
@@ -144,11 +140,9 @@ public class MainTests {
         encoder.addXor();
         encoder.addRegister();
 
-        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 }, input);
-        BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0}, output);
+        BitStream bitStream = new BitStream(0, new int[] { 0, 1, 0 });
 
-        encoder.addBitStream(inputBitStream);
-        encoder.addBitStream(outputBitStream);
+        encoder.addBitStream(bitStream, input);
 
         Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
 
@@ -168,11 +162,39 @@ public class MainTests {
         Output output = encoder.addOutput();
         encoder.addXor();
 
-        BitStream inputBitStream = new BitStream(0, new int[] { 0, 0, 0 }, input);
-        BitStream outputBitStream = new BitStream(0, new int[] { 1, 1, 1}, output);
+        BitStream inputBitStream = new BitStream(0, new int[] { 0, 0, 0 });
+        BitStream outputBitStream = new BitStream(0, new int[] { 1, 1, 1});
 
-        encoder.addBitStream(inputBitStream);
-        encoder.addBitStream(outputBitStream);
+        encoder.addBitStream(inputBitStream, input);
+        encoder.addBitStream(outputBitStream, output);
+
+        Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
+
+        BooleanExpression booleanExpression = new BooleanExpression(problem);
+
+        Circuit model = booleanExpression.solve();
+
+        assertTrue(model==null);
+    }
+
+    @Test
+    public void oneXor_moreBitstreams_notSolveable() {
+        Module encoder = new Module(Enums.Module.ENCODER);
+        Input input = encoder.addInput();
+        Output output = encoder.addOutput();
+        encoder.addXor();
+
+        BitStream inputBitStream = new BitStream(0, new int[]{0, 1, 0});
+        BitStream outputBitStream = new BitStream(0, new int[]{0, 0, 0});
+
+        encoder.addBitStream(inputBitStream, input);
+        encoder.addBitStream(outputBitStream, output);
+
+        BitStream inputBitStream1 = new BitStream(1, new int[]{0, 0, 0});
+        BitStream outputBitStream1 = new BitStream(1, new int[]{1, 1, 1});
+
+        encoder.addBitStream(inputBitStream1, input);
+        encoder.addBitStream(outputBitStream1, output);
 
         Problem problem = new Problem(Arrays.asList(encoder), 1, 1);
 

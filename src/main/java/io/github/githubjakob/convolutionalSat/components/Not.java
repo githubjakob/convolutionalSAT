@@ -4,6 +4,7 @@ import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +16,7 @@ import java.util.List;
 public class Not implements Gate {
     private static int idCounter = 0;
 
-    private final Enums.Module module;
+    private final Module module;
 
     private int id;
 
@@ -23,7 +24,7 @@ public class Not implements Gate {
 
     public OutputPin outputPin;
 
-    public Not(Enums.Module module) {
+    public Not(Module module) {
         this.module = module;
         this.id = idCounter++;
         this.inputPin = new InputPin(this);
@@ -35,28 +36,32 @@ public class Not implements Gate {
         return "Not" + id;
     }
 
-    public List<Clause> convertToCnf(BitStream bitStream) {
+    public List<Clause> convertToCnf() {
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
-        int bits = bitStream.getLength();
-        for (int tick = 0; tick < bits; tick++) {
-            Variable outputTrue = new TimeDependentVariable(tick, bitStream.getId(),true, outputPin);
-            Variable outputFalse = new TimeDependentVariable(tick, bitStream.getId(),false, outputPin);
+        for (BitStream bitStream : getModule().getBitstreams()) {
+            int bits = bitStream.getLength();
+            for (int tick = 0; tick < bits; tick++) {
+                Variable outputTrue = new TimeDependentVariable(tick, bitStream.getId(),true, outputPin);
+                Variable outputFalse = new TimeDependentVariable(tick, bitStream.getId(),false, outputPin);
 
-            Variable inputTrue = new TimeDependentVariable(tick, bitStream.getId(),true, inputPin);
-            Variable inputFalse = new TimeDependentVariable(tick, bitStream.getId(),false, inputPin);
+                Variable inputTrue = new TimeDependentVariable(tick, bitStream.getId(),true, inputPin);
+                Variable inputFalse = new TimeDependentVariable(tick, bitStream.getId(),false, inputPin);
 
-            Clause clause1 = new Clause(outputFalse, inputFalse);
-            Clause clause2 = new Clause(outputTrue, inputTrue);
+                Clause clause1 = new Clause(outputFalse, inputFalse);
+                Clause clause2 = new Clause(outputTrue, inputTrue);
 
-            clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+                clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+            }
         }
+
+
 
         return clausesForAllTicks;
     }
 
     @Override
-    public Enums.Module getModule() {
+    public Module getModule() {
         return module;
     }
 

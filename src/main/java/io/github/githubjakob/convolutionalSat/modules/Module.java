@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 public class Module {
 
     @Getter
-    Integer numberOfBits = null;
-
     List<BitStream> bitstreams = new ArrayList<>();
+
+    Map<BitStream, Gate> bitStreamAtGate = new HashMap<>();
 
     @Getter
     List<Input> inputs = new ArrayList<>();
@@ -33,27 +33,22 @@ public class Module {
 
     List<OutputPin> outputPins = new ArrayList<>();
 
-    Enums.Module module;
+    @Getter
+    Enums.Module type;
 
     public Module(Enums.Module type) {
-        this.module = type;
+        this.type = type;
     }
 
-    public void addBitStream(BitStream bitStream) {
+    public void addBitStream(BitStream bitStream, Gate... gates) {
         bitstreams.add(bitStream);
-        setNumberOfBits(bitStream.getLength());
-    }
-
-    private void setNumberOfBits(int numberOfBitsInInputStream) {
-        int newNumber = numberOfBitsInInputStream;
-        if (numberOfBits != null && !numberOfBits.equals(newNumber)) {
-            throw new RuntimeException("Wrong lenght of input/output stream");
+        for (Gate gate : gates) {
+            bitStreamAtGate.put(bitStream, gate);
         }
-        this.numberOfBits = newNumber;
     }
 
     public Output addOutput() {
-        Output output = new Output(module);
+        Output output = new Output(this);
         outputs.add(output);
         gates.add(output);
         inputPins.addAll(output.getInputPins());
@@ -61,7 +56,7 @@ public class Module {
     }
 
      public Input addInput() {
-        Input input = new Input(module);
+        Input input = new Input(this);
         this.inputs.add(input);
         this.gates.add(input);
         this.outputPins.add(input.getOutputPin());
@@ -69,31 +64,31 @@ public class Module {
     }
 
     public Register addRegister() {
-        Register register = new Register(module);
+        Register register = new Register(this);
         setupNewGate(register);
         return register;
     };
 
     public And addAnd() {
-        And and = new And(module);
+        And and = new And(this);
         setupNewGate(and);
         return and;
     };
 
     public Not addNot() {
-        Not not = new Not(module);
+        Not not = new Not(this);
         setupNewGate(not);
         return not;
     };
 
     public Xor addXor() {
-        Xor xor = new Xor(module);
+        Xor xor = new Xor(this);
         setupNewGate(xor);
         return xor;
     };
 
     public Identity addIdentity() {
-        Identity identity = new Identity(module);
+        Identity identity = new Identity(this);
         setupNewGate(identity);
         return identity;
     }
@@ -131,22 +126,22 @@ public class Module {
         }
     }
 
-    List<Clause> convertGatesToCnf(BitStream bitStream) {
+    List<Clause> convertGatesToCnf() {
         List<Clause> clausesForTick = new ArrayList<>();
 
         // für jedes Bauteil
         for (Gate gate : gates) {
-            clausesForTick.addAll(gate.convertToCnf(bitStream));
+            clausesForTick.addAll(gate.convertToCnf());
         }
         return clausesForTick;
     }
 
-    List<Clause> convertConnectionsToCnf(BitStream bitStream) {
+    List<Clause> convertConnectionsToCnf() {
         List<Clause> clausesForTick = new ArrayList<>();
 
         //für jede Verbindung
         for (Connection connection : connections) {
-            clausesForTick.addAll(connection.convertToCnfAtTick(bitStream));
+            clausesForTick.addAll(connection.convertToCnfAtTick());
         }
 
         /**
@@ -198,11 +193,11 @@ public class Module {
         return clausesForTick;
     }
 
-    List<Clause>  convertBitStreams() {
+    List<Clause> convertBitStreamsToCnf() {
         List<Clause> clausesForTick = new ArrayList<>();
         if (bitstreams.size() > 0 ) {
-            for (BitStream bitStream : bitstreams) {
-                List<Clause> clauses = convertBitStreamToCnf(bitStream);
+            for (BitStream bitStream : bitStreamAtGate.keySet()) {
+                List<Clause> clauses = convertBitStreamToCnf(bitStreamAtGate.get(bitStream), bitStream);
                 clausesForTick.addAll(clauses);
             }
         }
@@ -211,31 +206,28 @@ public class Module {
 
     }
 
-    private  List<Clause> convertBitStreamToCnf(BitStream bitStream) {
+    private  List<Clause> convertBitStreamToCnf(Gate gate, BitStream bitStream) {
         List<Clause> clausesForTick = new ArrayList<>();
 
-        List<Gate> gates = bitStream.getGates();
-
-        for (Gate gate : gates) {
-            if ("output".equals(gate.getType())) {
-                for (Bit bit : bitStream) {
-                    for (InputPin inputPin : gate.getInputPins()) {
-                        Clause outputClause = new Clause(
-                                new TimeDependentVariable(bit.getTick(), bitStream.getId(), bit.getBit(), inputPin));
-                        clausesForTick.add(outputClause);
-                    }
-
-                }
-            }
-
-            if ("input".equals(gate.getType())) {
-                for (Bit bit : bitStream) {
+        if ("output".equals(gate.getType())) {
+            for (Bit bit : bitStream) {
+                for (InputPin inputPin : gate.getInputPins()) {
                     Clause outputClause = new Clause(
-                            new TimeDependentVariable(bit.getTick(), bitStream.getId(), bit.getBit(), gate.getOutputPin()));
+                            new TimeDependentVariable(bit.getTick(), bitStream.getId(), bit.getBit(), inputPin));
                     clausesForTick.add(outputClause);
                 }
+
             }
         }
+
+        if ("input".equals(gate.getType())) {
+            for (Bit bit : bitStream) {
+                Clause outputClause = new Clause(
+                        new TimeDependentVariable(bit.getTick(), bitStream.getId(), bit.getBit(), gate.getOutputPin()));
+                clausesForTick.add(outputClause);
+            }
+        }
+
 
         return clausesForTick;
     }
@@ -252,13 +244,9 @@ public class Module {
 
         List<Clause> allClauses = new ArrayList<>();
 
-        for (BitStream bitStream : bitstreams) {
-            allClauses.addAll(convertGatesToCnf(bitStream));
-            allClauses.addAll(convertConnectionsToCnf(bitStream));
-
-        }
-
-        allClauses.addAll(convertBitStreams());
+        allClauses.addAll(convertGatesToCnf());
+        allClauses.addAll(convertConnectionsToCnf());
+        allClauses.addAll(convertBitStreamsToCnf());
 
         return allClauses;
 
