@@ -1,9 +1,8 @@
 package io.github.githubjakob.convolutionalSat.components;
 
-import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
-import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
+import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ import java.util.List;
 /**
  * Created by jakob on 31.05.18.
  */
-public class Register implements Gate {
+public class Register extends AbstractGate {
 
     private static int idCounter = 0;
 
@@ -53,7 +52,7 @@ public class Register implements Gate {
                 List<Clause> clausesAtTick = new ArrayList<>();
 
                 if (tick == 0) {
-                    Variable variable = new TimeDependentVariable(tick, bitStream.getId(), false, outputPin);
+                    ConnectionVariable variable = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
                     Clause clause = new Clause(variable);
                     clausesAtTick.add(clause);
                 } else {
@@ -68,11 +67,11 @@ public class Register implements Gate {
 
                     int previousTick = tick - 1;
 
-                    Variable previousInputTrue = new TimeDependentVariable(previousTick, bitStream.getId(), true, inputPin);
-                    Variable previousInputFalse = new TimeDependentVariable(previousTick, bitStream.getId(), false, inputPin);
+                    ConnectionVariable previousInputTrue = new BitAtComponentVariable(previousTick, bitStream.getId(), true, inputPin);
+                    ConnectionVariable previousInputFalse = new BitAtComponentVariable(previousTick, bitStream.getId(), false, inputPin);
 
-                    Variable outputTrue = new TimeDependentVariable(tick, bitStream.getId(), true, outputPin);
-                    Variable outputFalse = new TimeDependentVariable(tick, bitStream.getId(), false, outputPin);
+                    ConnectionVariable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
+                    ConnectionVariable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
 
                     Clause clause1 = new Clause(outputFalse, previousInputTrue);
                     Clause clause2 = new Clause(outputTrue, previousInputFalse);
@@ -87,7 +86,8 @@ public class Register implements Gate {
         }
 
 
-
+        List<Clause> microtickClauses = getMicrotickCnf(this.getModule().getNumberOfGates());
+        clausesForAllTicks.addAll(microtickClauses);
 
         return clausesForAllTicks;
     }

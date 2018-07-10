@@ -1,8 +1,7 @@
 package io.github.githubjakob.convolutionalSat.components;
 
-import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
+import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ import java.util.List;
 /**
  * Created by jakob on 07.06.18.
  */
-public class Output implements Gate {
+public class Output extends AbstractGate {
 
     private static int idCounter = 0;
 
@@ -51,18 +50,22 @@ public class Output implements Gate {
         for (BitStream bitStream : this.getModule().getBitstreams()) {
             int bits = bitStream.getLength();
             for (int tick = 0; tick < bits; tick++) {
-                TimeDependentVariable outputTrue = new TimeDependentVariable(tick, bitStream.getId(), true, outputPin);
-                TimeDependentVariable outputFalse = new TimeDependentVariable(tick, bitStream.getId(), false, outputPin);
+                BitAtComponentVariable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
+                BitAtComponentVariable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
 
-                TimeDependentVariable inputPinTrue = new TimeDependentVariable(tick, bitStream.getId(), true, inputPin);
-                TimeDependentVariable inputPinFalse = new TimeDependentVariable(tick, bitStream.getId(), false, inputPin);
+                BitAtComponentVariable inputPinTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin);
+                BitAtComponentVariable inputPinFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin);
 
                 Clause clause1 = new Clause(outputTrue, inputPinFalse);
                 Clause clause2 = new Clause(outputFalse, inputPinTrue);
 
                 clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+
             }
         }
+
+        List<Clause> microtickClauses = getMicrotickCnf(this.getModule().getNumberOfGates());
+        clausesForAllTicks.addAll(microtickClauses);
 
 
         return clausesForAllTicks;

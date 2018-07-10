@@ -3,8 +3,8 @@ package io.github.githubjakob.convolutionalSat.modules;
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
-import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
+import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import lombok.Getter;
 
 import java.util.*;
@@ -93,6 +93,10 @@ public class Module {
         return identity;
     }
 
+    public int getNumberOfGates() {
+        return gates.size() +2;
+    }
+
     /**
      * Nach dem Hinzufügen eines neuen Gates zum Modul muss diese Methode aufgerufen werden
      *
@@ -141,7 +145,7 @@ public class Module {
 
         //für jede Verbindung
         for (Connection connection : connections) {
-            clausesForTick.addAll(connection.convertToCnfAtTick());
+            clausesForTick.addAll(connection.convertToCnfAtTick(getNumberOfGates()));
         }
 
         /**
@@ -152,7 +156,7 @@ public class Module {
             Clause possibleConnections = new Clause();
             for (Connection connection : connections) {
                 if (connection.getFrom().equals(outputPin)) {
-                    possibleConnections.addVariable(new Variable(true, connection));
+                    possibleConnections.addVariable(new ConnectionVariable(true, connection));
                 }
             }
             clausesForTick.add(possibleConnections);
@@ -168,7 +172,7 @@ public class Module {
              */
             Clause possibleConnections = new Clause();
             for (Connection connection : connectionsWithSameTo) {
-                possibleConnections.addVariable(new Variable(true, connection));
+                possibleConnections.addVariable(new ConnectionVariable(true, connection));
 
             }
             clausesForTick.add(possibleConnections);
@@ -181,8 +185,8 @@ public class Module {
                     if (connection.equals(other)) {
                         continue;
                     }
-                    Variable connectionFalse = new Variable(false, connection);
-                    Variable otherFalse = new Variable(false, other);
+                    ConnectionVariable connectionFalse = new ConnectionVariable(false, connection);
+                    ConnectionVariable otherFalse = new ConnectionVariable(false, other);
                     Clause exclude = new Clause(connectionFalse, otherFalse);
                     clausesForTick.add(exclude);
                 }
@@ -213,7 +217,7 @@ public class Module {
             for (Bit bit : bitStream) {
                 for (InputPin inputPin : gate.getInputPins()) {
                     Clause outputClause = new Clause(
-                            new TimeDependentVariable(bit.getTick(), bitStream.getId(), bit.getBit(), inputPin));
+                            new BitAtComponentVariable(bit.getTick(), bitStream.getId(), bit.getBit(), inputPin));
                     clausesForTick.add(outputClause);
                 }
 
@@ -223,7 +227,7 @@ public class Module {
         if ("input".equals(gate.getType())) {
             for (Bit bit : bitStream) {
                 Clause outputClause = new Clause(
-                        new TimeDependentVariable(bit.getTick(), bitStream.getId(), bit.getBit(), gate.getOutputPin()));
+                        new BitAtComponentVariable(bit.getTick(), bitStream.getId(), bit.getBit(), gate.getOutputPin()));
                 clausesForTick.add(outputClause);
             }
         }

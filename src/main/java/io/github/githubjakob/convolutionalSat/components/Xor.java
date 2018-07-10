@@ -1,10 +1,9 @@
 package io.github.githubjakob.convolutionalSat.components;
 
 
-import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
-import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
+import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
@@ -14,7 +13,7 @@ import java.util.List;
 /**
  * Created by jakob on 31.05.18.
  */
-public class Xor implements Gate {
+public class Xor extends AbstractGate {
 
     private static int idCounter = 0;
 
@@ -47,14 +46,14 @@ public class Xor implements Gate {
         for (BitStream bitStream : this.getModule().getBitstreams()) {
             int bits = bitStream.getLength();
             for (int tick = 0; tick < bits; tick++) {
-                Variable outputTrue = new TimeDependentVariable(tick, bitStream.getId(), true, outputPin);
-                Variable outputFalse = new TimeDependentVariable(tick, bitStream.getId(), false, outputPin);
+                ConnectionVariable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
+                ConnectionVariable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
 
-                Variable input1True = new TimeDependentVariable(tick, bitStream.getId(), true, inputPin1);
-                Variable input1False = new TimeDependentVariable(tick, bitStream.getId(), false, inputPin1);
+                ConnectionVariable input1True = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin1);
+                ConnectionVariable input1False = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin1);
 
-                Variable input2True = new TimeDependentVariable(tick, bitStream.getId(), true, inputPin2);
-                Variable input2False = new TimeDependentVariable(tick, bitStream.getId(), false, inputPin2);
+                ConnectionVariable input2True = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin2);
+                ConnectionVariable input2False = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin2);
 
                 Clause clause1 = new Clause(outputFalse, input1False, input2False);
                 Clause clause2 = new Clause(outputFalse, input1True, input2True);
@@ -64,6 +63,9 @@ public class Xor implements Gate {
                 clausesForAllTicks.addAll(Arrays.asList(clause1, clause2, clause3, clause4));
             }
         }
+
+        List<Clause> microtickClauses = getMicrotickCnf(this.getModule().getNumberOfGates());
+        clausesForAllTicks.addAll(microtickClauses);
 
         return clausesForAllTicks;
     }

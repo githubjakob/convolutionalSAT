@@ -38,14 +38,13 @@ public class Graph extends MultiGraph {
 
     public boolean isGraphFullyConnected() {
 
-        Iterator<Node> it = this.root.getBreadthFirstIterator();
+        Iterator<Node> it = this.root.getBreadthFirstIterator(true);
 
         int reachableNodes = 0;
         while(it.hasNext()) {
             Node next = it.next();
             reachableNodes++;
         }
-
         return this.getNodeCount() == reachableNodes;
     }
 
@@ -72,7 +71,7 @@ public class Graph extends MultiGraph {
             int count = 0;
             for (int[] bits : bitsStreams) {
                 if (count == 0) {
-                    node.addAttribute("ui.label", gate.getType() + Arrays.toString(bits));
+                    node.addAttribute("ui.label", gate.toString() + Arrays.toString(bits));
                 }
                 node.addAttribute("ui.bitstream" + count, gate.getType() + Arrays.toString(bits));
                 count++;

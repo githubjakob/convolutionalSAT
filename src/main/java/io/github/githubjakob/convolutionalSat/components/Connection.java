@@ -1,9 +1,7 @@
 package io.github.githubjakob.convolutionalSat.components;
 
 
-import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
-import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.logic.*;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
@@ -34,26 +32,53 @@ public class Connection implements Component {
         return "C" + id;
     }
 
-    public List<Clause> convertToCnfAtTick() {
+    public List<Clause> convertToCnfAtTick(int numberOfGates) {
         List<Clause> clausesForAllTicks = new ArrayList<>();
+        ConnectionVariable connectionNotSet = new ConnectionVariable(false, this);
 
         for (BitStream bitStream : this.getModule().getBitstreams()) {
             int bitstreamId = bitStream.getId();
             int bits = bitStream.getLength();
             for (int tick = 0; tick < bits; tick++) {
 
-                Variable connectionNotSet = new Variable(false, this);
+                BitAtComponentVariable inputTrue = new BitAtComponentVariable(tick, bitstreamId, true, from);
+                BitAtComponentVariable inputFalse = new BitAtComponentVariable(tick, bitstreamId, false, from);
 
-                TimeDependentVariable inputTrue = new TimeDependentVariable(tick, bitstreamId, true, from);
-                TimeDependentVariable inputFalse = new TimeDependentVariable(tick, bitstreamId, false, from);
-
-                TimeDependentVariable outputTrue = new TimeDependentVariable(tick, bitstreamId, true, to);
-                TimeDependentVariable outputFalse = new TimeDependentVariable(tick, bitstreamId, false, to);
+                BitAtComponentVariable outputTrue = new BitAtComponentVariable(tick, bitstreamId, true, to);
+                BitAtComponentVariable outputFalse = new BitAtComponentVariable(tick, bitstreamId, false, to);
 
                 Clause clause1 = new Clause(inputFalse, outputTrue, connectionNotSet);
                 Clause clause2 = new Clause(inputTrue, outputFalse, connectionNotSet);
                 clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
             }
+        }
+
+        Gate fromGate = from.getGate();
+        Gate toGate = to.getGate();
+        if (toGate.getType().equals("input") || toGate.getType().equals("register")) {
+            return clausesForAllTicks;
+        }
+
+        // wenn die verbindung gestzt ist muss der Microtick von "from" kleiner als von "to" sein
+        // für irgendeine Stelligkeit
+        Clause biggerOrEqual = new Clause();
+        clausesForAllTicks.add(biggerOrEqual);
+        biggerOrEqual.addVariable(connectionNotSet);
+        for (int i = 0; i < numberOfGates; i++) {
+            ConnectionVariable fromVariableTrue = new MicrotickVariable(i, true, fromGate);
+            ConnectionVariable fromVariableFalse = new MicrotickVariable(i, false, fromGate);
+            ConnectionVariable toVariableTrue = new MicrotickVariable(i, true,to.getGate());
+            ConnectionVariable toVariableFalse = new MicrotickVariable(i, false,to.getGate());
+
+            BiggerOrEqualVariable biggerOrEqualVariableTrue = new BiggerOrEqualVariable(i, true, this);
+            BiggerOrEqualVariable biggerOrEqualVariableFalse = new BiggerOrEqualVariable(i, false, this);
+            biggerOrEqual.addVariable(biggerOrEqualVariableTrue);
+
+            clausesForAllTicks.add(new Clause(biggerOrEqualVariableFalse, fromVariableFalse));
+            clausesForAllTicks.add(new Clause(biggerOrEqualVariableFalse, toVariableTrue));
+            //clausesForAllTicks.add(new Clause(biggerOrEqualVariableTrue, fromVariableTrue));
+            //clausesForAllTicks.add(new Clause(biggerOrEqualVariableTrue, toVariableFalse));
+
         }
 
 

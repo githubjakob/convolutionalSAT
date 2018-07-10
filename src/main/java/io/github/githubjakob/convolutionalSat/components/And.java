@@ -1,9 +1,10 @@
 package io.github.githubjakob.convolutionalSat.components;
 
-import io.github.githubjakob.convolutionalSat.Enums;
+import io.github.githubjakob.convolutionalSat.Main;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
-import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
+import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
+import io.github.githubjakob.convolutionalSat.logic.MicrotickVariable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.List;
 /**
  * Created by jakob on 22.06.18.
  */
-public class And implements Gate {
+public class And extends AbstractGate  {
 
     private static int idCounter = 0;
 
@@ -47,20 +48,24 @@ public class And implements Gate {
             int bitStreamId = bitStream.getId();
             int bits = bitStream.getLength();
             for (int tick = 0; tick < bits; tick++) {
-                Variable outputTrue = new TimeDependentVariable(tick, bitStreamId, true, outputPin);
-                Variable outputFalse = new TimeDependentVariable(tick, bitStreamId, false, outputPin);
+                ConnectionVariable outputTrue = new BitAtComponentVariable(tick, bitStreamId, true, outputPin);
+                ConnectionVariable outputFalse = new BitAtComponentVariable(tick, bitStreamId, false, outputPin);
 
-                Variable input1True = new TimeDependentVariable(tick, bitStreamId, true, inputPin1);
-                Variable input1False = new TimeDependentVariable(tick, bitStreamId, false, inputPin1);
+                ConnectionVariable input1True = new BitAtComponentVariable(tick, bitStreamId, true, inputPin1);
+                ConnectionVariable input1False = new BitAtComponentVariable(tick, bitStreamId, false, inputPin1);
 
-                Variable input2True = new TimeDependentVariable(tick, bitStreamId, true, inputPin2);
-                Variable input2False = new TimeDependentVariable(tick, bitStreamId, false, inputPin2);
+                ConnectionVariable input2True = new BitAtComponentVariable(tick, bitStreamId, true, inputPin2);
+                ConnectionVariable input2False = new BitAtComponentVariable(tick, bitStreamId, false, inputPin2);
 
                 Clause clause1 = new Clause(outputFalse, input1True, input2True);
                 Clause clause2 = new Clause(outputTrue, input1False, input2False);
                 Clause clause3 = new Clause(outputFalse, input1False, input2True);
                 Clause clause4 = new Clause(outputFalse, input1True, input2False);
                 clausesForAllTicks.addAll(Arrays.asList(clause1, clause2, clause3, clause4));
+
+                List<Clause> microtickClauses = getMicrotickCnf(this.getModule().getNumberOfGates());
+                clausesForAllTicks.addAll(microtickClauses);
+
             }
 
         }

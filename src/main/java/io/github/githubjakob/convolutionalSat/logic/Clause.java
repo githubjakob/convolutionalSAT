@@ -9,17 +9,17 @@ public class Clause {
 
     // CNF, Variables are connected with or
 
-    Set<Variable> variables;
+    Set<ConnectionVariable> variables;
 
-    public Clause(Variable... variables) {
-        this.variables = new HashSet<Variable>(Arrays.asList(variables));
+    public Clause(ConnectionVariable... variables) {
+        this.variables = new HashSet<ConnectionVariable>(Arrays.asList(variables));
     }
 
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         int index = 0;
-        for (Variable variable : variables) {
+        for (ConnectionVariable variable : variables) {
             index++;
             stringBuilder.append(variable.toString());
             if (index != variables.size()) {
@@ -29,15 +29,15 @@ public class Clause {
         return stringBuilder.toString();
     }
 
-    public Set<Variable> getVariables() {
+    public Set<ConnectionVariable> getVariables() {
         return this.variables;
     }
 
-    public void addVariable(Variable variable) {
+    public void addVariable(ConnectionVariable variable) {
         this.variables.add(variable);
     }
 
-    public void addVariables(Variable... variables) {
+    public void addVariables(ConnectionVariable... variables) {
         this.variables.addAll(Arrays.asList(variables));
     }
 }

@@ -1,9 +1,8 @@
 package io.github.githubjakob.convolutionalSat.components;
 
-import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
-import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
+import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ import java.util.List;
 /**
  * Created by jakob on 22.06.18.
  */
-public class Not implements Gate {
+public class Not extends AbstractGate {
     private static int idCounter = 0;
 
     private final Module module;
@@ -42,11 +41,11 @@ public class Not implements Gate {
         for (BitStream bitStream : getModule().getBitstreams()) {
             int bits = bitStream.getLength();
             for (int tick = 0; tick < bits; tick++) {
-                Variable outputTrue = new TimeDependentVariable(tick, bitStream.getId(),true, outputPin);
-                Variable outputFalse = new TimeDependentVariable(tick, bitStream.getId(),false, outputPin);
+                ConnectionVariable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(),true, outputPin);
+                ConnectionVariable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(),false, outputPin);
 
-                Variable inputTrue = new TimeDependentVariable(tick, bitStream.getId(),true, inputPin);
-                Variable inputFalse = new TimeDependentVariable(tick, bitStream.getId(),false, inputPin);
+                ConnectionVariable inputTrue = new BitAtComponentVariable(tick, bitStream.getId(),true, inputPin);
+                ConnectionVariable inputFalse = new BitAtComponentVariable(tick, bitStream.getId(),false, inputPin);
 
                 Clause clause1 = new Clause(outputFalse, inputFalse);
                 Clause clause2 = new Clause(outputTrue, inputTrue);
@@ -55,6 +54,8 @@ public class Not implements Gate {
             }
         }
 
+        List<Clause> microtickClauses = getMicrotickCnf(this.getModule().getNumberOfGates());
+        clausesForAllTicks.addAll(microtickClauses);
 
 
         return clausesForAllTicks;

@@ -2,7 +2,7 @@ package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.components.Connection;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
@@ -31,7 +31,7 @@ public class BooleanExpression {
 
     private int[] modelDimacs = null;
 
-    HashMap<Variable, Integer> dictionary = new HashMap<>();
+    HashMap<ConnectionVariable, Integer> dictionary = new HashMap<>();
 
     private List<Circuit> models = new ArrayList<>();
 
@@ -73,7 +73,7 @@ public class BooleanExpression {
 
             int index = 0;
 
-            for (Variable variable : clause.getVariables()) {
+            for (ConnectionVariable variable : clause.getVariables()) {
 
                 Integer literal = null;
 
@@ -113,7 +113,7 @@ public class BooleanExpression {
         negatedModel.add(clause);
 
         for (Connection connection : latestModel.getConnections()) {
-            Variable variable = new Variable(false, connection);
+            ConnectionVariable variable = new ConnectionVariable(false, connection);
             clause.addVariable(variable);
         }
 
@@ -161,7 +161,7 @@ public class BooleanExpression {
     }
 
     private Circuit retranslate(int[] model) {
-        List<Variable> translatedModel = new ArrayList<>();
+        List<ConnectionVariable> translatedModel = new ArrayList<>();
         for (int i = 0; i < model.length; i++) {
             int literal = model[i];
 
@@ -169,11 +169,11 @@ public class BooleanExpression {
                 throw new RuntimeException("something is wrong");
             }
 
-            for (Map.Entry<Variable, Integer> entry : dictionary.entrySet()) {
+            for (Map.Entry<ConnectionVariable, Integer> entry : dictionary.entrySet()) {
                 if (!(literal == entry.getValue() || literal == entry.getValue() * -1)) {
                     continue;
                 }
-                Variable variable = entry.getKey();
+                ConnectionVariable variable = entry.getKey();
                 if (literal < 0) {
                     variable.setWeight(false);
                 } else {

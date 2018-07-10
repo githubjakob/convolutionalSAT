@@ -2,8 +2,8 @@ package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.components.Connection;
 import io.github.githubjakob.convolutionalSat.components.Xor;
-import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
-import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
+import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 import org.junit.Test;
 
@@ -30,13 +30,13 @@ public class BasicTest {
         assertThat(xor.inputPin1, is(xor.inputPin1));
         assertThat(xor.inputPin1, not(xor.inputPin2));
 
-        TimeDependentVariable variable = new TimeDependentVariable(0, 0, true, xor);
-        TimeDependentVariable variable2 = new TimeDependentVariable(0, 0, true, xor);
-        TimeDependentVariable variable3 = new TimeDependentVariable(0, 0, false, xor);
-        TimeDependentVariable variable4 = new TimeDependentVariable(0, 0, true, xor2);
-        TimeDependentVariable variable5 = new TimeDependentVariable(0, 1, true, xor2);
-        TimeDependentVariable variable6 = new TimeDependentVariable(1, 0, true, xor2);
-        TimeDependentVariable variable7 = new TimeDependentVariable(1, 1, true, xor2);
+        BitAtComponentVariable variable = new BitAtComponentVariable(0, 0, true, xor);
+        BitAtComponentVariable variable2 = new BitAtComponentVariable(0, 0, true, xor);
+        BitAtComponentVariable variable3 = new BitAtComponentVariable(0, 0, false, xor);
+        BitAtComponentVariable variable4 = new BitAtComponentVariable(0, 0, true, xor2);
+        BitAtComponentVariable variable5 = new BitAtComponentVariable(0, 1, true, xor2);
+        BitAtComponentVariable variable6 = new BitAtComponentVariable(1, 0, true, xor2);
+        BitAtComponentVariable variable7 = new BitAtComponentVariable(1, 1, true, xor2);
 
         assertThat(variable, is(variable2));
         assertThat(variable, is(variable4));
@@ -51,11 +51,11 @@ public class BasicTest {
 
     @Test
     public void testHashMap() {
-        Map<Variable, Integer> map = new HashMap<>();
+        Map<ConnectionVariable, Integer> map = new HashMap<>();
 
         Xor xor = new Xor(new Module(Enums.Module.ENCODER));
-        Variable variable = new Variable(false, xor);
-        Variable sameVariable = new Variable(false, xor);
+        ConnectionVariable variable = new ConnectionVariable(false, xor);
+        ConnectionVariable sameVariable = new ConnectionVariable(false, xor);
 
         assertThat(variable, is(sameVariable));
 
@@ -70,12 +70,12 @@ public class BasicTest {
 
     @Test
     public void testHashMapTimeDependentVariable() {
-        Map<Variable, Integer> map = new HashMap<>();
+        Map<ConnectionVariable, Integer> map = new HashMap<>();
 
         Xor xor = new Xor(new Module(Enums.Module.ENCODER));
-        TimeDependentVariable variable = new TimeDependentVariable(0, 0, false, xor);
-        TimeDependentVariable same = new TimeDependentVariable(0, 0, false, xor);
-        TimeDependentVariable notSame = new TimeDependentVariable(0, 1, false, xor);
+        BitAtComponentVariable variable = new BitAtComponentVariable(0, 0, false, xor);
+        BitAtComponentVariable same = new BitAtComponentVariable(0, 0, false, xor);
+        BitAtComponentVariable notSame = new BitAtComponentVariable(0, 1, false, xor);
 
         assertThat(variable, is(same));
         assertThat(variable, not(notSame));

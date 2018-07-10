@@ -1,8 +1,9 @@
 package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.components.*;
-import io.github.githubjakob.convolutionalSat.logic.TimeDependentVariable;
-import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
+import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
+import io.github.githubjakob.convolutionalSat.logic.MicrotickVariable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -55,7 +56,7 @@ public class Circuit {
 
     private final Set<Gate> gates;
 
-    private List<Variable> variables = new ArrayList<>();
+    private List<ConnectionVariable> variables = new ArrayList<>();
 
     @Setter
     @Getter
@@ -73,22 +74,43 @@ public class Circuit {
         }
     }
 
-    public Circuit(List<Variable> variables, List<Gate> gates) {
-        List<Variable> cloned = new ArrayList<>();
-        for (Variable variable : variables) {
+    public Circuit(List<ConnectionVariable> variables, List<Gate> gates) {
+        List<ConnectionVariable> cloned = new ArrayList<>();
+        for (ConnectionVariable variable : variables) {
             Component component = variable.getComponent();
             boolean weight = variable.getWeight();
-            if (variable instanceof TimeDependentVariable) {
-                TimeDependentVariable old = (TimeDependentVariable) variable;
-                cloned.add(new TimeDependentVariable(old.getTick(), old.getBitStreamId(), weight, component));
+            if (variable instanceof BitAtComponentVariable) {
+                BitAtComponentVariable old = (BitAtComponentVariable) variable;
+                cloned.add(new BitAtComponentVariable(old.getTick(), old.getBitStreamId(), weight, component));
+            } else if (variable instanceof MicrotickVariable) {
+                MicrotickVariable old = (MicrotickVariable) variable;
+                cloned.add(new MicrotickVariable(old.getMicrotick(), weight, component));
             } else {
-                cloned.add(new Variable(weight, component));
+                cloned.add(new ConnectionVariable(weight, component));
             }
         }
         this.variables = cloned;
         this.connections = extractFrom(variables);
         for (Connection connection : connections) {
             equivalentConnections.add(new EquivalentConnection(connection));
+        }
+        HashMap<Component, Integer> microtickAsDecimal = new HashMap<>();
+        for (ConnectionVariable variable : variables) {
+            if (variable instanceof MicrotickVariable) {
+                MicrotickVariable microtickVariable = (MicrotickVariable) variable;
+
+                if (microtickAsDecimal.containsKey(variable.getComponent())) {
+                    if (microtickVariable.getWeight()) {
+                        microtickAsDecimal.put(microtickVariable.getComponent(), microtickAsDecimal.get(variable.getComponent())+1);
+                    }
+                } else {
+                    microtickAsDecimal.put(microtickVariable.getComponent(), 0);
+                }
+
+            }
+        }
+        for (Map.Entry<Component, Integer> entry : microtickAsDecimal.entrySet()) {
+            System.out.println("Microtick: " + entry.getKey().toString() + " " + entry.getValue());
         }
         this.gates = new HashSet<>(gates);
     }
@@ -97,11 +119,11 @@ public class Circuit {
 
         Map<Component, int[][]> bitsAtNodes = new HashMap<>();
 
-        for (Variable variable : variables) {
-            if (!(variable instanceof TimeDependentVariable)) {
+        for (ConnectionVariable variable : variables) {
+            if (!(variable instanceof BitAtComponentVariable)) {
                 continue;
             }
-            TimeDependentVariable underConsideration = (TimeDependentVariable) variable;
+            BitAtComponentVariable underConsideration = (BitAtComponentVariable) variable;
             Component component = underConsideration.getComponent();
             int tick = underConsideration.getTick();
             int value = underConsideration.getWeight() ? 1 : 0;
@@ -127,14 +149,14 @@ public class Circuit {
         return this.connections;
     }
 
-    private Set<Connection> extractFrom(List<Variable> variables) {
+    private Set<Connection> extractFrom(List<ConnectionVariable> variables) {
         if (variables == null) {
             return Collections.emptySet();
         }
 
         Set<Connection> connections = new HashSet<>();
 
-        for (Variable variable : variables) {
+        for (ConnectionVariable variable : variables) {
             Component component = variable.getComponent();
 
             if (variable.getWeight() && component instanceof Connection){

@@ -5,7 +5,7 @@ import io.github.githubjakob.convolutionalSat.components.Component;
 /**
  * Created by jakob on 07.06.18.
  */
-public class Variable {
+public class ConnectionVariable {
 
     boolean weight;
 
@@ -15,7 +15,7 @@ public class Variable {
 
     int bitStreamId = -1;
 
-    public Variable(boolean weight, Component component) {
+    public ConnectionVariable(boolean weight, Component component) {
         this.weight = weight;
         this.component = component;
     }
@@ -33,8 +33,8 @@ public class Variable {
     public boolean equals(Object obj) {
         if (obj == null) return false;
         if (obj == this) return true;
-        if (!(obj instanceof Variable))return false;
-        Variable other = (Variable) obj;
+        if (!(obj instanceof ConnectionVariable))return false;
+        ConnectionVariable other = (ConnectionVariable) obj;
         return (other.component.equals(this.component));
     }
 

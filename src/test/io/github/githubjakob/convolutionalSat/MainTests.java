@@ -88,6 +88,30 @@ public class MainTests {
     }
 
     @Test
+    public void numberOfConnections_twoAndsNoCircularCircuit() {
+        Module encoder = new Module(Enums.Module.ENCODER);
+        Input input = encoder.addInput();
+        Output output = encoder.addOutput();
+        encoder.addAnd();
+        encoder.addAnd();
+
+        BitStream bitStream = new BitStream(0, new int[] { 0 });
+
+        encoder.addBitStream(bitStream, input);
+        encoder.addBitStream(bitStream, output);
+
+        Problem problem = new Problem(Arrays.asList(encoder));
+
+        BooleanExpression booleanExpression = new BooleanExpression(problem);
+
+        Circuit model = booleanExpression.solve();
+
+        Set<Connection> connections = model.getConnections();
+
+        assertThat(problem.getConnections().size(), is(3));
+    }
+
+    @Test
     public void numberOfConnections_twoXorAndRegister() {
         Module encoder = new Module(Enums.Module.ENCODER);
         Input input = encoder.addInput();
