@@ -5,12 +5,19 @@ import io.github.githubjakob.convolutionalSat.components.Component;
 /**
  * Created by jakob on 07.06.18.
  */
-public class ConnectionVariable extends Variable {
+public class Variable {
+
+    boolean weight;
+
+    Component component;
+
+    int literal;
 
     int bitStreamId = -1;
 
-    public ConnectionVariable(boolean weight, Component component) {
-        super(weight, component);
+    public Variable(boolean weight, Component component) {
+        this.weight = weight;
+        this.component = component;
     }
 
     @Override

@@ -5,7 +5,7 @@ import io.github.githubjakob.convolutionalSat.components.Component;
 /**
  * Created by jakob on 08.06.18.
  */
-public class BitAtComponentVariable extends ConnectionVariable {
+public class BitAtComponentVariable extends Variable {
 
     int tick;
 

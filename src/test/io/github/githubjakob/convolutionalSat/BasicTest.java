@@ -4,6 +4,7 @@ import io.github.githubjakob.convolutionalSat.components.Connection;
 import io.github.githubjakob.convolutionalSat.components.Xor;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
+import io.github.githubjakob.convolutionalSat.logic.Variable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 import org.junit.Test;
 
@@ -70,7 +71,7 @@ public class BasicTest {
 
     @Test
     public void testHashMapTimeDependentVariable() {
-        Map<ConnectionVariable, Integer> map = new HashMap<>();
+        Map<Variable, Integer> map = new HashMap<>();
 
         Xor xor = new Xor(new Module(Enums.Module.ENCODER));
         BitAtComponentVariable variable = new BitAtComponentVariable(0, 0, false, xor);

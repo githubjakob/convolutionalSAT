@@ -4,6 +4,7 @@ import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.logic.MicrotickVariable;
+import io.github.githubjakob.convolutionalSat.logic.Variable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -56,7 +57,7 @@ public class Circuit {
 
     private final Set<Gate> gates;
 
-    private List<ConnectionVariable> variables = new ArrayList<>();
+    private List<Variable> variables = new ArrayList<>();
 
     @Setter
     @Getter
@@ -66,6 +67,9 @@ public class Circuit {
     @Getter
     private int numberOfBitStreams;
 
+    @Getter
+    HashMap<Component, Integer> microtickAsDecimal;
+
     public Circuit(List<Connection> connections, List<Gate> gates, boolean whatever) {
         this.connections = new HashSet<>(connections);
         this.gates = new HashSet<>(gates);
@@ -74,9 +78,42 @@ public class Circuit {
         }
     }
 
-    public Circuit(List<ConnectionVariable> variables, List<Gate> gates) {
-        List<ConnectionVariable> cloned = new ArrayList<>();
-        for (ConnectionVariable variable : variables) {
+    public Circuit(List<Variable> variables, List<Gate> gates) {
+
+        this.variables = cloneVariables(variables);
+        this.connections = extractFrom(variables);
+        for (Connection connection : connections) {
+            equivalentConnections.add(new EquivalentConnection(connection));
+        }
+        this.microtickAsDecimal = extractMicroticks(variables);
+        this.gates = new HashSet<>(gates);
+    }
+
+    private HashMap<Component,Integer> extractMicroticks(List<Variable> variables) {
+        HashMap<Component, Integer> microtickAsDecimal = new HashMap<>();
+        for (Variable variable : variables) {
+            if (variable instanceof MicrotickVariable) {
+                MicrotickVariable microtickVariable = (MicrotickVariable) variable;
+
+                if (microtickAsDecimal.containsKey(variable.getComponent())) {
+                    if (microtickVariable.getWeight()) {
+                        microtickAsDecimal.put(microtickVariable.getComponent(), microtickAsDecimal.get(variable.getComponent())+1);
+                    }
+                } else {
+                    microtickAsDecimal.put(microtickVariable.getComponent(), microtickVariable.getWeight() ? 1 : 0);
+                }
+
+            }
+        }
+        for (Map.Entry<Component, Integer> entry : microtickAsDecimal.entrySet()) {
+            //System.out.println("Microtick: " + entry.getKey().toString() + " " + entry.getValue());
+        }
+        return microtickAsDecimal;
+    }
+
+    private List<Variable> cloneVariables(List<Variable> variables) {
+        List<Variable> cloned = new ArrayList<>();
+        for (Variable variable : variables) {
             Component component = variable.getComponent();
             boolean weight = variable.getWeight();
             if (variable instanceof BitAtComponentVariable) {
@@ -89,37 +126,14 @@ public class Circuit {
                 cloned.add(new ConnectionVariable(weight, component));
             }
         }
-        this.variables = cloned;
-        this.connections = extractFrom(variables);
-        for (Connection connection : connections) {
-            equivalentConnections.add(new EquivalentConnection(connection));
-        }
-        HashMap<Component, Integer> microtickAsDecimal = new HashMap<>();
-        for (ConnectionVariable variable : variables) {
-            if (variable instanceof MicrotickVariable) {
-                MicrotickVariable microtickVariable = (MicrotickVariable) variable;
-
-                if (microtickAsDecimal.containsKey(variable.getComponent())) {
-                    if (microtickVariable.getWeight()) {
-                        microtickAsDecimal.put(microtickVariable.getComponent(), microtickAsDecimal.get(variable.getComponent())+1);
-                    }
-                } else {
-                    microtickAsDecimal.put(microtickVariable.getComponent(), 0);
-                }
-
-            }
-        }
-        for (Map.Entry<Component, Integer> entry : microtickAsDecimal.entrySet()) {
-            System.out.println("Microtick: " + entry.getKey().toString() + " " + entry.getValue());
-        }
-        this.gates = new HashSet<>(gates);
+        return cloned;
     }
 
     public Map<Component, int[][]> getBitsAtNodes() {
 
         Map<Component, int[][]> bitsAtNodes = new HashMap<>();
 
-        for (ConnectionVariable variable : variables) {
+        for (Variable variable : variables) {
             if (!(variable instanceof BitAtComponentVariable)) {
                 continue;
             }
@@ -149,17 +163,17 @@ public class Circuit {
         return this.connections;
     }
 
-    private Set<Connection> extractFrom(List<ConnectionVariable> variables) {
+    private Set<Connection> extractFrom(List<Variable> variables) {
         if (variables == null) {
             return Collections.emptySet();
         }
 
         Set<Connection> connections = new HashSet<>();
 
-        for (ConnectionVariable variable : variables) {
+        for (Variable variable : variables) {
             Component component = variable.getComponent();
 
-            if (variable.getWeight() && component instanceof Connection){
+            if (variable.getWeight() && variable instanceof ConnectionVariable && component instanceof Connection){
                 connections.add((Connection) component);
             }
         }

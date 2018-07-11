@@ -3,6 +3,7 @@ package io.github.githubjakob.convolutionalSat.components;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
+import io.github.githubjakob.convolutionalSat.logic.Variable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
@@ -41,11 +42,11 @@ public class Identity extends AbstractGate {
         for (BitStream bitStream : this.getModule().getBitstreams()) {
             int bits = bitStream.getLength();
             for (int tick = 0; tick < bits; tick++) {
-                ConnectionVariable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
-                ConnectionVariable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
+                Variable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
+                Variable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
 
-                ConnectionVariable inputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin);
-                ConnectionVariable inputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin);
+                Variable inputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin);
+                Variable inputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin);
 
                 Clause clause1 = new Clause(outputFalse, inputTrue);
                 Clause clause2 = new Clause(outputTrue, inputFalse);

@@ -4,6 +4,7 @@ package io.github.githubjakob.convolutionalSat.components;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
+import io.github.githubjakob.convolutionalSat.logic.Variable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
@@ -46,14 +47,14 @@ public class Xor extends AbstractGate {
         for (BitStream bitStream : this.getModule().getBitstreams()) {
             int bits = bitStream.getLength();
             for (int tick = 0; tick < bits; tick++) {
-                ConnectionVariable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
-                ConnectionVariable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
+                Variable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
+                Variable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
 
-                ConnectionVariable input1True = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin1);
-                ConnectionVariable input1False = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin1);
+                Variable input1True = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin1);
+                Variable input1False = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin1);
 
-                ConnectionVariable input2True = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin2);
-                ConnectionVariable input2False = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin2);
+                Variable input2True = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin2);
+                Variable input2False = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin2);
 
                 Clause clause1 = new Clause(outputFalse, input1False, input2False);
                 Clause clause2 = new Clause(outputFalse, input1True, input2True);

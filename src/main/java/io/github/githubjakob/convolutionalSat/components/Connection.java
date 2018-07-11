@@ -41,6 +41,16 @@ public class Connection implements Component {
             int bits = bitStream.getLength();
             for (int tick = 0; tick < bits; tick++) {
 
+                /**
+                 * Wenn die Verbindung gesetzt ist, dann müssen die Bits die an den beiden Enden anliegen gleich sein
+                 * A => (B <=> C)
+                 *
+                 * CNF
+                 * (~A || ~B || C) && (~A || B || ~C)
+                 *
+                 *
+                 */
+
                 BitAtComponentVariable inputTrue = new BitAtComponentVariable(tick, bitstreamId, true, from);
                 BitAtComponentVariable inputFalse = new BitAtComponentVariable(tick, bitstreamId, false, from);
 
@@ -59,25 +69,39 @@ public class Connection implements Component {
             return clausesForAllTicks;
         }
 
+
+        /**
+         *
+         * A <=> (~B && C)
+         * b ist größer gleich c (=A) gdw. microtick von b nicht gesetzt und von c gesetzt an stelle i
+         * CNF
+         * (~A || B ) && (~A || C) && (A || B || ~C)
+         *
+         *
+         * außerdem:
+         * A1 || A2 || .. || An
+         *
+         */
+
+
         // wenn die verbindung gestzt ist muss der Microtick von "from" kleiner als von "to" sein
         // für irgendeine Stelligkeit
         Clause biggerOrEqual = new Clause();
         clausesForAllTicks.add(biggerOrEqual);
         biggerOrEqual.addVariable(connectionNotSet);
         for (int i = 0; i < numberOfGates; i++) {
-            ConnectionVariable fromVariableTrue = new MicrotickVariable(i, true, fromGate);
-            ConnectionVariable fromVariableFalse = new MicrotickVariable(i, false, fromGate);
-            ConnectionVariable toVariableTrue = new MicrotickVariable(i, true,to.getGate());
-            ConnectionVariable toVariableFalse = new MicrotickVariable(i, false,to.getGate());
+            Variable fromVariableTrue = new MicrotickVariable(i, true, fromGate);
+            Variable fromVariableFalse = new MicrotickVariable(i, false, fromGate);
+            Variable toVariableTrue = new MicrotickVariable(i, true,to.getGate());
+            Variable toVariableFalse = new MicrotickVariable(i, false,to.getGate());
 
-            BiggerOrEqualVariable biggerOrEqualVariableTrue = new BiggerOrEqualVariable(i, true, this);
-            BiggerOrEqualVariable biggerOrEqualVariableFalse = new BiggerOrEqualVariable(i, false, this);
-            biggerOrEqual.addVariable(biggerOrEqualVariableTrue);
+            MicrotickGreaterVariable microtickGreaterVariableTrue = new MicrotickGreaterVariable(i, true, this);
+            MicrotickGreaterVariable microtickGreaterVariableFalse = new MicrotickGreaterVariable(i, false, this);
+            biggerOrEqual.addVariable(microtickGreaterVariableTrue);
 
-            clausesForAllTicks.add(new Clause(biggerOrEqualVariableFalse, fromVariableFalse));
-            clausesForAllTicks.add(new Clause(biggerOrEqualVariableFalse, toVariableTrue));
-            //clausesForAllTicks.add(new Clause(biggerOrEqualVariableTrue, fromVariableTrue));
-            //clausesForAllTicks.add(new Clause(biggerOrEqualVariableTrue, toVariableFalse));
+            clausesForAllTicks.add(new Clause(microtickGreaterVariableFalse, fromVariableFalse));
+            clausesForAllTicks.add(new Clause(microtickGreaterVariableFalse, toVariableTrue));
+            clausesForAllTicks.add(new Clause(microtickGreaterVariableTrue, fromVariableTrue, toVariableFalse));
 
         }
 

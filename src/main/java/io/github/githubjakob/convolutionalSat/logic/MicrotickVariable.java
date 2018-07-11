@@ -6,7 +6,7 @@ import lombok.Getter;
 /**
  * Created by jakob on 08.06.18.
  */
-public class MicrotickVariable extends ConnectionVariable {
+public class MicrotickVariable extends Variable {
 
     @Getter
     private final int microtick;

@@ -57,6 +57,7 @@ public class Graph extends MultiGraph {
         Map<String, Node> nodes = new HashMap<>();
 
         final Map<Component, int[][]> bitsAtNodes = model.getBitsAtNodes();
+        final Map<Component, Integer> microticksAtNodes = model.getMicrotickAsDecimal();
 
         for (Gate gate : model.getGates()) {
             Node node = this.addNode(gate.toString());
@@ -68,10 +69,16 @@ public class Graph extends MultiGraph {
                 node.addAttribute("ui.class", "globalinput");
             }
 
+            String microtick = "gate null";
+            if (gate != null) {
+                microtick = microticksAtNodes.get(gate) != null ? microticksAtNodes.get(gate) + "" : "";
+            }
+
+
             int count = 0;
             for (int[] bits : bitsStreams) {
                 if (count == 0) {
-                    node.addAttribute("ui.label", gate.toString() + Arrays.toString(bits));
+                    node.addAttribute("ui.label", gate.toString() + "[" + microtick + "]" + Arrays.toString(bits));
                 }
                 node.addAttribute("ui.bitstream" + count, gate.getType() + Arrays.toString(bits));
                 count++;

@@ -3,6 +3,7 @@ package io.github.githubjakob.convolutionalSat.components;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
+import io.github.githubjakob.convolutionalSat.logic.Variable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class Register extends AbstractGate {
                 List<Clause> clausesAtTick = new ArrayList<>();
 
                 if (tick == 0) {
-                    ConnectionVariable variable = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
+                    Variable variable = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
                     Clause clause = new Clause(variable);
                     clausesAtTick.add(clause);
                 } else {
@@ -67,11 +68,11 @@ public class Register extends AbstractGate {
 
                     int previousTick = tick - 1;
 
-                    ConnectionVariable previousInputTrue = new BitAtComponentVariable(previousTick, bitStream.getId(), true, inputPin);
-                    ConnectionVariable previousInputFalse = new BitAtComponentVariable(previousTick, bitStream.getId(), false, inputPin);
+                    Variable previousInputTrue = new BitAtComponentVariable(previousTick, bitStream.getId(), true, inputPin);
+                    Variable previousInputFalse = new BitAtComponentVariable(previousTick, bitStream.getId(), false, inputPin);
 
-                    ConnectionVariable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
-                    ConnectionVariable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
+                    Variable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
+                    Variable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
 
                     Clause clause1 = new Clause(outputFalse, previousInputTrue);
                     Clause clause2 = new Clause(outputTrue, previousInputFalse);

@@ -47,6 +47,8 @@ public class Main {
         encoder.addAnd();
         encoder.addNot();
         encoder.addNot();
+        encoder.addRegister();
+        encoder.addRegister();
 
         Module decoder = new Module(Enums.Module.DECODER);
         decoder.addInput();
@@ -73,8 +75,7 @@ public class Main {
             Circuit circuit = booleanExpression.solveNext();
             Graph graph = new Graph(circuit);
 
-            //if (graph.isGraphFullyConnected()) {
-            if (true) {
+            if (graph.isGraphFullyConnected()) {
                 mainGui.addPanel(graph);
                 counter++;
             }

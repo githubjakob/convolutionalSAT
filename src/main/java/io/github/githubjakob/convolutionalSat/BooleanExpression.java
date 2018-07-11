@@ -3,6 +3,7 @@ package io.github.githubjakob.convolutionalSat;
 import io.github.githubjakob.convolutionalSat.components.Connection;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
+import io.github.githubjakob.convolutionalSat.logic.Variable;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
@@ -31,7 +32,7 @@ public class BooleanExpression {
 
     private int[] modelDimacs = null;
 
-    HashMap<ConnectionVariable, Integer> dictionary = new HashMap<>();
+    HashMap<Variable, Integer> dictionary = new HashMap<>();
 
     private List<Circuit> models = new ArrayList<>();
 
@@ -73,7 +74,7 @@ public class BooleanExpression {
 
             int index = 0;
 
-            for (ConnectionVariable variable : clause.getVariables()) {
+            for (Variable variable : clause.getVariables()) {
 
                 Integer literal = null;
 
@@ -161,7 +162,7 @@ public class BooleanExpression {
     }
 
     private Circuit retranslate(int[] model) {
-        List<ConnectionVariable> translatedModel = new ArrayList<>();
+        List<Variable> translatedModel = new ArrayList<>();
         for (int i = 0; i < model.length; i++) {
             int literal = model[i];
 
@@ -169,11 +170,11 @@ public class BooleanExpression {
                 throw new RuntimeException("something is wrong");
             }
 
-            for (Map.Entry<ConnectionVariable, Integer> entry : dictionary.entrySet()) {
+            for (Map.Entry<Variable, Integer> entry : dictionary.entrySet()) {
                 if (!(literal == entry.getValue() || literal == entry.getValue() * -1)) {
                     continue;
                 }
-                ConnectionVariable variable = entry.getKey();
+                Variable variable = entry.getKey();
                 if (literal < 0) {
                     variable.setWeight(false);
                 } else {

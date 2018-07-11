@@ -1,10 +1,7 @@
 package io.github.githubjakob.convolutionalSat.components;
 
 import io.github.githubjakob.convolutionalSat.Main;
-import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
-import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
-import io.github.githubjakob.convolutionalSat.logic.MicrotickVariable;
+import io.github.githubjakob.convolutionalSat.logic.*;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
@@ -48,14 +45,14 @@ public class And extends AbstractGate  {
             int bitStreamId = bitStream.getId();
             int bits = bitStream.getLength();
             for (int tick = 0; tick < bits; tick++) {
-                ConnectionVariable outputTrue = new BitAtComponentVariable(tick, bitStreamId, true, outputPin);
-                ConnectionVariable outputFalse = new BitAtComponentVariable(tick, bitStreamId, false, outputPin);
+                Variable outputTrue = new BitAtComponentVariable(tick, bitStreamId, true, outputPin);
+                Variable outputFalse = new BitAtComponentVariable(tick, bitStreamId, false, outputPin);
 
-                ConnectionVariable input1True = new BitAtComponentVariable(tick, bitStreamId, true, inputPin1);
-                ConnectionVariable input1False = new BitAtComponentVariable(tick, bitStreamId, false, inputPin1);
+                Variable input1True = new BitAtComponentVariable(tick, bitStreamId, true, inputPin1);
+                Variable input1False = new BitAtComponentVariable(tick, bitStreamId, false, inputPin1);
 
-                ConnectionVariable input2True = new BitAtComponentVariable(tick, bitStreamId, true, inputPin2);
-                ConnectionVariable input2False = new BitAtComponentVariable(tick, bitStreamId, false, inputPin2);
+                Variable input2True = new BitAtComponentVariable(tick, bitStreamId, true, inputPin2);
+                Variable input2False = new BitAtComponentVariable(tick, bitStreamId, false, inputPin2);
 
                 Clause clause1 = new Clause(outputFalse, input1True, input2True);
                 Clause clause2 = new Clause(outputTrue, input1False, input2False);
