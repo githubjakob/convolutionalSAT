@@ -53,6 +53,9 @@ public class Circuit {
     /* Das sind nur die gesetzten, also tatsächlichen Verbindungen in einem Schaltkreis  */
     private final Set<Connection> connections;
 
+    @Getter
+    private List<BitStream> bitStreams;
+
     private final Set<EquivalentConnection> equivalentConnections = new HashSet<>();
 
     private final Set<Gate> gates;
@@ -78,15 +81,16 @@ public class Circuit {
         }
     }
 
-    public Circuit(List<Variable> variables, List<Gate> gates) {
-
+    public Circuit(List<Variable> variables, List<Gate> gates, List<BitStream> bitStreams) {
         this.variables = cloneVariables(variables);
         this.connections = extractFrom(variables);
+        this.bitStreams = bitStreams;
         for (Connection connection : connections) {
             equivalentConnections.add(new EquivalentConnection(connection));
         }
         this.microtickAsDecimal = extractMicroticks(variables);
         this.gates = new HashSet<>(gates);
+
     }
 
     private HashMap<Component,Integer> extractMicroticks(List<Variable> variables) {

@@ -59,13 +59,11 @@ public class And extends AbstractGate  {
                 Clause clause3 = new Clause(outputFalse, input1False, input2True);
                 Clause clause4 = new Clause(outputFalse, input1True, input2False);
                 clausesForAllTicks.addAll(Arrays.asList(clause1, clause2, clause3, clause4));
-
-                List<Clause> microtickClauses = getMicrotickCnf(this.getModule().getNumberOfGates());
-                clausesForAllTicks.addAll(microtickClauses);
-
             }
-
         }
+
+        List<Clause> microtickClauses = getMicrotickCnf(this.getModule().getNumberOfGates());
+        clausesForAllTicks.addAll(microtickClauses);
 
         return clausesForAllTicks;
     }

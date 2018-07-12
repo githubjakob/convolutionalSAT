@@ -3,6 +3,7 @@ package io.github.githubjakob.convolutionalSat.components;
 
 import com.sun.org.apache.xpath.internal.operations.Mod;
 import io.github.githubjakob.convolutionalSat.Enums;
+import io.github.githubjakob.convolutionalSat.Noise;
 import io.github.githubjakob.convolutionalSat.logic.*;
 import io.github.githubjakob.convolutionalSat.modules.Channel;
 import io.github.githubjakob.convolutionalSat.modules.Module;
@@ -15,20 +16,18 @@ import java.util.List;
 /**
  * Created by jakob on 07.06.18.
  */
-public class Connection implements Component {
+public class NoisyConnection extends Connection {
 
-    static int idCounter = 0;
+    private static int channelIdCounter = 0;
 
-    int id;
+    private int channelId;
 
-    OutputPin from;
+    private Noise noise;
 
-    InputPin to;
-
-    public Connection(OutputPin from, InputPin to) {
-        this.id = idCounter++;
-        this.from = from;
-        this.to = to;
+    public NoisyConnection(OutputPin from, InputPin to, Noise noise) {
+        super(from, to);
+        this.noise = noise;
+        this.channelId = channelIdCounter++;
     }
 
     @Override
@@ -50,9 +49,32 @@ public class Connection implements Component {
                 BitAtComponentVariable outputTrue = new BitAtComponentVariable(tick, bitstreamId, true, to);
                 BitAtComponentVariable outputFalse = new BitAtComponentVariable(tick, bitstreamId, false, to);
 
-                Clause clause1 = new Clause(inputFalse, outputTrue, connectionNotSet);
-                Clause clause2 = new Clause(inputTrue, outputFalse, connectionNotSet);
-                clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+                if (noise.isBitFlipped(channelId, bitstreamId, tick)) {
+                    /**
+                     *
+                     * Flip Bit
+                     *
+                     */
+                    Clause clause1 = new Clause(outputFalse, inputFalse, connectionNotSet);
+                    Clause clause2 = new Clause(outputTrue, inputTrue, connectionNotSet);
+                    clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+
+                    /**
+                     *
+                     * Channel und es sollen einige Bits fest auf 1 gesetzt werden
+                     * A => C
+                     * CNF ~A || C
+                     *
+                    Clause clause1 = new Clause(outputTrue, connectionNotSet);
+                    clausesForAllTicks.addAll(Arrays.asList(clause1));*/
+
+                } else {
+                    Clause clause1 = new Clause(inputFalse, outputTrue, connectionNotSet);
+                    Clause clause2 = new Clause(inputTrue, outputFalse, connectionNotSet);
+                    clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+                }
+
+
             }
         }
 

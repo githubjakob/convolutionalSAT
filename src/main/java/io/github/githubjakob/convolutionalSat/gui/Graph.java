@@ -6,6 +6,7 @@ import io.github.githubjakob.convolutionalSat.components.Component;
 import io.github.githubjakob.convolutionalSat.components.Connection;
 import io.github.githubjakob.convolutionalSat.components.Gate;
 import io.github.githubjakob.convolutionalSat.components.InputPin;
+import lombok.Getter;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
@@ -24,6 +25,7 @@ import java.util.Map;
  */
 public class Graph extends MultiGraph {
 
+    @Getter
     Circuit model;
 
     Node root;

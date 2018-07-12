@@ -1,7 +1,6 @@
 package io.github.githubjakob.convolutionalSat;
 
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.modules.Module;
@@ -15,6 +14,9 @@ import java.util.*;
 public class Problem {
 
     @Getter
+    private final TestSuite testSuite;
+
+    @Getter
     private int numberOfBitStreams = 0;
 
     @Getter
@@ -22,8 +24,10 @@ public class Problem {
 
     private List<Module> modules;
 
-    public Problem(List<Module> modules) {
+    public Problem(List<Module> modules, TestSuite testSuite) {
         this.modules = modules;
+        this.testSuite = testSuite;
+        registerBitStreamsAsInputOutputRequirement(testSuite.getBitStreams());
     }
 
     public List<Clause> convertProblemToCnf() {

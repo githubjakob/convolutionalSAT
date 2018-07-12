@@ -32,8 +32,8 @@ public class MainGui {
 
     public List<Graph> graphs = new ArrayList<>();
 
-    public MainGui(List<BitStream> bitStreams) {
-            jFrame = new JFrame("main/java/io/github/githubjakob/convolutionalSat/Gui");
+    public MainGui() {
+        jFrame = new JFrame("main/java/io/github/githubjakob/convolutionalSat/Gui");
         jFrame.setContentPane(getPanel());
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.setSize(1600, 1200);
@@ -47,22 +47,10 @@ public class MainGui {
         System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 
         tabbedPane.remove(0);
-
-        // listener
-        for (BitStream bitstream : bitStreams) {
-            comboBox.addItem("ui.bitstream" + bitstream.getId());
-            comboBox.addItemListener(new ItemListener() {
-                @Override
-                public void itemStateChanged(ItemEvent e) {
-                    String item = (String) e.getItem();
-                    showBitStreamInLabel(item);
-                }
-            });
-        }
-        comboBox.addItem("ui.type");
     }
 
     public void addPanel(Graph graph) {
+        setupComboBox(graph);
         graphs.add(graph);
         Viewer viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
         ViewPanel view = viewer.addDefaultView(false);
@@ -78,6 +66,25 @@ public class MainGui {
             }
         });
 
+    }
+
+    private void setupComboBox(Graph graph) {
+        if (comboBox.getItemCount() > 0) {
+            return;
+        }
+        List<BitStream> bitStreams = graph.getModel().getBitStreams();
+        // listener
+        for (BitStream bitstream : bitStreams) {
+            comboBox.addItem("ui.bitstream" + bitstream.getId());
+            comboBox.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    String item = (String) e.getItem();
+                    showBitStreamInLabel(item);
+                }
+            });
+        }
+        comboBox.addItem("ui.type");
     }
 
     public void showBitStreamInLabel(String attribute) {
