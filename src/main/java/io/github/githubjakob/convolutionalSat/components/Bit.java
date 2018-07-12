@@ -7,21 +7,16 @@ import lombok.Getter;
  */
 public class Bit {
 
+    @Getter
     private final BitStream correspondingBitStream;
 
     @Getter
     int bit;
 
-    int tick;
 
-    public Bit(int bit, int tick, BitStream correspondingBitStream) {
+    public Bit(int bit, BitStream correspondingBitStream) {
         this.bit = bit;
-        this.tick = tick;
         this.correspondingBitStream = correspondingBitStream;
-    }
-
-    public int getTick() {
-        return tick;
     }
 
     public int getBitStreamid() {

@@ -16,8 +16,13 @@ public class TestSuite {
 
     private Noise noise;
 
+    /**
+     * wait for delay ticks and then check that input(encoder) equals output(encoder)
+     */
+    private int delay;
+
     public TestSuite() {
-        BitStream bitsStreamIn0 = new BitStream(0, Arrays.asList(0, 0, 0));
+        BitStream bitsStreamIn0 = new BitStream(0, Arrays.asList(0, 0, 0, 0));
         BitStream bitsStreamIn1 = new BitStream(1, Arrays.asList(0, 0, 0, 1));
         BitStream bitsStreamIn2 = new BitStream(2, Arrays.asList(0, 0, 1, 0));
         BitStream bitsStreamIn3 = new BitStream(3, Arrays.asList(0, 0, 1, 1));
@@ -38,9 +43,14 @@ public class TestSuite {
                 bitsStreamIn10, bitsStreamIn11, bitsStreamIn12, bitsStreamIn13, bitsStreamIn14, bitsStreamIn15);
 
         noise = new Noise();
+        delay = 2;
     }
 
     public Noise getNoise() {
         return noise;
+    }
+
+    public int getDelay() {
+        return delay;
     }
 }

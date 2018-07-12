@@ -23,28 +23,16 @@ public class Main {
         encoder.addOutput();
         encoder.addOutput();
         encoder.addAnd();
-        encoder.addAnd();
-        encoder.addAnd();
-        encoder.addAnd();
-        encoder.addNot();
-        encoder.addNot();
         encoder.addRegister();
         encoder.addRegister();
         encoder.addRegister();
-        encoder.addRegister();
-        encoder.addRegister();
+
 
         Module decoder = new Module(Enums.Module.DECODER);
         decoder.addInput();
         decoder.addInput();
         decoder.addOutput();
         decoder.addAnd();
-        decoder.addAnd();
-        decoder.addAnd();
-        decoder.addAnd();
-        decoder.addNot();
-        decoder.addNot();
-        decoder.addNot();
         decoder.addNot();
         decoder.addXor();
 
@@ -64,6 +52,12 @@ public class Main {
         int counter = 0;
         while (counter < MAX_NUMBER_OF_SOLUTIONS) {
             Circuit circuit = booleanExpression.solveNext();
+
+            if (circuit == null) {
+                System.out.println("is not satisfiable");
+                return;
+            }
+
             Graph graph = new Graph(circuit);
 
             mainGui.addPanel(graph);

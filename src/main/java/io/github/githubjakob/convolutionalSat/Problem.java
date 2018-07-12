@@ -27,7 +27,7 @@ public class Problem {
     public Problem(List<Module> modules, TestSuite testSuite) {
         this.modules = modules;
         this.testSuite = testSuite;
-        registerBitStreamsAsInputOutputRequirement(testSuite.getBitStreams());
+        registerBitStreamsAsInputOutputRequirement(testSuite.getBitStreams(), testSuite.getDelay());
     }
 
     public List<Clause> convertProblemToCnf() {
@@ -84,15 +84,19 @@ public class Problem {
         return allGates;
     }
 
-    public void registerBitStreamsAsInputOutputRequirement(List<BitStream> bitStreams) {
+    public void registerBitStreamsAsInputOutputRequirement(List<BitStream> bitStreams,  int delay) {
         Module encoder = getEncoder();
         Module decoder = getDecoder();
 
         for (BitStream bitStream : bitStreams) {
             numberOfBitStreams++;
-            numberOfBits = bitStream.getLength();
-            encoder.addBitStream(new BitStream(bitStream.getId(), bitStream.getBits(),  encoder.getInputs().get(0)));
-            decoder.addBitStream(new BitStream(bitStream.getId(), bitStream.getBits(),  decoder.getOutputs().get(0)));
+            BitStream bitSreamAtEncoder = new BitStream(bitStream.getId(), bitStream.getBits(),  delay,
+                    encoder.getInputs().get(0));
+            BitStream bitStreamAtDecoder = new BitStream(bitStream.getId(), bitStream.getBits(),  delay,
+                    decoder.getOutputs().get(0));
+            encoder.addBitStream(bitSreamAtEncoder);
+            decoder.addBitStream(bitStreamAtDecoder);
+            numberOfBits = bitSreamAtEncoder.getLength();
         }
     }
 }

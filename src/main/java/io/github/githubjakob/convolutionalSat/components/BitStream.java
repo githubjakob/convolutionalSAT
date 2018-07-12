@@ -19,21 +19,25 @@ public class BitStream implements Iterable<Bit>, Property {
     private final List<Bit> bits;
 
     @Getter
-    private final List<Gate> gates = new ArrayList<>();
+    private final Gate gate;
 
     int id;
 
-    public BitStream(int id, List<Bit> bits, Gate... gates) {
+    private int delay;
+
+    public BitStream(int id, List<Bit> bits, int delay, Gate gate) {
         this.id = id;
-        this.gates.addAll(Arrays.asList(gates));
-        this.bits = bits;
+        this.delay = delay;
+        this.gate = gate;
+        this.bits = new ArrayList<>(bits);
     }
 
     public BitStream(int id, List<Integer> bits) {
         this.id = id;
+        this.gate = null;
         this.bits = new ArrayList<>();
         for (int tick = 0; tick < bits.size(); tick++) {
-            Bit bit = new Bit(bits.get(tick), tick, this);
+            Bit bit = new Bit(bits.get(tick), this);
             this.bits.add(bit);
         }
     }
@@ -43,11 +47,7 @@ public class BitStream implements Iterable<Bit>, Property {
     }
 
     public int getLength() {
-        return this.bits.size();
-    }
-
-    public void addGate(Gate gate) {
-        this.gates.add(gate);
+        return this.bits.size() + delay;
     }
 
     @Override
@@ -60,25 +60,44 @@ public class BitStream implements Iterable<Bit>, Property {
     public List<Clause> toCnf() {
         List<Clause> clausesForTick = new ArrayList<>();
 
-        for (Gate gate : gates) {
+        for (int tick = 0; tick < getLength(); tick++) {
+
             if ("output".equals(gate.getType())) {
-                for (Bit bit : this) {
+
+                if (tick < delay) {
                     for (InputPin inputPin : gate.getInputPins()) {
                         Clause outputClause = new Clause(
-                                new BitAtComponentVariable(bit.getTick(), this.getId(), bit.getWeight(), inputPin));
+                                new BitAtComponentVariable(tick, this.getId(), true, inputPin),
+                                new BitAtComponentVariable(tick, this.getId(), false, inputPin));
                         clausesForTick.add(outputClause);
                     }
-
+                } else {
+                    Bit bit = bits.get(tick-delay);
+                    for (InputPin inputPin : gate.getInputPins()) {
+                        Clause outputClause = new Clause(
+                                new BitAtComponentVariable(tick, this.getId(), bit.getWeight(), inputPin));
+                        clausesForTick.add(outputClause);
+                    }
                 }
             }
 
             if ("input".equals(gate.getType())) {
-                for (Bit bit : this) {
+
+                if (tick >= getLength() - delay) {
                     Clause outputClause = new Clause(
-                            new BitAtComponentVariable(bit.getTick(), this.getId(), bit.getWeight(), gate.getOutputPin()));
+                            new BitAtComponentVariable(tick, this.getId(), true, gate.getOutputPin()),
+                            new BitAtComponentVariable(tick, this.getId(), false, gate.getOutputPin()));
+                    clausesForTick.add(outputClause);
+                } else {
+                    Bit bit = bits.get(tick);
+                    Clause outputClause = new Clause(
+                            new BitAtComponentVariable(tick, this.getId(), bit.getWeight(), gate.getOutputPin()));
                     clausesForTick.add(outputClause);
                 }
+
             }
+
+
         }
 
         return clausesForTick;

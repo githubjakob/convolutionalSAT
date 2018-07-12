@@ -9,10 +9,10 @@ public class Clause {
 
     // CNF, Variables are connected with or
 
-    Set<Variable> variables;
+    List<Variable> variables = new ArrayList<>();
 
     public Clause(Variable... variables) {
-        this.variables = new HashSet<>(Arrays.asList(variables));
+        this.variables = new ArrayList<>(Arrays.asList(variables));
     }
 
     @Override
@@ -29,7 +29,7 @@ public class Clause {
         return stringBuilder.toString();
     }
 
-    public Set<Variable> getVariables() {
+    public List<Variable> getVariables() {
         return this.variables;
     }
 
