@@ -23,6 +23,7 @@ public class BitStream implements Iterable<Bit>, Property {
 
     int id;
 
+    @Getter
     private int delay;
 
     public BitStream(int id, List<Bit> bits, int delay, Gate gate) {
@@ -32,9 +33,10 @@ public class BitStream implements Iterable<Bit>, Property {
         this.bits = new ArrayList<>(bits);
     }
 
-    public BitStream(int id, List<Integer> bits) {
+    public BitStream(int id, List<Integer> bits, int delay) {
         this.id = id;
         this.gate = null;
+        this.delay = delay;
         this.bits = new ArrayList<>();
         for (int tick = 0; tick < bits.size(); tick++) {
             Bit bit = new Bit(bits.get(tick), this);

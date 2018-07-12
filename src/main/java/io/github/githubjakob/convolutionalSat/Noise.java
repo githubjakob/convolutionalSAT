@@ -1,5 +1,13 @@
 package io.github.githubjakob.convolutionalSat;
 
+import io.github.githubjakob.convolutionalSat.components.BitStream;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static afu.org.checkerframework.checker.units.UnitsTools.min;
+
 /**
  * Created by jakob on 12.07.18.
  */
@@ -16,17 +24,35 @@ public class Noise {
             new int[] {0, 0, 1 }
     };
 
-    public boolean isBitFlipped(int channelId, int bitstreamId, int tick) {
-        for (int[] definition : noiseInAllBitStreams) {
-            if (definition[0] == channelId && definition[1] == tick) {
-                return true;
+    /**
+     *
+     * @param noiseRatioPercent 30 means 1/3 a third of the bits is flipped
+     */
+    public Noise(int bitStreamLenght, int numberOfBitStreams, int noiseRatioPercent) {
+        noiseInAllBitStreams = new int[numberOfBitStreams][];
+        for (int i = 0; i < numberOfBitStreams; i++) {
+            int[] flippedBits = new int[bitStreamLenght];
+            for (int n = 0; n < flippedBits.length; n++) {
+                int randomNum = ThreadLocalRandom.current().nextInt(min, 100 + 1);
+                if (randomNum < noiseRatioPercent) {
+                    flippedBits[n] = 1;
+                } else flippedBits[n] = 0;
             }
+            noiseInAllBitStreams[i] = flippedBits;
+            System.out.println("Flipped Bits " + i + ": " + Arrays.toString(flippedBits));
         }
-        for (int[] definition : noiseInChannelBitstreamAtTick) {
+    }
+
+    public boolean isBitFlipped(int channelId, int bitstreamId, int tick) {
+        int[] definition = noiseInAllBitStreams[bitstreamId];
+        if (definition[tick] == 1) {
+            return true;
+        }
+        /*for (int[] definition : noiseInChannelBitstreamAtTick) {
             if (definition[0] == channelId && definition[1] == bitstreamId && definition[2] == tick) {
                 return true;
             }
-        }
+        }*/
         return false;
     }
 }

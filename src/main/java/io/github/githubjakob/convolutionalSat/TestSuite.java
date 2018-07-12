@@ -2,7 +2,9 @@ package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.components.BitStream;
 import lombok.Getter;
+import scala.Char;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,7 +14,7 @@ import java.util.List;
 public class TestSuite {
 
     @Getter
-    List<BitStream> bitStreams;
+    List<BitStream> bitStreams = new ArrayList<>();
 
     private Noise noise;
 
@@ -22,7 +24,8 @@ public class TestSuite {
     private int delay;
 
     public TestSuite() {
-        BitStream bitsStreamIn0 = new BitStream(0, Arrays.asList(0, 0, 0, 0));
+        delay = 4;
+        /*BitStream bitsStreamIn0 = new BitStream(0, Arrays.asList(0, 0, 0, 0));
         BitStream bitsStreamIn1 = new BitStream(1, Arrays.asList(0, 0, 0, 1));
         BitStream bitsStreamIn2 = new BitStream(2, Arrays.asList(0, 0, 1, 0));
         BitStream bitsStreamIn3 = new BitStream(3, Arrays.asList(0, 0, 1, 1));
@@ -37,13 +40,37 @@ public class TestSuite {
         BitStream bitsStreamIn12 = new BitStream(12, Arrays.asList(1, 1, 0, 0));
         BitStream bitsStreamIn13 = new BitStream(13, Arrays.asList(1, 1, 0, 1));
         BitStream bitsStreamIn14 = new BitStream(14, Arrays.asList(1, 1, 1, 0));
-        BitStream bitsStreamIn15 = new BitStream(15, Arrays.asList(1, 1, 1, 1));
-        bitStreams = Arrays.asList(bitsStreamIn0, bitsStreamIn1, bitsStreamIn2, bitsStreamIn3,
-                bitsStreamIn4, bitsStreamIn5, bitsStreamIn6, bitsStreamIn7, bitsStreamIn8, bitsStreamIn9,
-                bitsStreamIn10, bitsStreamIn11, bitsStreamIn12, bitsStreamIn13, bitsStreamIn14, bitsStreamIn15);
+        BitStream bitsStreamIn15 = new BitStream(15, Arrays.asList(1, 1, 1, 1));*/
 
-        noise = new Noise();
-        delay = 2;
+
+        int lenght = 4;
+        for (int i = 0; i < Math.pow(2, lenght); i++) {
+            List<Integer> bits = new ArrayList<>(lenght);
+            for (int n = 0; n < lenght; n++) {
+                bits.add(0);
+            }
+            String binary = Integer.toBinaryString(i);
+            char[] digits = binary.toCharArray();
+
+            for (int n = 0; n < digits.length; n++) {
+                char digit = digits[n];
+                String digitNumber = digit + "";
+                Integer integer = Integer.valueOf(digitNumber);
+                bits.set(bits.size()-digits.length + n, integer);
+            }
+
+            BitStream bitStream = new BitStream(i, bits, delay);
+            bitStreams.add(bitStream);
+        }
+
+
+        /*bitStreams = Arrays.asList(bitsStreamIn0, bitsStreamIn1, bitsStreamIn2, bitsStreamIn3,
+                bitsStreamIn4, bitsStreamIn5, bitsStreamIn6, bitsStreamIn7, bitsStreamIn8, bitsStreamIn9,
+                bitsStreamIn10, bitsStreamIn11, bitsStreamIn12, bitsStreamIn13, bitsStreamIn14, bitsStreamIn15);*/
+
+        int bitStreamLenght = bitStreams.get(0).getLength();
+        noise = new Noise(bitStreamLenght, bitStreams.size(), 30);
+
     }
 
     public Noise getNoise() {
