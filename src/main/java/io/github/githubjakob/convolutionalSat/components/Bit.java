@@ -1,5 +1,7 @@
 package io.github.githubjakob.convolutionalSat.components;
 
+import lombok.Getter;
+
 /**
  * Created by jakob on 22.06.18.
  */
@@ -7,6 +9,7 @@ public class Bit {
 
     private final BitStream correspondingBitStream;
 
+    @Getter
     int bit;
 
     int tick;
@@ -17,10 +20,6 @@ public class Bit {
         this.correspondingBitStream = correspondingBitStream;
     }
 
-    public boolean getBit() {
-        return bit == 1;
-    }
-
     public int getTick() {
         return tick;
     }
@@ -29,8 +28,12 @@ public class Bit {
         return this.correspondingBitStream.getId();
     }
 
+    public boolean getWeight() {
+        return bit == 1;
+    }
+
     @Override
     public String toString() {
-        return getBit() ? "1" : "0";
+        return getBit() + "";
     }
 }

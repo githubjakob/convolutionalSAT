@@ -7,9 +7,7 @@ public class Noise {
 
     int[][] noiseInAllBitStreams = new int[][] {
             // channel // tick
-            new int[] {0, 0 },
-            new int[] {0, 1 },
-            new int[] {1, 3 }
+            new int[] {0, 0 }
     };
 
     int[][] noiseInChannelBitstreamAtTick = new int[][] {

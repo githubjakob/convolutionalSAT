@@ -34,7 +34,7 @@ public class Problem {
         List<Clause> cnf = new ArrayList<>();
 
         for (Module module : modules) {
-            List<Clause> clauses = module.convertModuleToCnf();
+            List<Clause> clauses = module.toCnf();
             cnf.addAll(clauses);
         }
 
@@ -87,15 +87,12 @@ public class Problem {
     public void registerBitStreamsAsInputOutputRequirement(List<BitStream> bitStreams) {
         Module encoder = getEncoder();
         Module decoder = getDecoder();
-        Module channel = getChannel();
 
         for (BitStream bitStream : bitStreams) {
             numberOfBitStreams++;
             numberOfBits = bitStream.getLength();
-            encoder.addBitStream(bitStream, encoder.getInputs().get(0));
-            decoder.addBitStream(bitStream, decoder.getOutputs().get(0));
-            channel.addBitStream(bitStream);
+            encoder.addBitStream(new BitStream(bitStream.getId(), bitStream.getBits(),  encoder.getInputs().get(0)));
+            decoder.addBitStream(new BitStream(bitStream.getId(), bitStream.getBits(),  decoder.getOutputs().get(0)));
         }
-
     }
 }

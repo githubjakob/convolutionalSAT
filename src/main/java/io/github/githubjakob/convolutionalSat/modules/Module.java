@@ -1,22 +1,22 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
+import afu.org.checkerframework.checker.oigj.qual.O;
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
+import io.github.githubjakob.convolutionalSat.logic.Property;
 import lombok.Getter;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class Module {
+public class Module implements Property {
 
     @Getter
     List<BitStream> bitstreams = new ArrayList<>();
-
-    Map<BitStream, Gate> bitStreamAtGate = new HashMap<>();
 
     @Getter
     List<Input> inputs = new ArrayList<>();
@@ -40,11 +40,8 @@ public class Module {
         this.type = type;
     }
 
-    public void addBitStream(BitStream bitStream, Gate... gates) {
+    public void addBitStream(BitStream bitStream) {
         bitstreams.add(bitStream);
-        for (Gate gate : gates) {
-            bitStreamAtGate.put(bitStream, gate);
-        }
     }
 
     public Output addOutput() {
@@ -198,42 +195,18 @@ public class Module {
     }
 
     List<Clause> convertBitStreamsToCnf() {
+        if (bitstreams.size() == 0 ) {
+            return new ArrayList<>();
+        }
+
         List<Clause> clausesForTick = new ArrayList<>();
-        if (bitstreams.size() > 0 ) {
-            for (BitStream bitStream : bitStreamAtGate.keySet()) {
-                List<Clause> clauses = convertBitStreamToCnf(bitStreamAtGate.get(bitStream), bitStream);
-                clausesForTick.addAll(clauses);
-            }
+
+        for (BitStream bitStream : bitstreams) {
+            clausesForTick.addAll(bitStream.toCnf());
         }
 
         return clausesForTick;
 
-    }
-
-    private  List<Clause> convertBitStreamToCnf(Gate gate, BitStream bitStream) {
-        List<Clause> clausesForTick = new ArrayList<>();
-
-        if ("output".equals(gate.getType())) {
-            for (Bit bit : bitStream) {
-                for (InputPin inputPin : gate.getInputPins()) {
-                    Clause outputClause = new Clause(
-                            new BitAtComponentVariable(bit.getTick(), bitStream.getId(), bit.getBit(), inputPin));
-                    clausesForTick.add(outputClause);
-                }
-
-            }
-        }
-
-        if ("input".equals(gate.getType())) {
-            for (Bit bit : bitStream) {
-                Clause outputClause = new Clause(
-                        new BitAtComponentVariable(bit.getTick(), bitStream.getId(), bit.getBit(), gate.getOutputPin()));
-                clausesForTick.add(outputClause);
-            }
-        }
-
-
-        return clausesForTick;
     }
 
     public List<Gate> getAllComponentsWithOutputs() {
@@ -244,7 +217,8 @@ public class Module {
         return gates.stream().filter(gate -> !(gate instanceof Input)).collect(Collectors.toList());
     }
 
-    public List<Clause> convertModuleToCnf() {
+    @Override
+    public List<Clause> toCnf() {
 
         List<Clause> allClauses = new ArrayList<>();
 
