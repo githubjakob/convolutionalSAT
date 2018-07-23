@@ -2,6 +2,7 @@ package io.github.githubjakob.convolutionalSat;
 
 
 import io.github.githubjakob.convolutionalSat.components.*;
+import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 import lombok.Getter;

@@ -1,8 +1,10 @@
-package io.github.githubjakob.convolutionalSat.components;
+package io.github.githubjakob.convolutionalSat.components.gates;
 
+import io.github.githubjakob.convolutionalSat.components.BitStream;
+import io.github.githubjakob.convolutionalSat.components.InputPin;
+import io.github.githubjakob.convolutionalSat.components.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
-import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 

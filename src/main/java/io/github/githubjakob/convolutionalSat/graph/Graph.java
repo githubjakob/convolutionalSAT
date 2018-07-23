@@ -1,10 +1,10 @@
-package io.github.githubjakob.convolutionalSat.gui;
+package io.github.githubjakob.convolutionalSat.graph;
 
 import io.github.githubjakob.convolutionalSat.Circuit;
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.components.Component;
 import io.github.githubjakob.convolutionalSat.components.Connection;
-import io.github.githubjakob.convolutionalSat.components.Gate;
+import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.components.InputPin;
 import lombok.Getter;
 import org.graphstream.graph.Edge;

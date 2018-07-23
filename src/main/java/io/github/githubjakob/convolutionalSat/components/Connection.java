@@ -1,15 +1,12 @@
 package io.github.githubjakob.convolutionalSat.components;
 
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
-import io.github.githubjakob.convolutionalSat.Enums;
+import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.logic.*;
-import io.github.githubjakob.convolutionalSat.modules.Channel;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 
 /**

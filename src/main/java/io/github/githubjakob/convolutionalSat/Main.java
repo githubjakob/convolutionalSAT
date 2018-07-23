@@ -1,9 +1,6 @@
 package io.github.githubjakob.convolutionalSat;
 
-import io.github.githubjakob.convolutionalSat.components.BitStream;
-import io.github.githubjakob.convolutionalSat.components.Input;
-import io.github.githubjakob.convolutionalSat.components.Output;
-import io.github.githubjakob.convolutionalSat.gui.Graph;
+import io.github.githubjakob.convolutionalSat.graph.Graph;
 import io.github.githubjakob.convolutionalSat.gui.MainGui;
 import io.github.githubjakob.convolutionalSat.modules.Channel;
 import io.github.githubjakob.convolutionalSat.modules.Module;

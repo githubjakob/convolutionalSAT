@@ -1,10 +1,9 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
-import afu.org.checkerframework.checker.oigj.qual.O;
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.components.*;
+import io.github.githubjakob.convolutionalSat.components.gates.*;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.logic.Property;
 import lombok.Getter;

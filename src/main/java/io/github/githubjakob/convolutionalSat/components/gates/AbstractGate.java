@@ -1,16 +1,12 @@
-package io.github.githubjakob.convolutionalSat.components;
+package io.github.githubjakob.convolutionalSat.components.gates;
 
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.logic.MicrotickVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by jakob on 10.07.18.
- */
 public abstract class AbstractGate implements Gate {
     public List<Clause> getMicrotickCnf(int numberOfGates) {
         List<Clause> allClauses = new ArrayList<>();

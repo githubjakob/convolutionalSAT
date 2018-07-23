@@ -1,5 +1,6 @@
 package io.github.githubjakob.convolutionalSat.components;
 
+import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 
 /**

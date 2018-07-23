@@ -1,6 +1,7 @@
 package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.components.*;
+import io.github.githubjakob.convolutionalSat.components.gates.*;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.logic.MicrotickVariable;
@@ -133,7 +134,7 @@ public class Circuit {
         return cloned;
     }
 
-    public Map<Component, int[][]>  getBitsAtNodes() {
+    public Map<Component, int[][]> getBitsAtNodes() {
 
         Map<Component, int[][]> bitsAtNodes = new HashMap<>();
 
