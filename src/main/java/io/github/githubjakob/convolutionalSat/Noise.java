@@ -13,6 +13,8 @@ import static afu.org.checkerframework.checker.units.UnitsTools.min;
  */
 public class Noise {
 
+    private int numberOfBitStreams;
+
     int[][] noiseInAllBitStreams = new int[][] {
             // channel // tick
             new int[] {0, 0 }
@@ -29,6 +31,7 @@ public class Noise {
      * @param noiseRatioPercent 30 means 1/3 a third of the bits is flipped
      */
     public Noise(int bitStreamLenght, int numberOfBitStreams, int noiseRatioPercent) {
+        this.numberOfBitStreams = numberOfBitStreams;
         noiseInAllBitStreams = new int[numberOfBitStreams][];
         for (int i = 0; i < numberOfBitStreams; i++) {
             int[] flippedBits = new int[bitStreamLenght];
@@ -39,12 +42,12 @@ public class Noise {
                 } else flippedBits[n] = 0;
             }
             noiseInAllBitStreams[i] = flippedBits;
-            System.out.println("Flipped Bits " + i + ": " + Arrays.toString(flippedBits));
         }
     }
 
     public boolean isBitFlipped(int channelId, int bitstreamId, int tick) {
-        int[] definition = noiseInAllBitStreams[bitstreamId];
+        int randomNum = ThreadLocalRandom.current().nextInt(min, numberOfBitStreams + 1);
+        int[] definition = noiseInAllBitStreams[randomNum];
         if (definition[tick] == 1) {
             return true;
         }
@@ -54,5 +57,10 @@ public class Noise {
             }
         }*/
         return false;
+    }
+
+    public int[] getFlippedBits() {
+        int randomNum = ThreadLocalRandom.current().nextInt(min, 10);
+        return noiseInAllBitStreams[randomNum];
     }
 }

@@ -38,10 +38,13 @@ public class NoisyConnection extends Connection {
     public List<Clause> convertToCnfAtTick(int numberOfGates) {
         List<Clause> clausesForAllTicks = new ArrayList<>();
         ConnectionVariable connectionNotSet = new ConnectionVariable(false, this);
+        int[] flippedBits = noise.getFlippedBits();
+        System.out.println("Flipped Bits (" + from.getGate() + "): " + Arrays.toString(flippedBits));
 
         for (BitStream bitStream : this.getModule().getBitstreams()) {
             int bitstreamId = bitStream.getId();
             int bits = bitStream.getLength();
+
             for (int tick = 0; tick < bits; tick++) {
                 BitAtComponentVariable inputTrue = new BitAtComponentVariable(tick, bitstreamId, true, from);
                 BitAtComponentVariable inputFalse = new BitAtComponentVariable(tick, bitstreamId, false, from);
@@ -49,7 +52,8 @@ public class NoisyConnection extends Connection {
                 BitAtComponentVariable outputTrue = new BitAtComponentVariable(tick, bitstreamId, true, to);
                 BitAtComponentVariable outputFalse = new BitAtComponentVariable(tick, bitstreamId, false, to);
 
-                if (noise.isBitFlipped(channelId, bitstreamId, tick)) {
+
+                if (flippedBits[tick] == 1) {
                     /**
                      *
                      * Flip Bit

@@ -22,7 +22,16 @@ public class Main {
         encoder.addInput();
         encoder.addOutput();
         encoder.addOutput();
+        encoder.addOutput();
+        encoder.addOutput();
         encoder.addAnd();
+        encoder.addAnd();
+        encoder.addAnd();
+        encoder.addAnd();
+        encoder.addNot();
+        encoder.addNot();
+        encoder.addNot();
+        encoder.addRegister();
         encoder.addRegister();
         encoder.addRegister();
         encoder.addRegister();
@@ -31,9 +40,15 @@ public class Main {
         Module decoder = new Module(Enums.Module.DECODER);
         decoder.addInput();
         decoder.addInput();
+        decoder.addInput();
+        decoder.addInput();
         decoder.addOutput();
         decoder.addAnd();
+        decoder.addAnd();
+        decoder.addAnd();
         decoder.addNot();
+        decoder.addNot();
+        decoder.addXor();
         decoder.addXor();
 
         TestSuite testSuite = new TestSuite();

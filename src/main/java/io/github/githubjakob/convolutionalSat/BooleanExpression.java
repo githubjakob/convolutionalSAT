@@ -41,12 +41,15 @@ public class BooleanExpression {
     public BooleanExpression(Problem problem) {
         this.problem = problem;
         this.solver = SolverFactory.newDefault();
-        this.solver.newVar(MAXVAR);
-        this.solver.setExpectedNumberOfClauses(NBCLAUSES);
 
         this.clauses = problem.convertProblemToCnf();
         this.dimacs = convertClausesToDimacs(this.clauses);
         addDimacsToSolver(this.dimacs);
+
+        this.solver.newVar(dictionary.size() + 1000);
+        System.out.println("Number of vars " + dictionary.size());
+        this.solver.setExpectedNumberOfClauses(dimacs.size() + 1000);
+        System.out.println("Number of clauses " + dimacs.size() );
     }
 
     private void addDimacsToSolver(List<int[]> dimacs) {
@@ -139,6 +142,7 @@ public class BooleanExpression {
     public Circuit solve() {
         IProblem problem = solver;
         try {
+            System.out.println("Solving...");
             if (problem.isSatisfiable()) {
                 modelDimacs = problem.model();
                 //System.out.println(reader.decode(modelDimacs));

@@ -133,7 +133,7 @@ public class Circuit {
         return cloned;
     }
 
-    public Map<Component, int[][]> getBitsAtNodes() {
+    public Map<Component, int[][]>  getBitsAtNodes() {
 
         Map<Component, int[][]> bitsAtNodes = new HashMap<>();
 
