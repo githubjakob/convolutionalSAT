@@ -14,12 +14,12 @@ import java.util.*;
 public class Circuit {
 
     /*
-    Schaltkreise sind äquivalent, wenn sie
-    - die selbe Anzahl an Gates besitzen
-    - die selbe Anzahl an Verbindungen besitzen
-    - äquivalente Verbindungen beseitzen
-        (Verbdinungen sind äquivalent, wenn sie zwischen gleichen Typen von Komponenten besetehen)
-     */
+        Schaltkreise sind äquivalent, wenn sie
+        - die selbe Anzahl an Gates besitzen
+        - die selbe Anzahl an Verbindungen besitzen
+        - äquivalente Verbindungen beseitzen
+            (Verbdinungen sind äquivalent, wenn sie zwischen gleichen Typen von Komponenten besetehen)
+         */
     private static class EquivalentConnection {
 
         Gate from;
@@ -282,7 +282,7 @@ public class Circuit {
         return equivalentConnections.hashCode() * gates.hashCode();
     }
 
-    public boolean isBitStreamInputEqualOutput(BitStream bits, Requirements requirements) {
+    public boolean testBitStream(BitStream bits, int delay) {
         boolean[] valuesAtOutput = new boolean[bits.getLength()];
         boolean[] valuesAtInput = new boolean[bits.getLength()];
         for (int tick = 0; tick < bits.getLength(); tick++) {
@@ -297,17 +297,18 @@ public class Circuit {
             boolean valueAtOutput = evaluateGlobalOutput(valueAtInput, tick);
             valuesAtOutput[tick] = valueAtOutput;
             valuesAtInput[tick] = valueAtInput;
-            if (tick < requirements.getDelay()) {
+            if (tick < delay) {
                 continue;
             }
 
-            if (!bits.getBits().get(tick- requirements.getDelay()).getWeight() == valueAtOutput) {
+            if (!bits.getBits().get(tick- delay).getWeight() == valueAtOutput) {
                 System.err.println("###########not same#########");
+                return false;
             }
         }
 
-        System.out.println("Bits at Input (last " + requirements.getDelay() + " delay/false): " + Arrays.toString(valuesAtInput));
-        System.out.println("Bits at Output (first " + requirements.getDelay() + " delay/false): " + Arrays.toString(valuesAtOutput));
+        System.out.println("Bits at Input (last " + delay + " delay/false): " + Arrays.toString(valuesAtInput));
+        System.out.println("Bits at Output (first " + delay + " delay/false): " + Arrays.toString(valuesAtOutput));
 
         resetRegisters();
         return true;
@@ -328,7 +329,7 @@ public class Circuit {
 
     public boolean testValidity(Requirements requirements) {
         for (BitStream bitStream : requirements.bitStreams) {
-            if (!isBitStreamInputEqualOutput(bitStream, requirements)) {
+            if (!testBitStream(bitStream, requirements.getDelay())) {
                 return false;
             }
         }

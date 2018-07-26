@@ -28,6 +28,8 @@ public class Requirements {
 
     int blockLength;
 
+    int bitStreamCounter = 0;
+
     public Requirements(int delay, int blockLength, int noiseRatioPercent) {
         this.blockLength = blockLength;
 
@@ -36,16 +38,20 @@ public class Requirements {
         enableNoise = false;
 
         //createBitStreams(lenght);
-        BitStream bitsStreamIn1 = new BitStream(0, createRandomBits(blockLength), delay);
-        BitStream bitsStreamIn2 = new BitStream(1, createRandomBits(blockLength), delay);
+        BitStream bitsStreamIn1 = createRandomBitStream();
+        BitStream bitsStreamIn2 = createRandomBitStream();
         bitStreams.addAll(Arrays.asList(bitsStreamIn1, bitsStreamIn2));
 
         if (noiseRatioPercent > 0) {
-            noise = new Noise(blockLength, bitStreams.size(), noiseRatioPercent);
+            noise = new Noise(blockLength + delay, bitStreams.size(), noiseRatioPercent);
         }
 
         sanitiyCheck(blockLength, delay, bitStreams);
         System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (noiseRatioPercent > 0));
+    }
+
+    public BitStream createRandomBitStream() {
+        return new BitStream(bitStreamCounter++, createRandomBits(blockLength), delay);
     }
 
     private void sanitiyCheck(int blockLength, int delay, List<BitStream> bitStreams) {
@@ -55,6 +61,12 @@ public class Requirements {
             }
         }
     }
+
+    public void addBitStream(BitStream bitStream) {
+        bitStreams.add(bitStream);
+    }
+
+
 
     private boolean[] createRandomBits(int length) {
         Random rnd = new Random();

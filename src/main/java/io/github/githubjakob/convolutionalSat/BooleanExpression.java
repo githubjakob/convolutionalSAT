@@ -24,7 +24,7 @@ public class BooleanExpression {
 
     private ISolver solver;
 
-    private final List<Clause> clauses;
+    private List<Clause> clauses;
 
     private final Problem problem;
 
@@ -34,6 +34,8 @@ public class BooleanExpression {
 
     HashMap<Variable, Integer> dictionary = new HashMap<>();
 
+    int literalCount = 0;
+
     private List<Circuit> models = new ArrayList<>();
 
     int numbersOfModelsFound = 0;
@@ -41,11 +43,15 @@ public class BooleanExpression {
     public BooleanExpression(Problem problem) {
         this.problem = problem;
         this.solver = SolverFactory.newDefault();
+    }
 
+    private void convertProblemToDimacs() {
         this.clauses = problem.convertProblemToCnf();
         this.dimacs = convertClausesToDimacs(this.clauses);
         addDimacsToSolver(this.dimacs);
+    }
 
+    private void setupSolver() {
         this.solver.newVar(dictionary.size() + 1000);
         System.out.println("Number of vars " + dictionary.size());
         this.solver.setExpectedNumberOfClauses(dimacs.size() + 1000);
@@ -86,7 +92,7 @@ public class BooleanExpression {
                 if (dictionary.containsKey(variable)) {
                     literal = dictionary.get(variable);
                 } else {
-                    Integer nextLiteral = dictionary.size() + 1;
+                    Integer nextLiteral = ++literalCount;
                     dictionary.put(variable, nextLiteral);
                     literal = nextLiteral;
                 }
@@ -105,41 +111,27 @@ public class BooleanExpression {
         return dimacsClauses;
     }
 
+    /**
+     * Find another solution that is different from the last one
+     * The connections of the model already found are negated and then added to the clauses
+     *
+     * @return
+     */
     public Circuit solveNext() {
         if (this.models.isEmpty()) {
             return solve();
         }
 
-        Circuit latestModel = models.get(models.size()-1);
-
-        List<Clause> negatedModel = new ArrayList<>();
-        Clause clause = new Clause();
-        negatedModel.add(clause);
-
-        for (Connection connection : latestModel.getConnections()) {
-            ConnectionVariable variable = new ConnectionVariable(false, connection);
-            clause.addVariable(variable);
-        }
-
-        final List<int[]> dimacs = convertClausesToDimacs(negatedModel);
-        addDimacsToSolver(dimacs);
+        addLastModelNegated();
 
         return solve();
 
     }
 
-    public List<Circuit> solveAll() {
-        solve();
-        while(true) {
-            Circuit anotherModel = solveNext();
-            if (anotherModel == null) {
-                break;
-            }
-        }
-        return this.models;
-    }
-
     public Circuit solve() {
+        convertProblemToDimacs();
+        setupSolver();
+
         IProblem problem = solver;
         try {
             System.out.println("Solving...");
@@ -190,5 +182,21 @@ public class BooleanExpression {
         }
         return new Circuit(translatedModel, problem.getGates(), problem.getRequirements().getBitStreams());
 
+    }
+
+    public void addLastModelNegated() {
+        Circuit latestModel = models.get(models.size()-1);
+
+        List<Clause> negatedModel = new ArrayList<>();
+        Clause clause = new Clause();
+        negatedModel.add(clause);
+
+        for (Connection connection : latestModel.getConnections()) {
+            ConnectionVariable variable = new ConnectionVariable(false, connection);
+            clause.addVariable(variable);
+        }
+
+        final List<int[]> dimacs = convertClausesToDimacs(negatedModel);
+        addDimacsToSolver(dimacs);
     }
 }

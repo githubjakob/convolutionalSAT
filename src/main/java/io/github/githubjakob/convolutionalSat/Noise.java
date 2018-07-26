@@ -47,20 +47,6 @@ public class Noise {
         }
     }
 
-    public boolean isBitFlipped(int channelId, int bitstreamId, int tick) {
-        int randomNum = ThreadLocalRandom.current().nextInt(min, numberOfBitStreams + 1);
-        int[] definition = noiseInAllBitStreams[randomNum];
-        if (definition[tick] == 1) {
-            return true;
-        }
-        /*for (int[] definition : noiseInChannelBitstreamAtTick) {
-            if (definition[0] == channelId && definition[1] == bitstreamId && definition[2] == tick) {
-                return true;
-            }
-        }*/
-        return false;
-    }
-
     public int[] getFlippedBits() {
         int randomNum = ThreadLocalRandom.current().nextInt(min, noiseInAllBitStreams.length);
         return noiseInAllBitStreams[randomNum];

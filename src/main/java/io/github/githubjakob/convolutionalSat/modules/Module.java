@@ -209,7 +209,7 @@ public class Module implements Property {
         return clausesForTick;
     }
 
-    List<Clause> convertBitStreamsToCnf() {
+    public List<Clause> convertBitStreamsToCnf() {
         if (bitstreams.size() == 0 ) {
             return new ArrayList<>();
         }
