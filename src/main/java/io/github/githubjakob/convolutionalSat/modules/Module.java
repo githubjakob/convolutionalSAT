@@ -51,8 +51,24 @@ public class Module implements Property {
         return output;
     }
 
+    public Output addGlobalOutput() {
+        Output output = new GlobalOutput(this);
+        outputs.add(output);
+        gates.add(output);
+        inputPins.addAll(output.getInputPins());
+        return output;
+    }
+
      public Input addInput() {
         Input input = new Input(this);
+        this.inputs.add(input);
+        this.gates.add(input);
+        this.outputPins.add(input.getOutputPin());
+        return input;
+    }
+
+    public Input addGlobalInput() {
+        Input input = new GlobalInput(this);
         this.inputs.add(input);
         this.gates.add(input);
         this.outputPins.add(input.getOutputPin());
@@ -147,16 +163,16 @@ public class Module implements Property {
         /**
          * Für alle Verbindungen, die vom selben Output Pin weg gehen, muss mindestens eine gesetzt sein.
          */
-        for (OutputPin outputPin : outputPins) {
+        /*for (OutputPin outputPin : outputPins) {
             // for alle Connections die von diesem Output Pin weg geht
             Clause possibleConnections = new Clause();
-            for (Connection connection : connections) {
-                if (connection.getFrom().equals(outputPin)) {
-                    possibleConnections.addVariable(new ConnectionVariable(true, connection));
+            for (Connection connections : connections) {
+                if (connections.getFrom().equals(outputPin)) {
+                    possibleConnections.addVariable(new ConnectionVariable(true, connections));
                 }
             }
             clausesForTick.add(possibleConnections);
-        }
+        }*/
 
 
         for (InputPin inputPin : inputPins) {

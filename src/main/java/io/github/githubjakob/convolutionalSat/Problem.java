@@ -15,7 +15,7 @@ import java.util.*;
 public class Problem {
 
     @Getter
-    private final TestSuite testSuite;
+    private final Requirements requirements;
 
     @Getter
     private int numberOfBitStreams = 0;
@@ -25,10 +25,10 @@ public class Problem {
 
     private List<Module> modules;
 
-    public Problem(List<Module> modules, TestSuite testSuite) {
+    public Problem(List<Module> modules, Requirements requirements) {
         this.modules = modules;
-        this.testSuite = testSuite;
-        registerBitStreamsAsInputOutputRequirement(testSuite.getBitStreams());
+        this.requirements = requirements;
+        registerBitStreamsAsInputOutputRequirement(requirements.getBitStreams());
     }
 
     public List<Clause> convertProblemToCnf() {

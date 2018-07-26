@@ -1,9 +1,7 @@
 package io.github.githubjakob.convolutionalSat;
 
-import io.github.githubjakob.convolutionalSat.components.BitStream;
+import lombok.Getter;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static afu.org.checkerframework.checker.units.UnitsTools.min;
@@ -32,8 +30,12 @@ public class Noise {
      */
     public Noise(int bitStreamLenght, int numberOfBitStreams, int noiseRatioPercent) {
         this.numberOfBitStreams = numberOfBitStreams;
-        noiseInAllBitStreams = new int[numberOfBitStreams][];
-        for (int i = 0; i < numberOfBitStreams; i++) {
+        createNoise(bitStreamLenght, numberOfBitStreams, noiseRatioPercent);
+    }
+
+    private void createNoise(int bitStreamLenght, int numberOfBitStreams, int noiseRatioPercent) {
+        noiseInAllBitStreams = new int[this.numberOfBitStreams][];
+        for (int i = 0; i < this.numberOfBitStreams; i++) {
             int[] flippedBits = new int[bitStreamLenght];
             for (int n = 0; n < flippedBits.length; n++) {
                 int randomNum = ThreadLocalRandom.current().nextInt(min, 100 + 1);
@@ -60,7 +62,7 @@ public class Noise {
     }
 
     public int[] getFlippedBits() {
-        int randomNum = ThreadLocalRandom.current().nextInt(min, 10);
+        int randomNum = ThreadLocalRandom.current().nextInt(min, noiseInAllBitStreams.length);
         return noiseInAllBitStreams[randomNum];
     }
 }

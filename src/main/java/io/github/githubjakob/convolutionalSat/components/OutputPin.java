@@ -2,6 +2,11 @@ package io.github.githubjakob.convolutionalSat.components;
 
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.modules.Module;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by jakob on 07.06.18.
@@ -16,6 +21,11 @@ public class OutputPin implements Pin {
         return gate;
     }
 
+    @Getter
+    @Setter
+    private List<Connection> connections = new ArrayList<>();
+
+    @Getter
     private final Gate gate;
 
     public OutputPin(Gate gate) {

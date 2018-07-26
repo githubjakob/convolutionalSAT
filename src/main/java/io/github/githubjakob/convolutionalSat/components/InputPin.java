@@ -2,6 +2,8 @@ package io.github.githubjakob.convolutionalSat.components;
 
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.modules.Module;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by jakob on 07.06.18.
@@ -13,6 +15,10 @@ public class InputPin implements Pin {
     Integer id;
 
     private final Gate gate;
+
+    @Getter
+    @Setter
+    private Connection connection = null;
 
     public InputPin(Gate gate) {
         this.id = idCounter++;

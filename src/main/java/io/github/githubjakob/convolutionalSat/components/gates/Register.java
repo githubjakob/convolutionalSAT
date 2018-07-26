@@ -3,7 +3,6 @@ package io.github.githubjakob.convolutionalSat.components.gates;
 import io.github.githubjakob.convolutionalSat.components.BitStream;
 import io.github.githubjakob.convolutionalSat.components.InputPin;
 import io.github.githubjakob.convolutionalSat.components.OutputPin;
-import io.github.githubjakob.convolutionalSat.components.gates.AbstractGate;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
@@ -29,6 +28,8 @@ public class Register extends AbstractGate {
     private int id;
 
     public int in;
+
+    private List<Boolean> outputBitValuesAtTick = new ArrayList<>(Arrays.asList(false));
 
     public Register(Module module) {
         this.module = module;
@@ -97,6 +98,25 @@ public class Register extends AbstractGate {
     }
 
     @Override
+    public boolean evaluate(int tick) {
+
+        if (outputBitValuesAtTick.size() - 2 == tick) {
+            return outputBitValuesAtTick.get(tick);
+        }
+
+        // evaluate
+        Gate fromGate = inputPin.getConnection().getFrom().getGate();
+        boolean inputValueAtThisTick = fromGate.evaluate(tick);
+
+        outputBitValuesAtTick.add(inputValueAtThisTick);
+
+        boolean outputValueAtThisTick = outputBitValuesAtTick.get(tick);
+
+        //System.out.println("Value at " + this.toString() + " is " + outputValueAtThisTick);
+        return outputValueAtThisTick;
+    }
+
+    @Override
     public Module getModule() {
         return module;
     }
@@ -115,6 +135,10 @@ public class Register extends AbstractGate {
     @Override
     public List<InputPin> getInputPins() {
         return Arrays.asList(inputPin);
+    }
+
+    public void reset() {
+        outputBitValuesAtTick = new ArrayList<>(Arrays.asList(false));
     }
 
 

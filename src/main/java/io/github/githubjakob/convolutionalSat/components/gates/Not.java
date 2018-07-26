@@ -65,6 +65,14 @@ public class Not extends AbstractGate {
     }
 
     @Override
+    public boolean evaluate(int tick) {
+        Gate fromGate = inputPin.getConnection().getFrom().getGate();
+        boolean value = !fromGate.evaluate(tick);
+        //System.out.println("Value at " + this.toString() + " : " + value);
+        return value;
+    }
+
+    @Override
     public Module getModule() {
         return module;
     }

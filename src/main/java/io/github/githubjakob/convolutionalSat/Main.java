@@ -16,19 +16,11 @@ public class Main {
     public static void main(String[] args) {
 
         Module encoder = new Module(Enums.Module.ENCODER);
-        encoder.addInput();
+        encoder.addGlobalInput();
         encoder.addOutput();
         encoder.addOutput();
-        encoder.addOutput();
-        encoder.addOutput();
-        encoder.addAnd();
-        encoder.addAnd();
-        encoder.addAnd();
-        encoder.addAnd();
-        encoder.addNot();
-        encoder.addNot();
-        encoder.addNot();
-        encoder.addRegister();
+        encoder.addXor();
+        encoder.addXor();
         encoder.addRegister();
         encoder.addRegister();
         encoder.addRegister();
@@ -37,25 +29,17 @@ public class Main {
         Module decoder = new Module(Enums.Module.DECODER);
         decoder.addInput();
         decoder.addInput();
-        decoder.addInput();
-        decoder.addInput();
-        decoder.addOutput();
-        decoder.addAnd();
-        decoder.addAnd();
-        decoder.addAnd();
-        decoder.addNot();
-        decoder.addNot();
+        decoder.addGlobalOutput();
         decoder.addXor();
         decoder.addXor();
 
-        TestSuite testSuite = new TestSuite();
+        Requirements requirements = new Requirements(3, 20, 0);
 
-        Channel channel = new Channel(encoder, decoder, testSuite.getNoise());
+        Channel channel = new Channel(encoder, decoder, requirements);
 
         MainGui mainGui = new MainGui();
 
-
-        Problem problem = new Problem(Arrays.asList(encoder, decoder, channel), testSuite);
+        Problem problem = new Problem(Arrays.asList(encoder, decoder, channel), requirements);
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -70,13 +54,20 @@ public class Main {
                 return;
             }
 
+            if (!circuit.testValidity(requirements)) {
+                System.err.println("circuit is not valid, searching next solution");
+                continue;
+            }
+
+
             Graph graph = new Graph(circuit);
+            if (!graph.isValid()) {
+                System.err.println("graph is not valid, searching next solution");
+                continue;
+            }
 
             mainGui.addPanel(graph);
-            if (graph.isGraphFullyConnected()) {
-
-                counter++;
-            }
+            counter++;
         }
 
         Instant end = Instant.now();

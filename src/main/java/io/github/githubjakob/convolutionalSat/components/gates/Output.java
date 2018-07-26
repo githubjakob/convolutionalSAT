@@ -3,7 +3,6 @@ package io.github.githubjakob.convolutionalSat.components.gates;
 import io.github.githubjakob.convolutionalSat.components.BitStream;
 import io.github.githubjakob.convolutionalSat.components.InputPin;
 import io.github.githubjakob.convolutionalSat.components.OutputPin;
-import io.github.githubjakob.convolutionalSat.components.gates.AbstractGate;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
@@ -36,7 +35,7 @@ public class Output extends AbstractGate {
     }
     @Override
     public String toString() {
-        return "GlobalOutput" + id;
+        return "Output" + id;
     }
 
     public OutputPin getOutputPin() {
@@ -73,6 +72,14 @@ public class Output extends AbstractGate {
 
 
         return clausesForAllTicks;
+    }
+
+    @Override
+    public boolean evaluate(int tick) {
+        Gate fromGate = inputPin.getConnection().getFrom().getGate();
+        boolean value = fromGate.evaluate(tick);
+        //System.out.println("Value at " + this.toString() + " : " + value);
+        return value;
     }
 
     @Override

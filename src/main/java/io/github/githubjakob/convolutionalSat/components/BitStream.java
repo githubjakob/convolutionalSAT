@@ -7,6 +7,7 @@ import io.github.githubjakob.convolutionalSat.logic.Property;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,13 +34,13 @@ public class BitStream implements Iterable<Bit>, Property {
         this.bits = new ArrayList<>(bits);
     }
 
-    public BitStream(int id, List<Integer> bits, int delay) {
+    public BitStream(int id, boolean[] bits, int delay) {
         this.id = id;
         this.gate = null;
         this.delay = delay;
         this.bits = new ArrayList<>();
-        for (int tick = 0; tick < bits.size(); tick++) {
-            Bit bit = new Bit(bits.get(tick), this);
+        for (int tick = 0; tick < bits.length; tick++) {
+            Bit bit = new Bit(bits[tick] ? 1 : 0, this);
             this.bits.add(bit);
         }
     }
@@ -50,6 +51,16 @@ public class BitStream implements Iterable<Bit>, Property {
 
     public int getLength() {
         return this.bits.size() + delay;
+    }
+
+    public boolean[] getBitValues() {
+        boolean[] bitValues = new boolean[bits.size()];
+        int count = 0;
+        for (Bit bit : bits) {
+            bitValues[count] = bit.getWeight();
+            count++;
+        }
+        return bitValues;
     }
 
     @Override
@@ -86,15 +97,19 @@ public class BitStream implements Iterable<Bit>, Property {
             if ("input".equals(gate.getType())) {
 
                 if (tick >= getLength() - delay) {
-                    Clause outputClause = new Clause(
-                            new BitAtComponentVariable(tick, this.getId(), true, gate.getOutputPin()),
+                    /**
+                     * zuerst wird der bitstream am input angelegt, dann delay-bits lang 0's
+                     *
+                     */
+                    Clause inputClause = new Clause(
+                            //new BitAtComponentVariable(tick, this.getId(), true, gate.getOutputPin()),
                             new BitAtComponentVariable(tick, this.getId(), false, gate.getOutputPin()));
-                    clausesForTick.add(outputClause);
+                    clausesForTick.add(inputClause);
                 } else {
                     Bit bit = bits.get(tick);
-                    Clause outputClause = new Clause(
+                    Clause inputClause = new Clause(
                             new BitAtComponentVariable(tick, this.getId(), bit.getWeight(), gate.getOutputPin()));
-                    clausesForTick.add(outputClause);
+                    clausesForTick.add(inputClause);
                 }
 
             }

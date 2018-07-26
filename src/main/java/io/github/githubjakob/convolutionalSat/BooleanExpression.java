@@ -188,7 +188,7 @@ public class BooleanExpression {
 
             }
         }
-        return new Circuit(translatedModel, problem.getGates(), problem.getTestSuite().getBitStreams());
+        return new Circuit(translatedModel, problem.getGates(), problem.getRequirements().getBitStreams());
 
     }
 }

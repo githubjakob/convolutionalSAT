@@ -136,7 +136,7 @@ public class NoisyConnection extends Connection {
 
     @Override
     public String getType() {
-        return "connection";
+        return "connections";
     }
 
     @Override

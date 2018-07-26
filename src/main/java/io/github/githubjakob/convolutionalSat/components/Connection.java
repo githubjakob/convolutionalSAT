@@ -110,7 +110,7 @@ public class Connection implements Component {
 
     @Override
     public String getType() {
-        return "connection";
+        return "connections";
     }
 
     @Override

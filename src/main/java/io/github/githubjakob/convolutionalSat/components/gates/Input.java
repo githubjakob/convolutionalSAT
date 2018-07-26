@@ -3,10 +3,10 @@ package io.github.githubjakob.convolutionalSat.components.gates;
 import io.github.githubjakob.convolutionalSat.components.BitStream;
 import io.github.githubjakob.convolutionalSat.components.InputPin;
 import io.github.githubjakob.convolutionalSat.components.OutputPin;
-import io.github.githubjakob.convolutionalSat.components.gates.AbstractGate;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +27,9 @@ public class Input extends AbstractGate {
 
     private final InputPin inputPin;
 
+    @Setter
+    private Boolean bitValue = null;
+
     public Input(Module module) {
         this.module = module;
         this.id = idCounter;
@@ -37,7 +40,7 @@ public class Input extends AbstractGate {
 
     @Override
     public String toString() {
-        return "GlobalInput" + id;
+        return "Input" + id;
     }
 
     public OutputPin getOutputPin() {
@@ -77,6 +80,18 @@ public class Input extends AbstractGate {
     @Override
     public Module getModule() {
         return module;
+    }
+
+    @Override
+    public boolean evaluate(int tick) {
+        boolean value;
+        if (bitValue != null) {
+            value = bitValue;
+        } else {
+            value = inputPin.getConnection().getFrom().getGate().evaluate(tick);
+        }
+        //System.out.println("Value at " + this.toString() + " : " + value);
+        return value;
     }
 
     @Override

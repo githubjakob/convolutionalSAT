@@ -71,10 +71,14 @@ public class Circuit {
     @Getter
     private int numberOfBitStreams;
 
+    GlobalInput globalInput;
+
+    GlobalOutput globalOutput;
+
     @Getter
     HashMap<Component, Integer> microtickAsDecimal;
 
-    public Circuit(List<Connection> connections, List<Gate> gates, boolean whatever) {
+    public Circuit(List<Connection> connections, List<Gate> gates) {
         this.connections = new HashSet<>(connections);
         this.gates = new HashSet<>(gates);
         for (Connection connection : connections) {
@@ -86,12 +90,37 @@ public class Circuit {
         this.variables = cloneVariables(variables);
         this.connections = extractFrom(variables);
         this.bitStreams = bitStreams;
+        this.gates = new HashSet<>(gates);
+        for (Gate gate : gates) {
+            if (gate instanceof GlobalOutput) {
+                this.globalOutput = (GlobalOutput) gate;
+            }
+            if (gate instanceof GlobalInput) {
+                this.globalInput = (GlobalInput) gate;
+            }
+        }
         for (Connection connection : connections) {
             equivalentConnections.add(new EquivalentConnection(connection));
+            setConnectionToGate(connection);
         }
         this.microtickAsDecimal = extractMicroticks(variables);
-        this.gates = new HashSet<>(gates);
 
+    }
+
+    private void setConnectionToGate(Connection connection) {
+        InputPin connectionTo = connection.getTo();
+        OutputPin connectionFrom = connection.getFrom();
+        for (Gate gate : gates) {
+            for (InputPin inputPin : gate.getInputPins()) {
+                if (inputPin.equals(connectionTo)) {
+                    inputPin.setConnection(connection);
+                }
+            }
+            if (gate.getOutputPin().equals(connectionFrom)) {
+                gate.getOutputPin().getConnections().add(connection);
+            }
+
+        }
     }
 
     private HashMap<Component,Integer> extractMicroticks(List<Variable> variables) {
@@ -251,5 +280,58 @@ public class Circuit {
     @Override
     public int hashCode() {
         return equivalentConnections.hashCode() * gates.hashCode();
+    }
+
+    public boolean isBitStreamInputEqualOutput(BitStream bits, Requirements requirements) {
+        boolean[] valuesAtOutput = new boolean[bits.getLength()];
+        boolean[] valuesAtInput = new boolean[bits.getLength()];
+        for (int tick = 0; tick < bits.getLength(); tick++) {
+            //System.out.println("testing bitstream " + bits.getId());
+            boolean valueAtInput;
+            if (tick < bits.getLength() - bits.getDelay()) {
+                Bit bit = bits.getBits().get(tick);
+                 valueAtInput = bit.getWeight();
+            } else {
+                valueAtInput = false;
+            }
+            boolean valueAtOutput = evaluateGlobalOutput(valueAtInput, tick);
+            valuesAtOutput[tick] = valueAtOutput;
+            valuesAtInput[tick] = valueAtInput;
+            if (tick < requirements.getDelay()) {
+                continue;
+            }
+
+            if (!bits.getBits().get(tick- requirements.getDelay()).getWeight() == valueAtOutput) {
+                System.err.println("###########not same#########");
+            }
+        }
+
+        System.out.println("Bits at Input (last " + requirements.getDelay() + " delay/false): " + Arrays.toString(valuesAtInput));
+        System.out.println("Bits at Output (first " + requirements.getDelay() + " delay/false): " + Arrays.toString(valuesAtOutput));
+
+        resetRegisters();
+        return true;
+    }
+
+    public boolean evaluateGlobalOutput(boolean bitAtRoot, int tick) {
+        globalInput.setBitValue(bitAtRoot);
+        //System.out.println("Evaluating globalOutput (" + globalOutput.toString() + ")");
+        return globalOutput.evaluate(tick);
+
+    }
+
+    private void resetRegisters() {
+        for (Register register : getRegisters()) {
+            register.reset();
+        }
+    }
+
+    public boolean testValidity(Requirements requirements) {
+        for (BitStream bitStream : requirements.bitStreams) {
+            if (!isBitStreamInputEqualOutput(bitStream, requirements)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

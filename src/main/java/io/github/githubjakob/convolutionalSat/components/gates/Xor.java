@@ -74,6 +74,16 @@ public class Xor extends AbstractGate {
     }
 
     @Override
+    public boolean evaluate(int tick) {
+        Gate fromGate1 = inputPin1.getConnection().getFrom().getGate();
+        Gate fromGate2 = inputPin2.getConnection().getFrom().getGate();
+        boolean value = (fromGate1.evaluate(tick) && !fromGate2.evaluate(tick))
+                || (!fromGate1.evaluate(tick) && fromGate2.evaluate(tick));
+        //System.out.println("Value at " + this.toString() + " : " + value);
+        return value;
+    }
+
+    @Override
     public Module getModule() {
         return module;
     }

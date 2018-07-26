@@ -117,13 +117,13 @@ public class BasicTest {
         Connection connection2 = new Connection(xor.getOutputPin(), xor2.getInputPins().get(1));
 
         Circuit circuit = new Circuit(Arrays.asList(connection, connection2),
-                Arrays.asList(xor, xor2), true);
+                Arrays.asList(xor, xor2));
 
         Connection sameConnection = new Connection(xor.getOutputPin(), xor2.getInputPins().get(0));
         Connection sameConnection2 = new Connection(xor.getOutputPin(), xor2.getInputPins().get(1));
 
         Circuit sameCircuit = new Circuit(Arrays.asList(sameConnection, sameConnection2),
-                Arrays.asList(xor, xor2), true);
+                Arrays.asList(xor, xor2));
 
         assertThat(circuit, is(sameCircuit));
         assertThat(connection, not(sameConnection));

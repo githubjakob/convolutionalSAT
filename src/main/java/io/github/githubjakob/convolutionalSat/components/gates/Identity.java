@@ -85,6 +85,12 @@ public class Identity extends AbstractGate {
     }
 
     @Override
+    public boolean evaluate(int tick) {
+        Gate fromGate = inputPin.getConnection().getFrom().getGate();
+        return fromGate.evaluate(tick);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;
         if (obj == this) return true;

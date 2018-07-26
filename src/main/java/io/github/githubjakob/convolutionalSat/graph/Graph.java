@@ -2,10 +2,11 @@ package io.github.githubjakob.convolutionalSat.graph;
 
 import io.github.githubjakob.convolutionalSat.Circuit;
 import io.github.githubjakob.convolutionalSat.Enums;
-import io.github.githubjakob.convolutionalSat.components.Component;
-import io.github.githubjakob.convolutionalSat.components.Connection;
+import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
-import io.github.githubjakob.convolutionalSat.components.InputPin;
+import io.github.githubjakob.convolutionalSat.components.gates.GlobalOutput;
+import io.github.githubjakob.convolutionalSat.components.gates.Input;
+import io.github.githubjakob.convolutionalSat.components.gates.Register;
 import lombok.Getter;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
@@ -15,10 +16,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by jakob on 26.06.18.
@@ -36,6 +34,11 @@ public class Graph extends MultiGraph {
         super("Network");
         this.model = model;
         createGraph();
+    }
+
+    public boolean isValid() {
+        if (!isGraphFullyConnected()) return false;
+        return true;
     }
 
     public boolean isGraphFullyConnected() {
@@ -100,13 +103,22 @@ public class Graph extends MultiGraph {
             if (connection.getTo() == null) {
                 continue;
             }
-            String from = connection.getFrom().toString();
-            String to = connection.getTo().toString();
-            Node nodeFrom = nodes.get(from);
-            Node nodeTo = nodes.get(to);
-            Edge edge = this.addEdge(from + to, nodeFrom, nodeTo, true);
-            //edge.addAttribute("ui.label", connection.toString());
+            OutputPin from = connection.getFrom();
+            String fromId = from.toString();
+            InputPin to = connection.getTo();
+            String toId = to.toString();
+            Node nodeFrom = nodes.get(fromId);
+            Node nodeTo = nodes.get(toId);
+            if (to.getGate().getOutputPin().getConnections().isEmpty() && !(to.getGate() instanceof GlobalOutput)) {
+                //System.out.println(nodeTo.toString() + " does not have any connections ");
+            }
+            Edge edge = this.addEdge(fromId + toId, nodeFrom, nodeTo, true);
             edge.addAttribute("layout.weight", 2);
+
+
+
+            //edge.addAttribute("ui.label", connections.toString());
+
         }
 
         this.addAttribute("ui.stylesheet", stylesheet);

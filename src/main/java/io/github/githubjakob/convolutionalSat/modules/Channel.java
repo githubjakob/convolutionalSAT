@@ -2,6 +2,7 @@ package io.github.githubjakob.convolutionalSat.modules;
 
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.Noise;
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.components.gates.Input;
 import io.github.githubjakob.convolutionalSat.components.gates.Output;
@@ -16,13 +17,13 @@ public class Channel extends Module {
 
     private final Module decoder;
 
-    private Noise noise;
+    private Requirements requirements;
 
-    public Channel(Module encoder, Module decoder, Noise noise) {
+    public Channel(Module encoder, Module decoder, Requirements requirements) {
         super(Enums.Module.CHANNEL);
         this.encoder = encoder;
         this.decoder = decoder;
-        this.noise = noise;
+        this.requirements = requirements;
         createConnections();
     }
 
@@ -41,7 +42,12 @@ public class Channel extends Module {
             Input input = decoder.getInputs().get(i);
             OutputPin outputPin = output.getOutputPin();
             InputPin inputPin = input.getInputPins().get(0);
-            connections.add(new NoisyConnection(outputPin, inputPin, noise));
+
+            if (requirements.isNoiseEnabled()) {
+                connections.add(new NoisyConnection(outputPin, inputPin, requirements.getNoise()));
+            } else {
+                connections.add(new Connection(outputPin, inputPin));
+            }
             outputPins.add(outputPin);
             inputPins.add(inputPin);
         }
