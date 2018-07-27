@@ -307,8 +307,8 @@ public class Circuit {
             }
         }
 
-        System.out.println("Bits at Input (last " + delay + " delay/false): " + Arrays.toString(valuesAtInput));
-        System.out.println("Bits at Output (first " + delay + " delay/false): " + Arrays.toString(valuesAtOutput));
+        //System.out.println("Bits at Input (last " + delay + " delay/false): " + Arrays.toString(valuesAtInput));
+        //System.out.println("Bits at Output (first " + delay + " delay/false): " + Arrays.toString(valuesAtOutput));
 
         resetRegisters();
         return true;
@@ -328,6 +328,7 @@ public class Circuit {
     }
 
     public boolean testValidity(Requirements requirements) {
+        System.out.println("Testing " + requirements.bitStreams.size() + " BitStreams on Circuit");
         for (BitStream bitStream : requirements.bitStreams) {
             if (!testBitStream(bitStream, requirements.getDelay())) {
                 return false;

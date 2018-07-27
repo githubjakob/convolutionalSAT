@@ -95,8 +95,8 @@ public class Problem {
                     encoder.getInputs().get(0));
             BitStream bitStreamAtDecoder = new BitStream(bitStream.getId(), bitStream.getBits(),  bitStream.getDelay(),
                     decoder.getOutputs().get(0));
-            encoder.addBitStream(bitSreamAtEncoder);
-            decoder.addBitStream(bitStreamAtDecoder);
+            encoder.setBitStream(bitSreamAtEncoder);
+            decoder.setBitStream(bitStreamAtDecoder);
             numberOfBits = bitSreamAtEncoder.getLength();
         }
     }

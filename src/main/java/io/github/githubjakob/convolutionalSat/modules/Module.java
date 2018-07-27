@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class Module implements Property {
 
     @Getter
-    List<BitStream> bitstreams = new ArrayList<>();
+    BitStream bitStream;
 
     @Getter
     List<Input> inputs = new ArrayList<>();
@@ -39,8 +39,8 @@ public class Module implements Property {
         this.type = type;
     }
 
-    public void addBitStream(BitStream bitStream) {
-        bitstreams.add(bitStream);
+    public void setBitStream(BitStream bitStream) {
+        this.bitStream = bitStream;
     }
 
     public Output addOutput() {
@@ -163,7 +163,7 @@ public class Module implements Property {
         /**
          * Für alle Verbindungen, die vom selben Output Pin weg gehen, muss mindestens eine gesetzt sein.
          */
-        /*for (OutputPin outputPin : outputPins) {
+        for (OutputPin outputPin : outputPins) {
             // for alle Connections die von diesem Output Pin weg geht
             Clause possibleConnections = new Clause();
             for (Connection connections : connections) {
@@ -172,7 +172,7 @@ public class Module implements Property {
                 }
             }
             clausesForTick.add(possibleConnections);
-        }*/
+        }
 
 
         for (InputPin inputPin : inputPins) {
@@ -210,15 +210,15 @@ public class Module implements Property {
     }
 
     public List<Clause> convertBitStreamsToCnf() {
-        if (bitstreams.size() == 0 ) {
+        if (bitStream == null ) {
             return new ArrayList<>();
         }
 
         List<Clause> clausesForTick = new ArrayList<>();
 
-        for (BitStream bitStream : bitstreams) {
+        //for (BitStream bitStream : bitstreams) {
             clausesForTick.addAll(bitStream.toCnf());
-        }
+        //}
 
         return clausesForTick;
 
@@ -247,5 +247,9 @@ public class Module implements Property {
 
     public List<Connection> getConnections() {
         return connections;
+    }
+
+    public List<BitStream> getBitstreams() {
+        return Arrays.asList(bitStream);
     }
 }

@@ -6,10 +6,7 @@ import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.Property;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by jakob on 22.06.18.
@@ -53,11 +50,11 @@ public class BitStream implements Iterable<Bit>, Property {
         return this.bits.size() + delay;
     }
 
-    public boolean[] getBitValues() {
-        boolean[] bitValues = new boolean[bits.size()];
+    public int[] getBitValues() {
+        int[] bitValues = new int[bits.size()];
         int count = 0;
         for (Bit bit : bits) {
-            bitValues[count] = bit.getWeight();
+            bitValues[count] = bit.getWeight() ? 1 : 0;
             count++;
         }
         return bitValues;
@@ -118,5 +115,10 @@ public class BitStream implements Iterable<Bit>, Property {
         }
 
         return clausesForTick;
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(getBitValues());
     }
 }

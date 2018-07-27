@@ -22,7 +22,7 @@ public class BooleanExpression {
 
     private final static int NBCLAUSES = 1000000;
 
-    private ISolver solver;
+    private static ISolver solver = SolverFactory.newDefault();
 
     private List<Clause> clauses;
 
@@ -32,9 +32,9 @@ public class BooleanExpression {
 
     private int[] modelDimacs = null;
 
-    HashMap<Variable, Integer> dictionary = new HashMap<>();
+    static HashMap<Variable, Integer> dictionary = new HashMap<>();
 
-    int literalCount = 0;
+    static Integer literalCount = 0;
 
     private List<Circuit> models = new ArrayList<>();
 
@@ -42,7 +42,6 @@ public class BooleanExpression {
 
     public BooleanExpression(Problem problem) {
         this.problem = problem;
-        this.solver = SolverFactory.newDefault();
     }
 
     private void convertProblemToDimacs() {
