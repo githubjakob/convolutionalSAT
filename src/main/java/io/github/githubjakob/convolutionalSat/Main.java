@@ -21,14 +21,13 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Requirements requirements = new Requirements(3, 20, 10, 0);
+        Requirements requirements = new Requirements(3, 5, 10, 0);
 
         Module encoder = new Module(Enums.Module.ENCODER);
         encoder.addGlobalInput();
         encoder.addOutput();
         encoder.addOutput();
         encoder.addOutput();
-        encoder.addXor();
         encoder.addXor();
         encoder.addXor();
         encoder.addRegister();
@@ -40,9 +39,6 @@ public class Main {
         decoder.addInput();
         decoder.addInput();
         decoder.addGlobalOutput();
-        decoder.addXor();
-        decoder.addXor();
-        decoder.addXor();
         decoder.addXor();
         decoder.addXor();
 
@@ -66,7 +62,6 @@ public class Main {
             if (state == RANDOM_BITSTREAM) {
                 bitStreamUnderTest = requirements.createRandomBitStream();
                 System.out.println("Using random Bitstream " + bitStreamUnderTest.toString());
-                requirements.addBitStream(bitStreamUnderTest);
                 problem.registerBitStreamsAsInputOutputRequirement(Arrays.asList(bitStreamUnderTest));
                 requirements.setDistortedChannel(ThreadLocalRandom.current().nextInt(0, 100) % 3);
                 state = FAILING_BITSTREAM;

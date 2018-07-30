@@ -65,10 +65,7 @@ public class BasicTest {
 
         assertThat(map.containsKey(variable), is(true));
         assertThat(map.containsKey(sameVariable), is(true));
-
-
     }
-
 
     @Test
     public void testHashMapTimeDependentVariable() {
@@ -86,11 +83,8 @@ public class BasicTest {
 
         assertThat(map.containsKey(variable), is(true));
         assertThat(map.containsKey(same), is(true));
-        assertThat(map.containsKey(same), is(false));
-
-
+        assertThat(map.containsKey(notSame), is(false));
     }
-
 
     @Test
     public void connectionEquals() {
@@ -134,7 +128,5 @@ public class BasicTest {
         set.add(sameCircuit);
 
         assertThat(set.size(), is(1));
-
-
     }
 }

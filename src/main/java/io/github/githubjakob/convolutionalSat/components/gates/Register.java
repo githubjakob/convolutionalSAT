@@ -48,8 +48,6 @@ public class Register extends AbstractGate {
 
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
-        List<BitStream> bitStreams = this.module.getBitstreams();
-
 
             int bits = bitStream.getLength();
             for (int tick = 0; tick < bits; tick++) {

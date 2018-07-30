@@ -15,9 +15,6 @@ import java.util.stream.Collectors;
 public class Module {
 
     @Getter
-    BitStream bitStream;
-
-    @Getter
     List<Input> inputs = new ArrayList<>();
 
     @Getter
@@ -26,6 +23,7 @@ public class Module {
     @Getter
     List<Gate> gates = new ArrayList<>();
 
+    @Getter
     List<Connection> connections = new ArrayList<>();
 
     @Getter
@@ -39,10 +37,6 @@ public class Module {
 
     public Module(Enums.Module type) {
         this.type = type;
-    }
-
-    public void setBitStream(BitStream bitStream) {
-        this.bitStream = bitStream;
     }
 
     public Output addOutput() {
@@ -119,7 +113,12 @@ public class Module {
     }
 
     private void createNewConnectionsFor(Gate justCreated) {
-        for (Gate gate : getAllComponentsWithOutputs()) {
+        List<Gate> allGatesExceptOutput =
+                gates.stream().filter(gate -> !(gate instanceof Output)).collect(Collectors.toList());
+        List<Gate> allGatesExceptInput =
+                gates.stream().filter(gate -> !(gate instanceof Input)).collect(Collectors.toList());
+
+        for (Gate gate : allGatesExceptOutput) {
             if (gate.equals(justCreated)) {
                 continue;
             }
@@ -129,7 +128,7 @@ public class Module {
             }
         }
 
-        for (Gate gate : getAllComponentsWithInputs()) {
+        for (Gate gate : allGatesExceptInput) {
             if (gate.equals(justCreated)) {
                 continue;
             }
@@ -138,23 +137,5 @@ public class Module {
                 connections.add(new NoiseFreeConnection(justCreated.getOutputPin(), componentInputPin));
             }
         }
-    }
-
-
-
-    public List<Gate> getAllComponentsWithOutputs() {
-        return gates.stream().filter(gate -> !(gate instanceof Output)).collect(Collectors.toList());
-    }
-
-    public List<Gate> getAllComponentsWithInputs() {
-        return gates.stream().filter(gate -> !(gate instanceof Input)).collect(Collectors.toList());
-    }
-
-    public List<Connection> getConnections() {
-        return connections;
-    }
-
-    public List<BitStream> getBitstreams() {
-        return Arrays.asList(bitStream);
     }
 }

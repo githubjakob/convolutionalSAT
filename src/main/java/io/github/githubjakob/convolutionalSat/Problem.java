@@ -38,11 +38,9 @@ public class Problem {
     public List<Clause> convertProblemToCnf() {
         List<Clause> cnf = new ArrayList<>();
 
-
         cnf.addAll(convertGatesToCnf());
         cnf.addAll(convertConnectionsToCnf());
         cnf.addAll(convertBitStreamsToCnf());
-
 
         return cnf;
     }
@@ -116,13 +114,22 @@ public class Problem {
         Module encoder = getEncoder();
         Module decoder = getDecoder();
 
+        List<BitStream> toRegister = new ArrayList<>();
+
+        for (BitStream bitStream : bitStreams) {
+            BitStream bitStreamToRegister = new BitStream(bitStream.getId(), bitStream.getBits(),  bitStream.getDelay(),
+                    encoder.getInputs().get(0), decoder.getOutputs().get(0));
+            toRegister.add(bitStreamToRegister);
+        }
+        registerBitStreams(toRegister);
+    }
+
+    public void registerBitStreams(List<BitStream> bitStreams) {
         for (BitStream bitStream : bitStreams) {
             numberOfBitStreams++;
-
-            BitStream registeredBitStream = new BitStream(bitStream.getId(), bitStream.getBits(),  bitStream.getDelay(),
-                    encoder.getInputs().get(0), decoder.getOutputs().get(0));
-            this.bitStreams.add(registeredBitStream);
-            numberOfBits = registeredBitStream.getLength();
+            this.bitStreams.add(bitStream);
+            numberOfBits = bitStream.getLength();
+            requirements.addBitStream(bitStream);
         }
     }
 
@@ -139,7 +146,7 @@ public class Problem {
         return clausesForTick;
     }
 
-    List<Clause> convertConnectionsToCnf() {
+    private List<Clause> convertConnectionsToCnf() {
         List<Clause> clausesForTick = new ArrayList<>();
 
         int MICROTICKS_MAX = getMaxMicrotticks();
@@ -203,10 +210,6 @@ public class Problem {
     }
 
     public List<Clause> convertBitStreamsToCnf() {
-        if (bitStreams == null ) {
-            return new ArrayList<>();
-        }
-
         List<Clause> clausesForTick = new ArrayList<>();
 
         for (BitStream bitStream : bitStreams) {

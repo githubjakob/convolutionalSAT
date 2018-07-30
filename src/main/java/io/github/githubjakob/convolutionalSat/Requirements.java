@@ -61,7 +61,7 @@ public class Requirements {
         int counter = 0;
         int MAX_RETRIES = 1000;
         while(counter < MAX_RETRIES) {
-            BitStream bitStream = new BitStream(-1, createRandomBits(blockLength), delay);
+            BitStream bitStream = new BitStream(-1, createRandomBits(blockLength), delay, null, null);
             if (bitStream == null) {
                 System.out.println("asdfadsf");
             }
@@ -75,7 +75,7 @@ public class Requirements {
     }
 
     public BitStream createRandomBitStream() {
-        return new BitStream(bitStreamCounter++, createRandomBits(blockLength), delay);
+        return new BitStream(bitStreamCounter++, createRandomBits(blockLength), delay, null, null);
     }
 
     private void sanitiyCheck(int blockLength, int delay, List<BitStream> bitStreams) {
@@ -90,11 +90,11 @@ public class Requirements {
         bitStreams.add(bitStream);
     }
 
-    private boolean[] createRandomBits(int length) {
+    private int[] createRandomBits(int length) {
         Random rnd = new Random();
-        boolean[] randomBooleans = new boolean[length];
+        int[] randomBooleans = new int[length];
         for (int i = 0; i < randomBooleans.length; i++) {
-            randomBooleans[i] = rnd.nextBoolean();
+            randomBooleans[i] = rnd.nextBoolean() ? 1 : 0;
         }
         return randomBooleans;
     }

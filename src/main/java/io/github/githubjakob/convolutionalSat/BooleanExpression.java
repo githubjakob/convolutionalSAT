@@ -198,4 +198,10 @@ public class BooleanExpression {
         final List<int[]> dimacs = convertClausesToDimacs(negatedModel);
         addDimacsToSolver(dimacs);
     }
+
+    public static void resetSolver() {
+        solver = SolverFactory.newDefault();
+        dictionary = new HashMap<>();
+        literalCount = 0;
+    }
 }

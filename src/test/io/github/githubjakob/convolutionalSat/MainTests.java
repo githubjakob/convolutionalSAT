@@ -1,7 +1,10 @@
 package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.components.*;
+import io.github.githubjakob.convolutionalSat.components.gates.Input;
+import io.github.githubjakob.convolutionalSat.components.gates.Output;
 import io.github.githubjakob.convolutionalSat.modules.Module;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -14,7 +17,12 @@ import java.util.*;
  * Created by jakob on 07.06.18.
  */
 public class MainTests {
-/*
+
+    @Before
+    public void before() {
+        BooleanExpression.resetSolver();
+    }
+
     @Test
     public void oneXor_oneBit_connectionIsCorrect() {
         Module encoder = new Module(Enums.Module.ENCODER);
@@ -22,12 +30,10 @@ public class MainTests {
         Output output = encoder.addOutput();
         encoder.addXor();
 
-        BitStream bitStream = new BitStream(0, new int[] { 0 });
+        BitStream bitStream = new BitStream(0, new int[] { 0 }, 0, input, output);
 
-        encoder.addBitStream(bitStream, input);
-        encoder.addBitStream(bitStream, output);
-
-        Problem problem = new Problem(Arrays.asList(encoder), testSuite);
+        Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 1, 0, 0));
+        problem.registerBitStreams(Arrays.asList(bitStream));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -37,6 +43,7 @@ public class MainTests {
 
         assertThat(connections.size(), is(3));
     }
+
 
     @Test
     public void oneXor_moreBits_connectionIsCorrect() {
@@ -45,13 +52,11 @@ public class MainTests {
         Output output = encoder.addOutput();
         encoder.addXor();
 
-        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 });
-        BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0});
+        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 }, 0, input, null);
+        BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0}, 0, null, output);
 
-        encoder.addBitStream(inputBitStream, input);
-        encoder.addBitStream(outputBitStream, output);
-
-        Problem problem = new Problem(Arrays.asList(encoder), testSuite);
+        Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 3, 0, 0));
+        problem.registerBitStreams(Arrays.asList(inputBitStream, outputBitStream));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -61,6 +66,7 @@ public class MainTests {
 
         assertThat(connections.size(), is(3));
     }
+
 
     @Test
     public void numberOfConnections_xorAndRegister() {
@@ -70,18 +76,12 @@ public class MainTests {
         encoder.addXor();
         encoder.addRegister();
 
-        BitStream bitStream = new BitStream(0, new int[] { 0, 1, 0 });
+        BitStream bitStream = new BitStream(0, new int[] { 0, 1, 0 }, 0, input, output);
 
-        encoder.addBitStream(bitStream, input);
-        encoder.addBitStream(bitStream, output);
-
-        Problem problem = new Problem(Arrays.asList(encoder), testSuite);
+        Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 3, 0, 0));
+        problem.registerBitStreams(Arrays.asList(bitStream));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
-
-        Circuit model = booleanExpression.solve();
-
-        Set<Connection> connections = model.getConnections();
 
         assertThat(problem.getConnections().size(), is(8));
     }
@@ -94,12 +94,9 @@ public class MainTests {
         encoder.addAnd();
         encoder.addAnd();
 
-        BitStream bitStream = new BitStream(0, new int[] { 0 });
+        BitStream bitStream = new BitStream(0, new int[] { 0 }, 0, input, output);
 
-        encoder.addBitStream(bitStream, input);
-        encoder.addBitStream(bitStream, output);
-
-        Problem problem = new Problem(Arrays.asList(encoder), testSuite);
+        Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 1, 0, 0));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -107,7 +104,7 @@ public class MainTests {
 
         Set<Connection> connections = model.getConnections();
 
-        assertThat(problem.getConnections().size(), is(3));
+        assertThat(connections.size(), is(5));
     }
 
     @Test
@@ -119,12 +116,10 @@ public class MainTests {
         encoder.addXor();
         encoder.addRegister();
 
-        BitStream bitStream = new BitStream(0, new int[] { 0, 1, 0 });
+        BitStream bitStream = new BitStream(0, new int[] { 0, 1, 0 }, 0, input, output);
 
-        encoder.addBitStream(bitStream, input);
-        encoder.addBitStream(bitStream, output);
-
-        Problem problem = new Problem(Arrays.asList(encoder), testSuite);
+        Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 3, 0, 0));
+        problem.registerBitStreams(Arrays.asList(bitStream));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -133,6 +128,7 @@ public class MainTests {
         Set<Connection> connections = model.getConnections();
 
         assertThat(problem.getConnections().size(), is(18));
+        assertThat(connections.size(), is(6));
     }
 
     @Test
@@ -145,12 +141,9 @@ public class MainTests {
         encoder.addXor();
         encoder.addRegister();
 
-        BitStream bitStream = new BitStream(0, new int[] { 0, 1, 0 });
+        BitStream bitStream = new BitStream(0, new int[] { 0, 1, 0 }, 0, input, output);
 
-        encoder.addBitStream(bitStream, input);
-        encoder.addBitStream(bitStream, output);
-
-        Problem problem = new Problem(Arrays.asList(encoder), testSuite);
+        Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 3, 0, 0));
 
         assertThat(problem.getConnections().size(), is(32));
     }
@@ -163,11 +156,11 @@ public class MainTests {
         encoder.addXor();
         encoder.addRegister();
 
-        BitStream bitStream = new BitStream(0, new int[] { 0, 1, 0 });
+        BitStream inputBitStream = new BitStream(0, new int[] { 0, 1, 0 }, 0, input, null);
+        BitStream outputBitStream = new BitStream(0, new int[] { 0, 1, 1 }, 0, null, output);
 
-        encoder.addBitStream(bitStream, input);
-
-        Problem problem = new Problem(Arrays.asList(encoder), testSuite);
+        Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 3, 0, 0));
+        problem.registerBitStreams(Arrays.asList(inputBitStream, outputBitStream));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -175,6 +168,7 @@ public class MainTests {
 
         Set<Connection> connections = model.getConnections();
 
+        assertThat(problem.getConnections().size(), is(8));
         assertThat(connections.size(), is(4));
     }
 
@@ -185,13 +179,11 @@ public class MainTests {
         Output output = encoder.addOutput();
         encoder.addXor();
 
-        BitStream inputBitStream = new BitStream(0, new int[] { 0, 0, 0 });
-        BitStream outputBitStream = new BitStream(0, new int[] { 1, 1, 1});
+        BitStream inputBitStream = new BitStream(0, new int[] { 0, 0, 0 }, 0, input, null);
+        BitStream outputBitStream = new BitStream(0, new int[] { 1, 1, 1}, 0, null, output);
 
-        encoder.addBitStream(inputBitStream, input);
-        encoder.addBitStream(outputBitStream, output);
-
-        Problem problem = new Problem(Arrays.asList(encoder), testSuite);
+        Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 3, 0, 0));
+        problem.registerBitStreams(Arrays.asList(inputBitStream, outputBitStream));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -207,24 +199,19 @@ public class MainTests {
         Output output = encoder.addOutput();
         encoder.addXor();
 
-        BitStream inputBitStream = new BitStream(0, new int[]{0, 1, 0});
-        BitStream outputBitStream = new BitStream(0, new int[]{0, 0, 0});
+        BitStream inputBitStream = new BitStream(0, new int[]{0, 1, 0}, 0, input, null);
+        BitStream outputBitStream = new BitStream(0, new int[]{0, 0, 0}, 0, null, output);
 
-        encoder.addBitStream(inputBitStream, input);
-        encoder.addBitStream(outputBitStream, output);
+        BitStream inputBitStream1 = new BitStream(1, new int[]{0, 0, 0}, 0, input, null);
+        BitStream outputBitStream1 = new BitStream(1, new int[]{1, 1, 1}, 0, null, output);
 
-        BitStream inputBitStream1 = new BitStream(1, new int[]{0, 0, 0});
-        BitStream outputBitStream1 = new BitStream(1, new int[]{1, 1, 1});
-
-        encoder.addBitStream(inputBitStream1, input);
-        encoder.addBitStream(outputBitStream1, output);
-
-        Problem problem = new Problem(Arrays.asList(encoder), testSuite);
+        Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 3, 0, 0));
+        problem.registerBitStreams(Arrays.asList(inputBitStream, outputBitStream, inputBitStream1, outputBitStream1));
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
         Circuit model = booleanExpression.solve();
 
         assertTrue(model==null);
-    }*/
+    }
 }
