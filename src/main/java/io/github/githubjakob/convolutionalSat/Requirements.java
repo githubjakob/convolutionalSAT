@@ -1,5 +1,6 @@
 package io.github.githubjakob.convolutionalSat;
 
+import io.github.githubjakob.convolutionalSat.components.Bit;
 import io.github.githubjakob.convolutionalSat.components.BitStream;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import lombok.Getter;
@@ -54,6 +55,23 @@ public class Requirements {
     public void setDistortedChannel(int distortedChannel) {
         this.distortedChannel = distortedChannel;
         System.out.println("Setting distorted channel: " + distortedChannel + " with value: " + noiseRatioPercent + " %");
+    }
+
+    public BitStream findFailingBitStream(Circuit circuit, Requirements requirements) {
+        int counter = 0;
+        int MAX_RETRIES = 1000;
+        while(counter < MAX_RETRIES) {
+            BitStream bitStream = new BitStream(-1, createRandomBits(blockLength), delay);
+            if (bitStream == null) {
+                System.out.println("asdfadsf");
+            }
+            if (!circuit.testBitStream(bitStream, requirements.getDelay())) {
+                System.out.println("found failing Bitstream " + bitStream.toString());
+                return new BitStream(bitStreamCounter++, bitStream.getBits(), bitStream.getDelay(), null);
+            }
+            counter++;
+        }
+        return null;
     }
 
     public BitStream createRandomBitStream() {

@@ -283,8 +283,10 @@ public class Circuit {
     }
 
     public boolean testBitStream(BitStream bits, int delay) {
-        boolean[] valuesAtOutput = new boolean[bits.getLength()];
-        boolean[] valuesAtInput = new boolean[bits.getLength()];
+        boolean success = true;
+        //System.out.println("testing " + bits.toString());
+        int[] valuesAtOutput = new int[bits.getLength()];
+        int[] valuesAtInput = new int[bits.getLength()];
         for (int tick = 0; tick < bits.getLength(); tick++) {
             //System.out.println("testing bitstream " + bits.getId());
             boolean valueAtInput;
@@ -295,22 +297,22 @@ public class Circuit {
                 valueAtInput = false;
             }
             boolean valueAtOutput = evaluateGlobalOutput(valueAtInput, tick);
-            valuesAtOutput[tick] = valueAtOutput;
-            valuesAtInput[tick] = valueAtInput;
-            if (tick < delay) {
-                continue;
-            }
+            valuesAtOutput[tick] = valueAtOutput ? 1 : 0;
+            valuesAtInput[tick] = valueAtInput ? 1 : 0;
+        }
 
-            if (!bits.getBits().get(tick- delay).getWeight() == valueAtOutput) {
-                System.err.println("###########not same#########");
+        boolean same = compareShiftedDelay(valuesAtInput, valuesAtOutput, delay);
+        //System.out.println("Testing " + Arrays.toString(valuesAtInput) + " -> " + Arrays.toString(valuesAtOutput) + " : " + same );
+        resetRegisters();
+        return same;
+    }
+
+    private boolean compareShiftedDelay(int[] valuesAtInput, int[] valuesAtOutput, int delay) {
+        for (int i = 0; i < valuesAtInput.length - delay; i++) {
+            if (valuesAtInput[i] != valuesAtOutput[i+delay]) {
                 return false;
             }
         }
-
-        //System.out.println("Bits at Input (last " + delay + " delay/false): " + Arrays.toString(valuesAtInput));
-        //System.out.println("Bits at Output (first " + delay + " delay/false): " + Arrays.toString(valuesAtOutput));
-
-        resetRegisters();
         return true;
     }
 
@@ -330,6 +332,7 @@ public class Circuit {
     public boolean testValidity(Requirements requirements) {
         System.out.println("Testing " + requirements.bitStreams.size() + " BitStreams on Circuit");
         for (BitStream bitStream : requirements.bitStreams) {
+            //System.out.println("Testing " + bitStream.toString());
             if (!testBitStream(bitStream, requirements.getDelay())) {
                 return false;
             }

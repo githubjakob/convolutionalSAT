@@ -91,6 +91,9 @@ public class Problem {
 
         for (BitStream bitStream : bitStreams) {
             numberOfBitStreams++;
+            if (bitStream == null ) {
+                System.out.println("asdfasdf");
+            }
             BitStream bitSreamAtEncoder = new BitStream(bitStream.getId(), bitStream.getBits(),  bitStream.getDelay(),
                     encoder.getInputs().get(0));
             BitStream bitStreamAtDecoder = new BitStream(bitStream.getId(), bitStream.getBits(),  bitStream.getDelay(),

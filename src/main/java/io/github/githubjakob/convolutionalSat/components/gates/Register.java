@@ -99,21 +99,24 @@ public class Register extends AbstractGate {
 
     @Override
     public boolean evaluate(int tick) {
+        //System.out.println("Evaluate Register " + id + ", tick "+ tick + ", size: " + outputBitValuesAtTick.size());
 
         if (outputBitValuesAtTick.size() - 2 == tick) {
+            //System.out.println("using value from memory");
             return outputBitValuesAtTick.get(tick);
         }
 
-        // evaluate
+        /**
+         * add a null first to indictate that evaluate was called once allready
+         * prevents circuits in the evulation
+         *
+         */
         Gate fromGate = inputPin.getConnection().getFrom().getGate();
+        outputBitValuesAtTick.add(null);
         boolean inputValueAtThisTick = fromGate.evaluate(tick);
+        outputBitValuesAtTick.set(outputBitValuesAtTick.size()-1, inputValueAtThisTick);
 
-        outputBitValuesAtTick.add(inputValueAtThisTick);
-
-        boolean outputValueAtThisTick = outputBitValuesAtTick.get(tick);
-
-        //System.out.println("Value at " + this.toString() + " is " + outputValueAtThisTick);
-        return outputValueAtThisTick;
+        return outputBitValuesAtTick.get(tick);
     }
 
     @Override

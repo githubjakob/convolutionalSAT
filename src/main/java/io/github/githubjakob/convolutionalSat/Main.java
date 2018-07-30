@@ -17,29 +17,34 @@ import static afu.org.checkerframework.checker.units.UnitsTools.min;
 public class Main {
 
     /* Nach n gefundenen Modellen das Lösen abbrechen */
-    public static final int MAX_NUMBER_OF_ITERATIONS = 20;
+    public static final int MAX_NUMBER_OF_ITERATIONS = 10;
 
     public static void main(String[] args) {
 
-        Requirements requirements = new Requirements(2, 4, 10, 0);
+        Requirements requirements = new Requirements(3, 20, 10, 0);
 
         Module encoder = new Module(Enums.Module.ENCODER);
         encoder.addGlobalInput();
         encoder.addOutput();
         encoder.addOutput();
-        encoder.addAnd();
-        encoder.addNot();
+        encoder.addOutput();
+        encoder.addXor();
+        encoder.addXor();
+        encoder.addXor();
+        encoder.addRegister();
         encoder.addRegister();
         encoder.addRegister();
 
         Module decoder = new Module(Enums.Module.DECODER);
         decoder.addInput();
         decoder.addInput();
+        decoder.addInput();
         decoder.addGlobalOutput();
-        decoder.addAnd();
-        decoder.addAnd();
-        decoder.addNot();
-        decoder.addNot();
+        decoder.addXor();
+        decoder.addXor();
+        decoder.addXor();
+        decoder.addXor();
+        decoder.addXor();
 
         Channel channel = new Channel(encoder, decoder, requirements);
 
@@ -51,15 +56,32 @@ public class Main {
         Graph solution = null;
 
         int counter = 0;
+        int RANDOM_BITSTREAM = 0;
+        int FAILING_BITSTREAM = 1;
+        int state = RANDOM_BITSTREAM;
         MainGui mainGui = new MainGui();
         while (counter < MAX_NUMBER_OF_ITERATIONS) {
 
+            BitStream bitStreamUnderTest;
+            if (state == RANDOM_BITSTREAM) {
+                bitStreamUnderTest = requirements.createRandomBitStream();
+                System.out.println("Using random Bitstream " + bitStreamUnderTest.toString());
+                requirements.addBitStream(bitStreamUnderTest);
+                problem.registerBitStreamsAsInputOutputRequirement(Arrays.asList(bitStreamUnderTest));
+                requirements.setDistortedChannel(ThreadLocalRandom.current().nextInt(0, 100) % 3);
+                state = FAILING_BITSTREAM;
+            } else if (state == FAILING_BITSTREAM) {
+                bitStreamUnderTest = requirements.findFailingBitStream(latestCircuit, requirements);
+                if (bitStreamUnderTest == null) {
+                    state = RANDOM_BITSTREAM;
+                    continue;
+                }
+                requirements.addBitStream(bitStreamUnderTest);
+                problem.registerBitStreamsAsInputOutputRequirement(Arrays.asList(bitStreamUnderTest));
+                requirements.setDistortedChannel(ThreadLocalRandom.current().nextInt(0, 100) % 3);
+            }
 
-            BitStream bitStreamUnderTest = requirements.createRandomBitStream();
-            System.out.println("Using random Bitstream " + bitStreamUnderTest.toString());
-            requirements.addBitStream(bitStreamUnderTest);
-            problem.registerBitStreamsAsInputOutputRequirement(Arrays.asList(bitStreamUnderTest));
-            requirements.setDistortedChannel(ThreadLocalRandom.current().nextInt(0, 100) % 3);
+
 
             booleanExpression = new BooleanExpression(problem);
             Instant start = Instant.now();
@@ -73,13 +95,16 @@ public class Main {
                 return;
             }
 
+            solution = new Graph(latestCircuit);
+            mainGui.addPanel(solution);
+
+
             if (!latestCircuit.testValidity(requirements)) {
                 System.err.println("circuit is not valid, searching next solution");
                 booleanExpression.addLastModelNegated();
                 continue;
             }
 
-            solution = new Graph(latestCircuit);
 
 
             if (!solution.isValid()) {
@@ -87,7 +112,6 @@ public class Main {
                 booleanExpression.addLastModelNegated();
                 continue;
             }
-            mainGui.addPanel(solution);
 
 
 
@@ -97,18 +121,4 @@ public class Main {
         System.out.println("end");
 
     }
-
-    private static BitStream findFailingBitStream(Circuit circuit, Requirements requirements) {
-        int counter = 0;
-        int MAX_RETRIES = 200;
-        while(counter < MAX_RETRIES) {
-            BitStream bitStream = requirements.createRandomBitStream();
-            if (!circuit.testBitStream(bitStream, requirements.getDelay())) {
-                return bitStream;
-            }
-            counter++;
-        }
-        return null;
-    }
-
 }
