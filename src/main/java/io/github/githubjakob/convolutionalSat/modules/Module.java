@@ -5,14 +5,13 @@ import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.components.gates.*;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
-import io.github.githubjakob.convolutionalSat.logic.Property;
 import lombok.Getter;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class Module implements Property {
+public class Module {
 
     @Getter
     BitStream bitStream;
@@ -28,8 +27,10 @@ public class Module implements Property {
 
     List<Connection> connections = new ArrayList<>();
 
+    @Getter
     List<InputPin> inputPins = new ArrayList<>();
 
+    @Getter
     List<OutputPin> outputPins = new ArrayList<>();
 
     @Getter
@@ -106,6 +107,7 @@ public class Module implements Property {
     }
 
     public int getNumberOfGates() {
+        System.out.println("Microticks in Module " + gates.size() + 2);
         return gates.size() +2;
     }
 
@@ -127,7 +129,7 @@ public class Module implements Property {
             }
 
             for (InputPin inputPin : justCreated.getInputPins()) {
-                connections.add(new Connection(gate.getOutputPin(), inputPin));
+                connections.add(new NoiseFreeConnection(gate.getOutputPin(), inputPin));
             }
         }
 
@@ -137,92 +139,12 @@ public class Module implements Property {
             }
 
             for (InputPin componentInputPin : gate.getInputPins()) {
-                connections.add(new Connection(justCreated.getOutputPin(), componentInputPin));
+                connections.add(new NoiseFreeConnection(justCreated.getOutputPin(), componentInputPin));
             }
         }
     }
 
-    List<Clause> convertGatesToCnf() {
-        List<Clause> clausesForTick = new ArrayList<>();
 
-        // für jedes Bauteil
-        for (Gate gate : gates) {
-            clausesForTick.addAll(gate.convertToCnf());
-        }
-        return clausesForTick;
-    }
-
-    List<Clause> convertConnectionsToCnf() {
-        List<Clause> clausesForTick = new ArrayList<>();
-
-        //für jede Verbindung
-        for (Connection connection : connections) {
-            clausesForTick.addAll(connection.convertToCnfAtTick(getNumberOfGates()));
-        }
-
-        /**
-         * Für alle Verbindungen, die vom selben Output Pin weg gehen, muss mindestens eine gesetzt sein.
-         */
-        for (OutputPin outputPin : outputPins) {
-            // for alle Connections die von diesem Output Pin weg geht
-            Clause possibleConnections = new Clause();
-            for (Connection connections : connections) {
-                if (connections.getFrom().equals(outputPin)) {
-                    possibleConnections.addVariable(new ConnectionVariable(true, connections));
-                }
-            }
-            clausesForTick.add(possibleConnections);
-        }
-
-
-        for (InputPin inputPin : inputPins) {
-
-            List<Connection> connectionsWithSameTo = connections.stream().filter(connection -> connection.getTo().equals(inputPin)).collect(Collectors.toList());
-
-            /**
-             * Für alle Verbindungen, die zum selben Input Pin führen, muss mindestens eine gesetzt sein.
-             */
-            Clause possibleConnections = new Clause();
-            for (Connection connection : connectionsWithSameTo) {
-                possibleConnections.addVariable(new ConnectionVariable(true, connection));
-
-            }
-            clausesForTick.add(possibleConnections);
-
-            /**
-             * Für eine bestimmte Verbindung zu einem Input Pin, dürfen alle anderen Verbindungen zum selben Pin nicht gesetzt sein.
-             */
-            for (Connection connection : connectionsWithSameTo) {
-                for (Connection other : connectionsWithSameTo) {
-                    if (connection.equals(other)) {
-                        continue;
-                    }
-                    ConnectionVariable connectionFalse = new ConnectionVariable(false, connection);
-                    ConnectionVariable otherFalse = new ConnectionVariable(false, other);
-                    Clause exclude = new Clause(connectionFalse, otherFalse);
-                    clausesForTick.add(exclude);
-                }
-
-            }
-        }
-
-        return clausesForTick;
-    }
-
-    public List<Clause> convertBitStreamsToCnf() {
-        if (bitStream == null ) {
-            return new ArrayList<>();
-        }
-
-        List<Clause> clausesForTick = new ArrayList<>();
-
-        //for (BitStream bitStream : bitstreams) {
-            clausesForTick.addAll(bitStream.toCnf());
-        //}
-
-        return clausesForTick;
-
-    }
 
     public List<Gate> getAllComponentsWithOutputs() {
         return gates.stream().filter(gate -> !(gate instanceof Output)).collect(Collectors.toList());
@@ -231,19 +153,6 @@ public class Module implements Property {
     public List<Gate> getAllComponentsWithInputs() {
         return gates.stream().filter(gate -> !(gate instanceof Input)).collect(Collectors.toList());
     }
-
-    @Override
-    public List<Clause> toCnf() {
-
-        List<Clause> allClauses = new ArrayList<>();
-
-        allClauses.addAll(convertGatesToCnf());
-        allClauses.addAll(convertConnectionsToCnf());
-        allClauses.addAll(convertBitStreamsToCnf());
-
-        return allClauses;
-
-    };
 
     public List<Connection> getConnections() {
         return connections;

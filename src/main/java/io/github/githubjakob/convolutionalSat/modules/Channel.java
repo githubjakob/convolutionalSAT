@@ -45,18 +45,10 @@ public class Channel extends Module {
             if (requirements.isNoiseEnabled()) {
                 connections.add(new NoisyConnection(outputPin, inputPin, requirements));
             } else {
-                connections.add(new Connection(outputPin, inputPin));
+                connections.add(new NoiseFreeConnection(outputPin, inputPin));
             }
             outputPins.add(outputPin);
             inputPins.add(inputPin);
         }
-    }
-
-    public List<Clause> convertModuleToCnf() {
-        List<Clause> allClauses = new ArrayList<>();
-
-        allClauses.addAll(convertConnectionsToCnf());
-
-        return allClauses;
     }
 }

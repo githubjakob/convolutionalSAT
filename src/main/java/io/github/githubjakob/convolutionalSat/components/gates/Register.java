@@ -44,13 +44,12 @@ public class Register extends AbstractGate {
     }
 
     @Override
-    public List<Clause> convertToCnf() {
+    public List<Clause> convertToCnf(BitStream bitStream) {
 
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
         List<BitStream> bitStreams = this.module.getBitstreams();
 
-        for (BitStream bitStream : bitStreams) {
 
             int bits = bitStream.getLength();
             for (int tick = 0; tick < bits; tick++) {
@@ -88,7 +87,7 @@ public class Register extends AbstractGate {
 
                 clausesForAllTicks.addAll(clausesAtTick);
             }
-        }
+
 
 
         List<Clause> microtickClauses = getMicrotickCnf(this.getModule().getNumberOfGates());

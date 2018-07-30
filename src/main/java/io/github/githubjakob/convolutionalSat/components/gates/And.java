@@ -40,10 +40,9 @@ public class And extends AbstractGate  {
         return "And" + id;
     }
 
-    public List<Clause> convertToCnf() {
+    public List<Clause> convertToCnf(BitStream bitStream) {
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
-        for (BitStream bitStream : this.getModule().getBitstreams()) {
             int bitStreamId = bitStream.getId();
             int bits = bitStream.getLength();
             for (int tick = 0; tick < bits; tick++) {
@@ -62,7 +61,7 @@ public class And extends AbstractGate  {
                 Clause clause4 = new Clause(outputFalse, input1True, input2False);
                 clausesForAllTicks.addAll(Arrays.asList(clause1, clause2, clause3, clause4));
             }
-        }
+
 
         List<Clause> microtickClauses = getMicrotickCnf(this.getModule().getNumberOfGates());
         clausesForAllTicks.addAll(microtickClauses);

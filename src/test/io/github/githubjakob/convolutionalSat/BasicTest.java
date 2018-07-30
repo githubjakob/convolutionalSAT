@@ -1,6 +1,7 @@
 package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.components.Connection;
+import io.github.githubjakob.convolutionalSat.components.NoiseFreeConnection;
 import io.github.githubjakob.convolutionalSat.components.gates.Xor;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
@@ -96,8 +97,8 @@ public class BasicTest {
         Xor xor = new Xor(new Module(Enums.Module.ENCODER));
         Xor xor2 = new Xor(new Module(Enums.Module.ENCODER));
 
-        Connection connection = new Connection(xor.getOutputPin(), xor2.getInputPins().get(0));
-        Connection connection2 = new Connection(xor.getOutputPin(), xor2.getInputPins().get(1));
+        Connection connection = new NoiseFreeConnection(xor.getOutputPin(), xor2.getInputPins().get(0));
+        Connection connection2 = new NoiseFreeConnection(xor.getOutputPin(), xor2.getInputPins().get(1));
 
         assertThat(connection, not(connection2));
 
@@ -113,14 +114,14 @@ public class BasicTest {
         Xor xor = new Xor(new Module(Enums.Module.ENCODER));
         Xor xor2 = new Xor(new Module(Enums.Module.ENCODER));
 
-        Connection connection = new Connection(xor.getOutputPin(), xor2.getInputPins().get(0));
-        Connection connection2 = new Connection(xor.getOutputPin(), xor2.getInputPins().get(1));
+        Connection connection = new NoiseFreeConnection(xor.getOutputPin(), xor2.getInputPins().get(0));
+        Connection connection2 = new NoiseFreeConnection(xor.getOutputPin(), xor2.getInputPins().get(1));
 
         Circuit circuit = new Circuit(Arrays.asList(connection, connection2),
                 Arrays.asList(xor, xor2));
 
-        Connection sameConnection = new Connection(xor.getOutputPin(), xor2.getInputPins().get(0));
-        Connection sameConnection2 = new Connection(xor.getOutputPin(), xor2.getInputPins().get(1));
+        Connection sameConnection = new NoiseFreeConnection(xor.getOutputPin(), xor2.getInputPins().get(0));
+        Connection sameConnection2 = new NoiseFreeConnection(xor.getOutputPin(), xor2.getInputPins().get(1));
 
         Circuit sameCircuit = new Circuit(Arrays.asList(sameConnection, sameConnection2),
                 Arrays.asList(xor, xor2));

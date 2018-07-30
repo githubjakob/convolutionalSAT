@@ -67,7 +67,7 @@ public class Requirements {
             }
             if (!circuit.testBitStream(bitStream, requirements.getDelay())) {
                 System.out.println("found failing Bitstream " + bitStream.toString());
-                return new BitStream(bitStreamCounter++, bitStream.getBits(), bitStream.getDelay(), null);
+                return new BitStream(bitStreamCounter++, bitStream.getBits(), bitStream.getDelay(), null, null);
             }
             counter++;
         }

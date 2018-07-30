@@ -1,5 +1,6 @@
 package io.github.githubjakob.convolutionalSat.components.gates;
 
+import io.github.githubjakob.convolutionalSat.components.BitStream;
 import io.github.githubjakob.convolutionalSat.components.Component;
 import io.github.githubjakob.convolutionalSat.components.InputPin;
 import io.github.githubjakob.convolutionalSat.components.OutputPin;
@@ -15,7 +16,7 @@ public interface Gate extends Component {
 
     OutputPin getOutputPin();
     List<InputPin> getInputPins();
-    List<Clause> convertToCnf();
+    List<Clause> convertToCnf(BitStream bitStream);
     Module getModule();
     boolean evaluate(int tick);
 

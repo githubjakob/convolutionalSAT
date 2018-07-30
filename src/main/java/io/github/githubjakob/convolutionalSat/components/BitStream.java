@@ -1,9 +1,10 @@
 package io.github.githubjakob.convolutionalSat.components;
 
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
+import io.github.githubjakob.convolutionalSat.components.gates.Input;
+import io.github.githubjakob.convolutionalSat.components.gates.Output;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.Property;
 import lombok.Getter;
 
 import java.util.*;
@@ -11,29 +12,34 @@ import java.util.*;
 /**
  * Created by jakob on 22.06.18.
  */
-public class BitStream implements Iterable<Bit>, Property {
+public class BitStream implements Iterable<Bit> {
 
     @Getter
     private final List<Bit> bits;
 
     @Getter
-    private final Gate gate;
+    private final Input input;
+
+    @Getter
+    private final Output output;
 
     int id;
 
     @Getter
     private int delay;
 
-    public BitStream(int id, List<Bit> bits, int delay, Gate gate) {
+    public BitStream(int id, List<Bit> bits, int delay, Input input, Output output) {
         this.id = id;
         this.delay = delay;
-        this.gate = gate;
+        this.input = input;
+        this.output = output;
         this.bits = new ArrayList<>(bits);
     }
 
     public BitStream(int id, boolean[] bits, int delay) {
         this.id = id;
-        this.gate = null;
+        this.input = null;
+        this.output = null;
         this.delay = delay;
         this.bits = new ArrayList<>();
         for (int tick = 0; tick < bits.length; tick++) {
@@ -66,16 +72,14 @@ public class BitStream implements Iterable<Bit>, Property {
     }
 
 
-    @Override
     public List<Clause> toCnf() {
         List<Clause> clausesForTick = new ArrayList<>();
 
         for (int tick = 0; tick < getLength(); tick++) {
 
-            if ("output".equals(gate.getType())) {
 
                 if (tick < delay) {
-                    for (InputPin inputPin : gate.getInputPins()) {
+                    for (InputPin inputPin : output.getInputPins()) {
                         Clause outputClause = new Clause(
                                 new BitAtComponentVariable(tick, this.getId(), true, inputPin),
                                 new BitAtComponentVariable(tick, this.getId(), false, inputPin));
@@ -83,15 +87,12 @@ public class BitStream implements Iterable<Bit>, Property {
                     }
                 } else {
                     Bit bit = bits.get(tick-delay);
-                    for (InputPin inputPin : gate.getInputPins()) {
+                    for (InputPin inputPin : output.getInputPins()) {
                         Clause outputClause = new Clause(
                                 new BitAtComponentVariable(tick, this.getId(), bit.getWeight(), inputPin));
                         clausesForTick.add(outputClause);
                     }
                 }
-            }
-
-            if ("input".equals(gate.getType())) {
 
                 if (tick >= getLength() - delay) {
                     /**
@@ -100,19 +101,16 @@ public class BitStream implements Iterable<Bit>, Property {
                      */
                     Clause inputClause = new Clause(
                             //new BitAtComponentVariable(tick, this.getId(), true, gate.getOutputPin()),
-                            new BitAtComponentVariable(tick, this.getId(), false, gate.getOutputPin()));
+                            new BitAtComponentVariable(tick, this.getId(), false, input.getOutputPin()));
                     clausesForTick.add(inputClause);
                 } else {
                     Bit bit = bits.get(tick);
                     Clause inputClause = new Clause(
-                            new BitAtComponentVariable(tick, this.getId(), bit.getWeight(), gate.getOutputPin()));
+                            new BitAtComponentVariable(tick, this.getId(), bit.getWeight(), input.getOutputPin()));
                     clausesForTick.add(inputClause);
                 }
 
             }
-
-
-        }
 
         return clausesForTick;
     }

@@ -3,11 +3,14 @@ package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
+import io.github.githubjakob.convolutionalSat.components.gates.Input;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
+import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 import lombok.Getter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by jakob on 31.05.18.
@@ -25,6 +28,8 @@ public class Problem {
 
     private List<Module> modules;
 
+    private List<BitStream> bitStreams = new ArrayList<>();
+
     public Problem(List<Module> modules, Requirements requirements) {
         this.modules = modules;
         this.requirements = requirements;
@@ -34,10 +39,11 @@ public class Problem {
     public List<Clause> convertProblemToCnf() {
         List<Clause> cnf = new ArrayList<>();
 
-        for (Module module : modules) {
-            List<Clause> clauses = module.toCnf();
-            cnf.addAll(clauses);
-        }
+
+        cnf.addAll(convertGatesToCnf());
+        cnf.addAll(convertConnectionsToCnf());
+        cnf.addAll(convertBitStreamsToCnf());
+
 
         return cnf;
     }
@@ -61,6 +67,28 @@ public class Problem {
             if (module.getType().equals(Enums.Module.CHANNEL)) return module;
         }
         return null;
+    }
+
+    public List<OutputPin> getOutputPins() {
+        List<OutputPin> allPins = new ArrayList<>();
+
+        for (Module module : modules) {
+            List<OutputPin> gatesFromModule = module.getOutputPins();
+            allPins.addAll(gatesFromModule);
+        }
+
+        return allPins;
+    }
+
+    public List<InputPin> getInputPins() {
+        List<InputPin> allPins = new ArrayList<>();
+
+        for (Module module : modules) {
+            List<InputPin> gatesFromModule = module.getInputPins();
+            allPins.addAll(gatesFromModule);
+        }
+
+        return allPins;
     }
 
     public List<Gate> getGates() {
@@ -91,16 +119,102 @@ public class Problem {
 
         for (BitStream bitStream : bitStreams) {
             numberOfBitStreams++;
-            if (bitStream == null ) {
-                System.out.println("asdfasdf");
-            }
-            BitStream bitSreamAtEncoder = new BitStream(bitStream.getId(), bitStream.getBits(),  bitStream.getDelay(),
-                    encoder.getInputs().get(0));
-            BitStream bitStreamAtDecoder = new BitStream(bitStream.getId(), bitStream.getBits(),  bitStream.getDelay(),
-                    decoder.getOutputs().get(0));
-            encoder.setBitStream(bitSreamAtEncoder);
-            decoder.setBitStream(bitStreamAtDecoder);
-            numberOfBits = bitSreamAtEncoder.getLength();
+
+            BitStream registeredBitStream = new BitStream(bitStream.getId(), bitStream.getBits(),  bitStream.getDelay(),
+                    encoder.getInputs().get(0), decoder.getOutputs().get(0));
+            this.bitStreams.add(registeredBitStream);
+            numberOfBits = registeredBitStream.getLength();
         }
+    }
+
+    List<Clause> convertGatesToCnf() {
+        List<Clause> clausesForTick = new ArrayList<>();
+
+        // für jedes Bauteil
+        for (Gate gate : getGates()) {
+            for (BitStream bitStream : bitStreams) {
+                clausesForTick.addAll(gate.convertToCnf(bitStream));
+
+            }
+        }
+        return clausesForTick;
+    }
+
+    List<Clause> convertConnectionsToCnf() {
+        List<Clause> clausesForTick = new ArrayList<>();
+
+        int MICROTICKS_MAX = getGates().size() + 2;
+        System.out.println("Microticks " + MICROTICKS_MAX);
+
+        //für jede Verbindung
+        for (Connection connection : getConnections()) {
+            clausesForTick.addAll(connection.convertToCnf(MICROTICKS_MAX));
+            for (BitStream bitStream : bitStreams) {
+                clausesForTick.addAll(connection.convertToCnfAtTick(bitStream, MICROTICKS_MAX));
+            }
+        }
+
+        /**
+         * Für alle Verbindungen, die vom selben Output Pin weg gehen, muss mindestens eine gesetzt sein.
+         */
+        for (OutputPin outputPin : getOutputPins()) {
+            // for alle Connections die von diesem Output Pin weg geht
+            Clause possibleConnections = new Clause();
+            for (Connection connections : getConnections()) {
+                if (connections.getFrom().equals(outputPin)) {
+                    possibleConnections.addVariable(new ConnectionVariable(true, connections));
+                }
+            }
+            clausesForTick.add(possibleConnections);
+        }
+
+
+        for (InputPin inputPin : getInputPins()) {
+
+            List<Connection> connectionsWithSameTo = getConnections().stream().filter(connection -> connection.getTo().equals(inputPin)).collect(Collectors.toList());
+
+            /**
+             * Für alle Verbindungen, die zum selben Input Pin führen, muss mindestens eine gesetzt sein.
+             */
+            Clause possibleConnections = new Clause();
+            for (Connection connection : connectionsWithSameTo) {
+                possibleConnections.addVariable(new ConnectionVariable(true, connection));
+
+            }
+            clausesForTick.add(possibleConnections);
+
+            /**
+             * Für eine bestimmte Verbindung zu einem Input Pin, dürfen alle anderen Verbindungen zum selben Pin nicht gesetzt sein.
+             */
+            for (Connection connection : connectionsWithSameTo) {
+                for (Connection other : connectionsWithSameTo) {
+                    if (connection.equals(other)) {
+                        continue;
+                    }
+                    ConnectionVariable connectionFalse = new ConnectionVariable(false, connection);
+                    ConnectionVariable otherFalse = new ConnectionVariable(false, other);
+                    Clause exclude = new Clause(connectionFalse, otherFalse);
+                    clausesForTick.add(exclude);
+                }
+
+            }
+        }
+
+        return clausesForTick;
+    }
+
+    public List<Clause> convertBitStreamsToCnf() {
+        if (bitStreams == null ) {
+            return new ArrayList<>();
+        }
+
+        List<Clause> clausesForTick = new ArrayList<>();
+
+        for (BitStream bitStream : bitStreams) {
+            clausesForTick.addAll(bitStream.toCnf());
+        }
+
+        return clausesForTick;
+
     }
 }

@@ -43,10 +43,9 @@ public class Xor extends AbstractGate {
         return "Xor" + id;
     }
 
-    public List<Clause> convertToCnf() {
+    public List<Clause> convertToCnf(BitStream bitStream) {
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
-        for (BitStream bitStream : this.getModule().getBitstreams()) {
             int bits = bitStream.getLength();
             for (int tick = 0; tick < bits; tick++) {
                 Variable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
@@ -65,7 +64,7 @@ public class Xor extends AbstractGate {
 
                 clausesForAllTicks.addAll(Arrays.asList(clause1, clause2, clause3, clause4));
             }
-        }
+
 
         List<Clause> microtickClauses = getMicrotickCnf(this.getModule().getNumberOfGates());
         clausesForAllTicks.addAll(microtickClauses);
