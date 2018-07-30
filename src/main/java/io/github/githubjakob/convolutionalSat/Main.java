@@ -1,18 +1,14 @@
 package io.github.githubjakob.convolutionalSat;
 
-import com.sun.org.apache.regexp.internal.RE;
 import io.github.githubjakob.convolutionalSat.components.BitStream;
 import io.github.githubjakob.convolutionalSat.graph.Graph;
 import io.github.githubjakob.convolutionalSat.gui.MainGui;
 import io.github.githubjakob.convolutionalSat.modules.Channel;
 import io.github.githubjakob.convolutionalSat.modules.Module;
-import org.bouncycastle.ocsp.Req;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static afu.org.checkerframework.checker.units.UnitsTools.min;
 
 public class Main {
 
@@ -71,7 +67,6 @@ public class Main {
                     state = RANDOM_BITSTREAM;
                     continue;
                 }
-                requirements.addBitStream(bitStreamUnderTest);
                 problem.registerBitStreamsAsInputOutputRequirement(Arrays.asList(bitStreamUnderTest));
                 requirements.setDistortedChannel(ThreadLocalRandom.current().nextInt(0, 100) % 3);
             }

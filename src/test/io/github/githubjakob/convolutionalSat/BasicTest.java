@@ -1,7 +1,7 @@
 package io.github.githubjakob.convolutionalSat;
 
-import io.github.githubjakob.convolutionalSat.components.Connection;
-import io.github.githubjakob.convolutionalSat.components.NoiseFreeConnection;
+import io.github.githubjakob.convolutionalSat.components.connection.Connection;
+import io.github.githubjakob.convolutionalSat.components.connection.NoiseFreeConnection;
 import io.github.githubjakob.convolutionalSat.components.gates.Xor;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;

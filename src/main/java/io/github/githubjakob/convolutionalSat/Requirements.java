@@ -62,11 +62,9 @@ public class Requirements {
         int MAX_RETRIES = 1000;
         while(counter < MAX_RETRIES) {
             BitStream bitStream = new BitStream(-1, createRandomBits(blockLength), delay, null, null);
-            if (bitStream == null) {
-                System.out.println("asdfadsf");
-            }
+
             if (!circuit.testBitStream(bitStream, requirements.getDelay())) {
-                System.out.println("found failing Bitstream " + bitStream.toString());
+                System.out.println("Found failing Bitstream " + bitStream.toString());
                 return new BitStream(bitStreamCounter++, bitStream.getBits(), bitStream.getDelay(), null, null);
             }
             counter++;

@@ -2,6 +2,7 @@ package io.github.githubjakob.convolutionalSat;
 
 
 import io.github.githubjakob.convolutionalSat.components.*;
+import io.github.githubjakob.convolutionalSat.components.connection.Connection;
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
@@ -154,7 +155,7 @@ public class Problem {
 
         //für jede Verbindung
         for (Connection connection : getConnections()) {
-            clausesForTick.addAll(connection.convertToCnf(MICROTICKS_MAX));
+            clausesForTick.addAll(connection.convertMicroticksRequirement(MICROTICKS_MAX));
             for (BitStream bitStream : bitStreams) {
                 clausesForTick.addAll(connection.convertToCnfAtTick(bitStream, MICROTICKS_MAX));
             }

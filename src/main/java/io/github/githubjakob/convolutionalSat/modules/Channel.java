@@ -3,12 +3,10 @@ package io.github.githubjakob.convolutionalSat.modules;
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.*;
+import io.github.githubjakob.convolutionalSat.components.connection.NoiseFreeConnection;
+import io.github.githubjakob.convolutionalSat.components.connection.NoisyConnection;
 import io.github.githubjakob.convolutionalSat.components.gates.Input;
 import io.github.githubjakob.convolutionalSat.components.gates.Output;
-import io.github.githubjakob.convolutionalSat.logic.Clause;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Channel extends Module {
 

@@ -1,11 +1,10 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
 import io.github.githubjakob.convolutionalSat.Enums;
-import io.github.githubjakob.convolutionalSat.Problem;
 import io.github.githubjakob.convolutionalSat.components.*;
+import io.github.githubjakob.convolutionalSat.components.connection.Connection;
+import io.github.githubjakob.convolutionalSat.components.connection.NoiseFreeConnection;
 import io.github.githubjakob.convolutionalSat.components.gates.*;
-import io.github.githubjakob.convolutionalSat.logic.Clause;
-import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import lombok.Getter;
 
 import java.util.*;
