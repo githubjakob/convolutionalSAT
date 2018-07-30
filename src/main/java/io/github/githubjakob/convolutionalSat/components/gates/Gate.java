@@ -16,7 +16,7 @@ public interface Gate extends Component {
 
     OutputPin getOutputPin();
     List<InputPin> getInputPins();
-    List<Clause> convertToCnf(BitStream bitStream);
+    List<Clause> convertToCnf(BitStream bitStream, int maxMicroticks);
     Module getModule();
     boolean evaluate(int tick);
 

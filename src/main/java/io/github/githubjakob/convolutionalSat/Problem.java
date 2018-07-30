@@ -3,7 +3,6 @@ package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
-import io.github.githubjakob.convolutionalSat.components.gates.Input;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
@@ -133,7 +132,7 @@ public class Problem {
         // für jedes Bauteil
         for (Gate gate : getGates()) {
             for (BitStream bitStream : bitStreams) {
-                clausesForTick.addAll(gate.convertToCnf(bitStream));
+                clausesForTick.addAll(gate.convertToCnf(bitStream, getMaxMicrotticks()));
 
             }
         }
@@ -143,7 +142,7 @@ public class Problem {
     List<Clause> convertConnectionsToCnf() {
         List<Clause> clausesForTick = new ArrayList<>();
 
-        int MICROTICKS_MAX = getGates().size() + 2;
+        int MICROTICKS_MAX = getMaxMicrotticks();
         System.out.println("Microticks " + MICROTICKS_MAX);
 
         //für jede Verbindung
@@ -216,5 +215,16 @@ public class Problem {
 
         return clausesForTick;
 
+    }
+
+    private int getMaxMicrotticks() {
+        int count = 0;
+        for (Gate gate : getGates()) {
+            if (gate.getType().equals("register") || gate.getType().equals("input")) {
+                continue;
+            }
+            count++;
+        }
+        return count;
     }
 }

@@ -47,7 +47,7 @@ public class Output extends AbstractGate {
     }
 
     @Override
-    public List<Clause> convertToCnf(BitStream bitStream) {
+    public List<Clause> convertToCnf(BitStream bitStream, int maxMicroticks) {
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
             int bits = bitStream.getLength();
@@ -66,7 +66,7 @@ public class Output extends AbstractGate {
             }
 
 
-        List<Clause> microtickClauses = getMicrotickCnf(this.getModule().getNumberOfGates());
+        List<Clause> microtickClauses = getMicrotickCnf(maxMicroticks);
         clausesForAllTicks.addAll(microtickClauses);
 
 
