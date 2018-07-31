@@ -7,8 +7,6 @@ import io.github.githubjakob.convolutionalSat.components.Component;
  */
 public class ConnectionVariable extends Variable {
 
-    int bitStreamId = -1;
-
     public ConnectionVariable(boolean weight, Component component) {
         super(weight, component);
     }
@@ -34,21 +32,5 @@ public class ConnectionVariable extends Variable {
     @Override
     public int hashCode() {
         return component.hashCode();
-    }
-
-    public boolean getWeight() {
-        return this.weight;
-    }
-
-    public void setWeight(boolean weight) {
-        this.weight = weight;
-    }
-
-    public void setLiteral(int literal) {
-        this.literal = literal;
-    }
-
-    public Component getComponent() {
-        return component;
     }
 }

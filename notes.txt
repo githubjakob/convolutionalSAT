@@ -68,6 +68,66 @@ wenn es nicht funktioniert, dann zu der ursprünlgichen formel hinzufügne und n
 
 ======
 
+Ergebnisse seit dem letzten Treffen:
+
+- iteratives vorgehen rudimentär implementiert
+- bitströme bit länge 20 kein problem, auch länger, 20 iterationen
+- verhalten: wenn er einen schaltkreis findet, funktioniert der meistens für sehr viele zufällige bitströme ohne fehler
+dh. er findet keinen bitstrom, für den die schaltung nicht funktioniert (könnte systematischer faltungskode sein..)
+
+Noch offene Todos:
+
+- burst fehler (faltungskodierer allgemein eher schlecht für burstfehler?)
+- bitstrom am schaltkreis mit störung testen?
+- nicht verwerten von ausgängen erlauben und dann wegschneiden für die ansicht
+
+Fragen/Diskussion:
+
+- Iteratives Vorgehen
+Derzeit: testen am schaltkreis ohne Fehler, dann hinzufügen mit fehler? bisschen komisch...
+Problem indeterminismus der störung, wenn es mit noise zum solver hinzugefügt ist, und keine schaltung findet
+dann ist es vllt einfach nur pech? 
+möglichkeit wieder entfernen vom solver und mit anderem noise testen?
+evtl. noise langsam erhöhen, zb. zuerst nur einzelne bits?
+
+
+- burst fehler - nur ein kanal?
+impl über mehrere kanäle verteilt 
+01000...
+001000...
+0001000...
+00001000...
+
+
+- code qualität
+bin unzufrieden mit meinem code, änderungen dauern lange
+wie am besten mehr tests schreiben?
+code review?
+design?
+
+
+- ziel? ich bin ein bisschen gestresst, weil ich nur noch einen monat zeit habe
+wie damit umgehen? 
+ganz offen: ich will fertig werden, ich hab einen job, ich hatte jetzt schon termine mit kunden, note nicht so wichtig
+nur fertig werden, ohne verrückt zu werden
+thema abrunden
+anschluss an forschung
+"gute eigenschaften"/ freie distanz?
+punktuierung?
+faltungskodierer "finden"?
+performanz messen mit allgemeinem metriken zb db?
+
+
+
+
+
+
+
+
+
+
+
+
 
 Abstract
 

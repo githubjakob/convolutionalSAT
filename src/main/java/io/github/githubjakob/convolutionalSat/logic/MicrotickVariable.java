@@ -16,10 +16,6 @@ public class MicrotickVariable extends Variable {
         this.microtick = microtick;
     }
 
-    public int getBitStreamId() {
-        return bitStreamId;
-    }
-
     @Override
     public String toString() {
         return "[" + microtick + "|" + weight + "]" + this.component.toString();
@@ -38,9 +34,5 @@ public class MicrotickVariable extends Variable {
         MicrotickVariable other = (MicrotickVariable) obj;
         return (this.microtick == other.microtick
                 && other.component.equals(this.component));
-    }
-
-    public boolean getWeight() {
-        return this.weight;
     }
 }

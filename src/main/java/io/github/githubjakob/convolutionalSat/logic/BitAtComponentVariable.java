@@ -7,6 +7,8 @@ import io.github.githubjakob.convolutionalSat.components.Component;
  */
 public class BitAtComponentVariable extends Variable {
 
+    private final int bitStreamId;
+
     int tick;
 
     public BitAtComponentVariable(int tick, int bitstreamId, boolean weight, Component component) {
@@ -46,9 +48,5 @@ public class BitAtComponentVariable extends Variable {
         return (other.tick ==this.tick
                 && this.bitStreamId == other.bitStreamId
                 && other.component.equals(this.component));
-    }
-
-    public boolean getWeight() {
-        return this.weight;
     }
 }

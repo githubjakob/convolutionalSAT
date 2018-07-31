@@ -17,7 +17,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Requirements requirements = new Requirements(3, 5, 10, 0);
+        Requirements requirements = new Requirements(3, 20, 0, 0);
 
         Module encoder = new Module(Enums.Module.ENCODER);
         encoder.addGlobalInput();

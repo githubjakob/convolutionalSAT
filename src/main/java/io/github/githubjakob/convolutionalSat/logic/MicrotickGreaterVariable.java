@@ -37,8 +37,4 @@ public class MicrotickGreaterVariable extends Variable {
         return (this.unaryPosition == other.unaryPosition
                 && other.component.equals(this.component));
     }
-
-    public boolean getWeight() {
-        return this.weight;
-    }
 }

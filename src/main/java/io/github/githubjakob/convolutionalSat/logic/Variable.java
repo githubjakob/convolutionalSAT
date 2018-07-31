@@ -1,19 +1,25 @@
 package io.github.githubjakob.convolutionalSat.logic;
 
 import io.github.githubjakob.convolutionalSat.components.Component;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by jakob on 07.06.18.
  */
-public class Variable {
+public abstract class Variable {
 
+    @Getter
+    @Setter
     boolean weight;
 
+    @Getter
+    @Setter
     Component component;
 
+    @Getter
+    @Setter
     int literal;
-
-    int bitStreamId = -1;
 
     public Variable(boolean weight, Component component) {
         this.weight = weight;
@@ -41,21 +47,5 @@ public class Variable {
     @Override
     public int hashCode() {
         return component.hashCode();
-    }
-
-    public boolean getWeight() {
-        return this.weight;
-    }
-
-    public void setWeight(boolean weight) {
-        this.weight = weight;
-    }
-
-    public void setLiteral(int literal) {
-        this.literal = literal;
-    }
-
-    public Component getComponent() {
-        return component;
     }
 }

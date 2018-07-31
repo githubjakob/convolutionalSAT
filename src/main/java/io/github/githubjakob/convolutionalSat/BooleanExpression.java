@@ -18,10 +18,6 @@ import java.util.*;
  */
 public class BooleanExpression {
 
-    private final static int MAXVAR = 1000000;
-
-    private final static int NBCLAUSES = 1000000;
-
     private static ISolver solver = SolverFactory.newDefault();
 
     private List<Clause> clauses;
@@ -137,8 +133,7 @@ public class BooleanExpression {
             if (problem.isSatisfiable()) {
                 modelDimacs = problem.model();
                 //System.out.println(reader.decode(modelDimacs));
-                System.out.println("found model " + numbersOfModelsFound);
-                numbersOfModelsFound++;
+                System.out.println("found model");
                 Circuit model = retranslate(modelDimacs);
                 model.setNumberOfBitsPerBitStream(this.problem.getNumberOfBits());
                 model.setNumberOfBitStreams(this.problem.getNumberOfBitStreams());

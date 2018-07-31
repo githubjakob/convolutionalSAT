@@ -67,7 +67,7 @@ public class Problem {
         return null;
     }
 
-    public List<OutputPin> getOutputPins() {
+    private List<OutputPin> getOutputPins() {
         List<OutputPin> allPins = new ArrayList<>();
 
         for (Module module : modules) {
@@ -78,7 +78,7 @@ public class Problem {
         return allPins;
     }
 
-    public List<InputPin> getInputPins() {
+    private List<InputPin> getInputPins() {
         List<InputPin> allPins = new ArrayList<>();
 
         for (Module module : modules) {
