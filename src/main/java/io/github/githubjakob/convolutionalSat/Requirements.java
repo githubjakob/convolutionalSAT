@@ -1,6 +1,5 @@
 package io.github.githubjakob.convolutionalSat;
 
-import io.github.githubjakob.convolutionalSat.components.Bit;
 import io.github.githubjakob.convolutionalSat.components.BitStream;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import lombok.Getter;

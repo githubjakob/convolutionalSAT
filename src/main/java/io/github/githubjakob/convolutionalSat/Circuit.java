@@ -292,8 +292,7 @@ public class Circuit {
             //System.out.println("testing bitstream " + bits.getId());
             boolean valueAtInput;
             if (tick < bits.getLength() - bits.getDelay()) {
-                Bit bit = bits.getBits().get(tick);
-                 valueAtInput = bit.getWeight();
+                valueAtInput = bits.isBitSetAt(tick);
             } else {
                 valueAtInput = false;
             }
