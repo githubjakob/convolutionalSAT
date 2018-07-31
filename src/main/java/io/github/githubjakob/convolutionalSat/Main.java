@@ -17,7 +17,6 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Requirements requirements = new Requirements(3, 20, 0, 0);
 
         Module encoder = new Module(Enums.Module.ENCODER);
         encoder.addGlobalInput();
@@ -38,9 +37,12 @@ public class Main {
         decoder.addXor();
         decoder.addXor();
 
-        Channel channel = new Channel(encoder, decoder, requirements);
+        Channel channel = new Channel(encoder, decoder);
 
-        Problem problem = new Problem(Arrays.asList(encoder, decoder, channel), requirements);
+        Requirements requirements = new Requirements(Arrays.asList(encoder, decoder, channel),
+                3, 20, 0, 0);
+
+        Problem problem = new Problem(requirements);
 
         BooleanExpression booleanExpression;
 

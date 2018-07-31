@@ -48,8 +48,6 @@ public class Circuit {
         public int hashCode() {
             return from.getType().hashCode() + to.getType().hashCode();
         }
-
-
     }
 
     /* Das sind nur die gesetzten, also tatsächlichen Verbindungen in einem Schaltkreis  */
@@ -87,11 +85,11 @@ public class Circuit {
         }
     }
 
-    public Circuit(List<Variable> variables, List<Gate> gates, List<BitStream> bitStreams) {
+    public Circuit(List<Variable> variables, Requirements requirements) {
         this.variables = cloneVariables(variables);
         this.connections = extractFrom(variables);
-        this.bitStreams = bitStreams;
-        this.gates = new HashSet<>(gates);
+        this.bitStreams = requirements.getBitStreams();
+        this.gates = new HashSet<>(requirements.getGates());
         for (Gate gate : gates) {
             if (gate instanceof GlobalOutput) {
                 this.globalOutput = (GlobalOutput) gate;
@@ -284,8 +282,7 @@ public class Circuit {
     }
 
     public boolean testBitStream(BitStream bitStream) {
-        boolean success = true;
-        System.out.println("testing " + bitStream.toString());
+        //System.out.println("testing " + bitStream.toString());
         int[] valuesAtOutput = new int[bitStream.getLengthWithDelay()];
         int[] valuesAtInput = new int[bitStream.getLengthWithDelay()];
         for (int tick = 0; tick < bitStream.getLengthWithDelay(); tick++) {
@@ -301,10 +298,10 @@ public class Circuit {
             valuesAtInput[tick] = valueAtInput ? 1 : 0;
         }
 
-        boolean same = compareShiftedDelay(valuesAtInput, valuesAtOutput, bitStream.getDelay());
-        System.out.println("Testing " + Arrays.toString(valuesAtInput) + " -> " + Arrays.toString(valuesAtOutput) + " : " + same );
+        boolean success = compareShiftedDelay(valuesAtInput, valuesAtOutput, bitStream.getDelay());
+        //System.out.println("Testing " + Arrays.toString(valuesAtInput) + " -> " + Arrays.toString(valuesAtOutput) + " : " + success );
         resetRegisters();
-        return same;
+        return success;
     }
 
     private boolean compareShiftedDelay(int[] valuesAtInput, int[] valuesAtOutput, int delay) {
@@ -332,7 +329,7 @@ public class Circuit {
     public boolean testValidity(Requirements requirements) {
         System.out.println("Testing " + requirements.bitStreams.size() + " BitStreams on Circuit");
         for (BitStream bitStream : requirements.bitStreams) {
-            System.out.println("Testing " + bitStream.toString());
+            //System.out.println("Testing " + bitStream.toString());
             if (!testBitStream(bitStream)) {
                 return false;
             }

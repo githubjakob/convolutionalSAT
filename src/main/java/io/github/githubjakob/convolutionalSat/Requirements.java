@@ -1,17 +1,29 @@
 package io.github.githubjakob.convolutionalSat;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import io.github.githubjakob.convolutionalSat.components.BitStream;
+import io.github.githubjakob.convolutionalSat.components.InputPin;
+import io.github.githubjakob.convolutionalSat.components.OutputPin;
+import io.github.githubjakob.convolutionalSat.components.connection.Connection;
+import io.github.githubjakob.convolutionalSat.components.gates.Gate;
+import io.github.githubjakob.convolutionalSat.modules.Channel;
+import io.github.githubjakob.convolutionalSat.modules.Module;
 import lombok.Getter;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-
-import static afu.org.checkerframework.checker.units.UnitsTools.min;
 
 /**
- * Created by jakob on 12.07.18.
+ * Wrapper/Utility Klasse für alle Anforderungen an den zu findenden Faltungskodierers. Bietet Zugriff auf
+ *
+ * - alle zur Verfügung stehenden Gatter
+ * - globalen Input und globalen Output des Faltungskodierers
+ * - die mögliche Verbindungen, die zur Verfügung stehen (in den Modulen Channel, Encoder, Decoder)
+ * - Noise in den Kanälen
+ *
  */
 public class Requirements {
+
+    private final Noise noise;
 
     @Getter
     List<BitStream> bitStreams = new ArrayList<>();
@@ -30,20 +42,17 @@ public class Requirements {
 
     int blockLength;
 
-    public Requirements(int delay, int blockLength, int noiseRatioPercent, int distortedChannel) {
-        this.blockLength = blockLength;
+    private List<Module> modules;
 
+    public Requirements(List<Module> modules, int delay, int blockLength, int noiseRatioPercent, int distortedChannel) {
+        this.blockLength = blockLength;
+        this.modules = modules;
         this.delay = delay;
         this.noiseRatioPercent = noiseRatioPercent;
         this.distortedChannel = distortedChannel;
         enableNoise = false;
-
-        //createBitStreams(lenght);
-        //BitStream bitsStreamIn1 = addRandomBitStream();
-        //BitStream bitsStreamIn2 = addRandomBitStream();
-        //bitStreams.addAll(Arrays.asList(bitsStreamIn1, bitsStreamIn2));
-
-        //sanitiyCheck(blockLength, delay, bitStreams);
+        this.noise = getChannel().getNoise();
+        noise.setup(blockLength, delay, noiseRatioPercent, distortedChannel);
         System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (noiseRatioPercent > 0));
     }
 
@@ -53,35 +62,85 @@ public class Requirements {
     }
 
 
-
-    private void sanitiyCheck(int blockLength, int delay, List<BitStream> bitStreams) {
-        for (BitStream bitStream : bitStreams) {
-            if (delay != bitStream.getDelay() || blockLength != (bitStream.getLengthWithDelay() - bitStream.getDelay())) {
-                throw new RuntimeException("Invalid block and/or delay length");
-            }
-        }
-    }
-
     public void addBitStream(BitStream bitStream) {
         bitStreams.add(bitStream);
     }
 
+    ///////////////////////////////////////////////////////
 
-    public boolean isNoiseEnabled() {
-        return noiseRatioPercent > 0;
+    public Module getEncoder() {
+        for (Module module :modules) {
+            if (module.getType().equals(Enums.Module.ENCODER)) return module;
+        }
+        return null;
     }
 
-    public int[] getFlippedBits(int channel) {
-        //System.out.println("channel id for flipped bits " + channel);
-        int[] flippedBits = new int[blockLength + delay];
+    public Module getDecoder() {
+        for (Module module :modules) {
+            if (module.getType().equals(Enums.Module.DECODER)) return module;
+        }
+        return null;
+    }
 
-        for (int n = 0; n < flippedBits.length; n++) {
-            int randomNum = ThreadLocalRandom.current().nextInt(min, 100 + 1);
-            if (randomNum < noiseRatioPercent && channel == distortedChannel) {
-                flippedBits[n] = 1;
-            } else flippedBits[n] = 0;
+    public Channel getChannel() {
+        for (Module module :modules) {
+            if (module.getType().equals(Enums.Module.CHANNEL)) return (Channel) module;
+        }
+        return null;
+    }
+
+    public List<OutputPin> getOutputPins() {
+        List<OutputPin> allPins = new ArrayList<>();
+
+        for (Module module : modules) {
+            List<OutputPin> gatesFromModule = module.getOutputPins();
+            allPins.addAll(gatesFromModule);
         }
 
-        return flippedBits;
+        return allPins;
+    }
+
+    public List<InputPin> getInputPins() {
+        List<InputPin> allPins = new ArrayList<>();
+
+        for (Module module : modules) {
+            List<InputPin> gatesFromModule = module.getInputPins();
+            allPins.addAll(gatesFromModule);
+        }
+
+        return allPins;
+    }
+
+    public List<Gate> getGates() {
+        List<Gate> allGates = new ArrayList<>();
+
+        for (Module module : modules) {
+            List<Gate> gatesFromModule = module.getGates();
+            allGates.addAll(gatesFromModule);
+        }
+
+        return allGates;
+    }
+
+    public List<Connection> getConnections() {
+        List<Connection> allGates = new ArrayList<>();
+
+        for (Module module : modules) {
+            List<Connection> connectionsFromModule = module.getConnections();
+            allGates.addAll(connectionsFromModule);
+        }
+
+        return allGates;
+    }
+
+    public int getMaxMicrotticks() {
+        int count = 0;
+        for (Gate gate : getGates()) {
+            if (gate.getType().equals("register") || gate.getType().equals("input")) {
+                continue;
+            }
+            count++;
+        }
+        return count;
     }
 }

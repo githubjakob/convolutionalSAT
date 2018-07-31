@@ -1,12 +1,14 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
 import io.github.githubjakob.convolutionalSat.Enums;
+import io.github.githubjakob.convolutionalSat.Noise;
 import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.components.connection.NoiseFreeConnection;
 import io.github.githubjakob.convolutionalSat.components.connection.NoisyConnection;
 import io.github.githubjakob.convolutionalSat.components.gates.Input;
 import io.github.githubjakob.convolutionalSat.components.gates.Output;
+import lombok.Getter;
 
 public class Channel extends Module {
 
@@ -14,20 +16,21 @@ public class Channel extends Module {
 
     private final Module decoder;
 
-    private Requirements requirements;
+    @Getter
+    private Noise noise;
 
-    public Channel(Module encoder, Module decoder, Requirements requirements) {
+    public Channel(Module encoder, Module decoder) {
         super(Enums.Module.CHANNEL);
         this.encoder = encoder;
         this.decoder = decoder;
-        this.requirements = requirements;
-        createConnections();
+        this.noise = new Noise();
+        createConnectionsForChannel();
     }
 
     /**
      * Erzeugt die Verbindungen des Kanals, zwischen Ausgang des Encoders und Eingang des Decoders
      */
-    private void createConnections() {
+    private void createConnectionsForChannel() {
         int numberOfChannels = 0;
         if (encoder.getOutputs().size() == decoder.getInputs().size()) {
             numberOfChannels = encoder.getOutputs().size();
@@ -40,8 +43,8 @@ public class Channel extends Module {
             OutputPin outputPin = output.getOutputPin();
             InputPin inputPin = input.getInputPins().get(0);
 
-            if (requirements.isNoiseEnabled()) {
-                connections.add(new NoisyConnection(outputPin, inputPin, requirements));
+            if (noise.isNoiseEnabled()) {
+                connections.add(new NoisyConnection(outputPin, inputPin, noise));
             } else {
                 connections.add(new NoiseFreeConnection(outputPin, inputPin));
             }

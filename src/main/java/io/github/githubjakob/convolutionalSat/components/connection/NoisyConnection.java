@@ -1,6 +1,7 @@
 package io.github.githubjakob.convolutionalSat.components.connection;
 
 
+import io.github.githubjakob.convolutionalSat.Noise;
 import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.BitStream;
 import io.github.githubjakob.convolutionalSat.components.InputPin;
@@ -18,15 +19,15 @@ public class NoisyConnection extends AbstractConnection {
 
     private static int channelIdCounter = 0;
 
+    private final Noise noise;
+
     private int channelId;
 
-    private Requirements requirements;
-
-    public NoisyConnection(OutputPin from, InputPin to, Requirements requirements) {
+    public NoisyConnection(OutputPin from, InputPin to, Noise noise) {
         this.id = idCounter++;
         this.from = from;
         this.to = to;
-        this.requirements = requirements;
+        this.noise = noise;
         this.channelId = channelIdCounter++;
     }
 
@@ -38,7 +39,7 @@ public class NoisyConnection extends AbstractConnection {
     public List<Clause> convertToCnfAtTick(BitStream bitStream, int numberOfGates) {
         List<Clause> clausesForAllTicks = new ArrayList<>();
         ConnectionVariable connectionNotSet = new ConnectionVariable(false, this);
-        int[] flippedBits = requirements.getFlippedBits(channelId);
+        int[] flippedBits = noise.getFlippedBits(channelId);
         System.out.println("Flipped Bits (Gate: " + from.getGate() + ", Channel: " + channelId + " ): " + Arrays.toString(flippedBits));
 
             int bitstreamId = bitStream.getId();

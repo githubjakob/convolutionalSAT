@@ -18,7 +18,7 @@ import java.util.*;
  * Created by jakob on 07.06.18.
  */
 public class MainTests {
-
+/*
     @Before
     public void before() {
         BooleanExpression.resetSolver();
@@ -220,5 +220,5 @@ public class MainTests {
         Circuit model = booleanExpression.solve();
 
         assertTrue(model==null);
-    }
+    }*/
 }
