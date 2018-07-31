@@ -41,7 +41,7 @@ public class Not extends AbstractGate {
     public List<Clause> convertToCnf(BitStream bitStream, int maxMicroticks) {
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
-            int bits = bitStream.getLength();
+            int bits = bitStream.getLengthWithDelay();
             for (int tick = 0; tick < bits; tick++) {
                 Variable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(),true, outputPin);
                 Variable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(),false, outputPin);

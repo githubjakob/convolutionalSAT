@@ -5,11 +5,7 @@ import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.BitStream;
 import io.github.githubjakob.convolutionalSat.components.InputPin;
 import io.github.githubjakob.convolutionalSat.components.OutputPin;
-import io.github.githubjakob.convolutionalSat.components.connection.Connection;
-import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.logic.*;
-import io.github.githubjakob.convolutionalSat.modules.Module;
-import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +42,7 @@ public class NoisyConnection extends AbstractConnection {
         System.out.println("Flipped Bits (Gate: " + from.getGate() + ", Channel: " + channelId + " ): " + Arrays.toString(flippedBits));
 
             int bitstreamId = bitStream.getId();
-            int bits = bitStream.getLength();
+            int bits = bitStream.getLengthWithDelay();
 
             for (int tick = 0; tick < bits; tick++) {
                 BitAtComponentVariable inputTrue = new BitAtComponentVariable(tick, bitstreamId, true, from);

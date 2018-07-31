@@ -44,7 +44,7 @@ public class And extends AbstractGate  {
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
             int bitStreamId = bitStream.getId();
-            int bits = bitStream.getLength();
+            int bits = bitStream.getLengthWithDelay();
             for (int tick = 0; tick < bits; tick++) {
                 Variable outputTrue = new BitAtComponentVariable(tick, bitStreamId, true, outputPin);
                 Variable outputFalse = new BitAtComponentVariable(tick, bitStreamId, false, outputPin);

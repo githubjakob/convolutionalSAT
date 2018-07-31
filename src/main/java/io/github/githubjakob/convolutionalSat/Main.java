@@ -48,28 +48,14 @@ public class Main {
         Graph solution = null;
 
         int counter = 0;
-        int RANDOM_BITSTREAM = 0;
-        int FAILING_BITSTREAM = 1;
-        int state = RANDOM_BITSTREAM;
         MainGui mainGui = new MainGui();
+
         while (counter < MAX_NUMBER_OF_ITERATIONS) {
 
-            BitStream bitStreamUnderTest;
-            if (state == RANDOM_BITSTREAM) {
-                bitStreamUnderTest = requirements.createRandomBitStream();
-                System.out.println("Using random Bitstream " + bitStreamUnderTest.toString());
-                problem.registerBitStreamsAsInputOutputRequirement(Arrays.asList(bitStreamUnderTest));
-                requirements.setDistortedChannel(ThreadLocalRandom.current().nextInt(0, 100) % 3);
-                state = FAILING_BITSTREAM;
-            } else if (state == FAILING_BITSTREAM) {
-                bitStreamUnderTest = requirements.findFailingBitStream(latestCircuit, requirements);
-                if (bitStreamUnderTest == null) {
-                    state = RANDOM_BITSTREAM;
-                    continue;
-                }
-                problem.registerBitStreamsAsInputOutputRequirement(Arrays.asList(bitStreamUnderTest));
-                requirements.setDistortedChannel(ThreadLocalRandom.current().nextInt(0, 100) % 3);
-            }
+
+            BitStream underTest = problem.addFailingForOrRandom(latestCircuit);
+            System.out.println("Using random Bitstream id " + underTest.getId() +" : " + underTest.toString());
+            requirements.setDistortedChannel(ThreadLocalRandom.current().nextInt(0, 100) % 3);
 
 
 

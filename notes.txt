@@ -73,7 +73,7 @@ Ergebnisse seit dem letzten Treffen:
 - iteratives vorgehen rudimentär implementiert
 - bitströme bit länge 20 kein problem, auch länger, 20 iterationen
 - verhalten: wenn er einen schaltkreis findet, funktioniert der meistens für sehr viele zufällige bitströme ohne fehler
-dh. er findet keinen bitstrom, für den die schaltung nicht funktioniert (könnte systematischer faltungskode sein..)
+dh. er findet keinen bitstrom, für den die schaltung nicht funktioniert (könnte systematischer faltungskode sein..) --- er findet auch in tausenden versuchen keinen fehlschlagenden bitstrom
 
 Noch offene Todos:
 

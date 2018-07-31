@@ -33,9 +33,15 @@ public class Problem {
     public Problem(List<Module> modules, Requirements requirements) {
         this.modules = modules;
         this.requirements = requirements;
-        registerBitStreamsAsInputOutputRequirement(requirements.getBitStreams());
     }
 
+    /**
+     *
+     * @return eine Liste an Klauseln, die alle Eigenschaften dieses Problems repräsentiert, insbesondere
+     *  - Variablen über Gates
+     *  - Variablen über Verbindungen
+     *  - Variablen über Bitströme
+     */
     public List<Clause> convertProblemToCnf() {
         List<Clause> cnf = new ArrayList<>();
 
@@ -111,30 +117,26 @@ public class Problem {
         return allGates;
     }
 
-    public void registerBitStreamsAsInputOutputRequirement(List<BitStream> bitStreams) {
+    private BitStream addInputAndOutputToBitStream(BitStream bitStream) {
         Module encoder = getEncoder();
         Module decoder = getDecoder();
 
-        List<BitStream> toRegister = new ArrayList<>();
+        BitStream bitStreamToRegister = new BitStream(bitStream.getBits(),  bitStream.getDelay(),
+                encoder.getInputs().get(0), decoder.getOutputs().get(0));
 
-        for (BitStream bitStream : bitStreams) {
-            BitStream bitStreamToRegister = new BitStream(bitStream.getId(), bitStream.getBits(),  bitStream.getDelay(),
-                    encoder.getInputs().get(0), decoder.getOutputs().get(0));
-            toRegister.add(bitStreamToRegister);
-        }
-        registerBitStreams(toRegister);
+        registerBitStream(bitStreamToRegister);
+        return bitStreamToRegister;
     }
 
-    public void registerBitStreams(List<BitStream> bitStreams) {
-        for (BitStream bitStream : bitStreams) {
-            numberOfBitStreams++;
-            this.bitStreams.add(bitStream);
-            numberOfBits = bitStream.getLength();
-            requirements.addBitStream(bitStream);
-        }
+    public void registerBitStream(BitStream bitStream) {
+        numberOfBitStreams++;
+        this.bitStreams.add(bitStream);
+        numberOfBits = bitStream.getLengthWithDelay();
+        requirements.addBitStream(bitStream);
+
     }
 
-    List<Clause> convertGatesToCnf() {
+    private List<Clause> convertGatesToCnf() {
         List<Clause> clausesForTick = new ArrayList<>();
 
         // für jedes Bauteil
@@ -210,7 +212,7 @@ public class Problem {
         return clausesForTick;
     }
 
-    public List<Clause> convertBitStreamsToCnf() {
+    private List<Clause> convertBitStreamsToCnf() {
         List<Clause> clausesForTick = new ArrayList<>();
 
         for (BitStream bitStream : bitStreams) {
@@ -230,5 +232,45 @@ public class Problem {
             count++;
         }
         return count;
+    }
+
+    /**
+     *
+     * @param circuit
+     * @return einen Bitstrom, für den die Schaltung nicht funktioniert
+     *          oder einen zufälligen Bitstrom, falls die Schaltung null ist, oder falls kein fehlschlagender Bitstrom gefunden wird
+     */
+    public BitStream addFailingForOrRandom(Circuit circuit) {
+        if (circuit == null) {
+            return addRandomBitStream();
+        }
+
+        BitStream failingBitStream = findFailingFor(circuit, 300);
+
+        if (failingBitStream == null) {
+            return addRandomBitStream();
+        }
+
+        return addInputAndOutputToBitStream(failingBitStream);
+    }
+
+    private BitStream findFailingFor(Circuit circuit, int maxAttempts) {
+        int counter = 0;
+        while(counter < maxAttempts) {
+            BitStream potentialFailingBitStream =
+                    BitStream.noIdAndRandomBits(requirements.blockLength, requirements.getDelay());
+
+            if (!circuit.testBitStream(potentialFailingBitStream)) {
+                return potentialFailingBitStream;
+            }
+            counter++;
+        }
+        return null;
+    }
+
+    private BitStream addRandomBitStream() {
+        BitStream randomBitStream =
+                BitStream.noIdAndRandomBits(requirements.blockLength, requirements.getDelay());
+        return addInputAndOutputToBitStream(randomBitStream);
     }
 }

@@ -1,9 +1,7 @@
 package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.components.BitStream;
-import io.github.githubjakob.convolutionalSat.logic.Clause;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,8 +30,6 @@ public class Requirements {
 
     int blockLength;
 
-    int bitStreamCounter = 0;
-
     public Requirements(int delay, int blockLength, int noiseRatioPercent, int distortedChannel) {
         this.blockLength = blockLength;
 
@@ -43,8 +39,8 @@ public class Requirements {
         enableNoise = false;
 
         //createBitStreams(lenght);
-        //BitStream bitsStreamIn1 = createRandomBitStream();
-        //BitStream bitsStreamIn2 = createRandomBitStream();
+        //BitStream bitsStreamIn1 = addRandomBitStream();
+        //BitStream bitsStreamIn2 = addRandomBitStream();
         //bitStreams.addAll(Arrays.asList(bitsStreamIn1, bitsStreamIn2));
 
         //sanitiyCheck(blockLength, delay, bitStreams);
@@ -56,28 +52,11 @@ public class Requirements {
         System.out.println("Setting distorted channel: " + distortedChannel + " with value: " + noiseRatioPercent + " %");
     }
 
-    public BitStream findFailingBitStream(Circuit circuit, Requirements requirements) {
-        int counter = 0;
-        int MAX_RETRIES = 1000;
-        while(counter < MAX_RETRIES) {
-            BitStream bitStream = new BitStream(-1, createRandomBits(blockLength), delay, null, null);
 
-            if (!circuit.testBitStream(bitStream, requirements.getDelay())) {
-                System.out.println("Found failing Bitstream " + bitStream.toString());
-                return new BitStream(bitStreamCounter++, bitStream.getBits(), bitStream.getDelay(), null, null);
-            }
-            counter++;
-        }
-        return null;
-    }
-
-    public BitStream createRandomBitStream() {
-        return new BitStream(bitStreamCounter++, createRandomBits(blockLength), delay, null, null);
-    }
 
     private void sanitiyCheck(int blockLength, int delay, List<BitStream> bitStreams) {
         for (BitStream bitStream : bitStreams) {
-            if (delay != bitStream.getDelay() || blockLength != (bitStream.getLength() - bitStream.getDelay())) {
+            if (delay != bitStream.getDelay() || blockLength != (bitStream.getLengthWithDelay() - bitStream.getDelay())) {
                 throw new RuntimeException("Invalid block and/or delay length");
             }
         }
@@ -87,14 +66,6 @@ public class Requirements {
         bitStreams.add(bitStream);
     }
 
-    private int[] createRandomBits(int length) {
-        Random rnd = new Random();
-        int[] randomBooleans = new int[length];
-        for (int i = 0; i < randomBooleans.length; i++) {
-            randomBooleans[i] = rnd.nextBoolean() ? 1 : 0;
-        }
-        return randomBooleans;
-    }
 
     public boolean isNoiseEnabled() {
         return noiseRatioPercent > 0;

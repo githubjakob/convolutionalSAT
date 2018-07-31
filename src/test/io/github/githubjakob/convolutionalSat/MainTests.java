@@ -34,7 +34,7 @@ public class MainTests {
         BitStream bitStream = new BitStream(0, new int[] { 0 }, 0, input, output);
 
         Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 1, 0, 0));
-        problem.registerBitStreams(Arrays.asList(bitStream));
+        problem.registerBitStream(bitStream);
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -57,7 +57,8 @@ public class MainTests {
         BitStream outputBitStream = new BitStream(0, new int[] { 0, 0, 0}, 0, null, output);
 
         Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 3, 0, 0));
-        problem.registerBitStreams(Arrays.asList(inputBitStream, outputBitStream));
+        problem.registerBitStream(inputBitStream);
+        problem.registerBitStream(outputBitStream);
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -80,7 +81,7 @@ public class MainTests {
         BitStream bitStream = new BitStream(0, new int[] { 0, 1, 0 }, 0, input, output);
 
         Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 3, 0, 0));
-        problem.registerBitStreams(Arrays.asList(bitStream));
+        problem.registerBitStream(bitStream);
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -120,7 +121,7 @@ public class MainTests {
         BitStream bitStream = new BitStream(0, new int[] { 0, 1, 0 }, 0, input, output);
 
         Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 3, 0, 0));
-        problem.registerBitStreams(Arrays.asList(bitStream));
+        problem.registerBitStream(bitStream);
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -161,7 +162,8 @@ public class MainTests {
         BitStream outputBitStream = new BitStream(0, new int[] { 0, 1, 1 }, 0, null, output);
 
         Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 3, 0, 0));
-        problem.registerBitStreams(Arrays.asList(inputBitStream, outputBitStream));
+        problem.registerBitStream(inputBitStream);
+        problem.registerBitStream(outputBitStream);
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -184,7 +186,8 @@ public class MainTests {
         BitStream outputBitStream = new BitStream(0, new int[] { 1, 1, 1}, 0, null, output);
 
         Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 3, 0, 0));
-        problem.registerBitStreams(Arrays.asList(inputBitStream, outputBitStream));
+        problem.registerBitStream(inputBitStream);
+        problem.registerBitStream(outputBitStream);
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
@@ -207,7 +210,10 @@ public class MainTests {
         BitStream outputBitStream1 = new BitStream(1, new int[]{1, 1, 1}, 0, null, output);
 
         Problem problem = new Problem(Arrays.asList(encoder), new Requirements(0, 3, 0, 0));
-        problem.registerBitStreams(Arrays.asList(inputBitStream, outputBitStream, inputBitStream1, outputBitStream1));
+        problem.registerBitStream(inputBitStream);
+        problem.registerBitStream(outputBitStream);
+        problem.registerBitStream(inputBitStream1);
+        problem.registerBitStream(outputBitStream1);
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 

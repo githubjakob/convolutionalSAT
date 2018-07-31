@@ -283,16 +283,16 @@ public class Circuit {
         return equivalentConnections.hashCode() * gates.hashCode();
     }
 
-    public boolean testBitStream(BitStream bits, int delay) {
+    public boolean testBitStream(BitStream bitStream) {
         boolean success = true;
-        //System.out.println("testing " + bits.toString());
-        int[] valuesAtOutput = new int[bits.getLength()];
-        int[] valuesAtInput = new int[bits.getLength()];
-        for (int tick = 0; tick < bits.getLength(); tick++) {
+        System.out.println("testing " + bitStream.toString());
+        int[] valuesAtOutput = new int[bitStream.getLengthWithDelay()];
+        int[] valuesAtInput = new int[bitStream.getLengthWithDelay()];
+        for (int tick = 0; tick < bitStream.getLengthWithDelay(); tick++) {
             //System.out.println("testing bitstream " + bits.getId());
             boolean valueAtInput;
-            if (tick < bits.getLength() - bits.getDelay()) {
-                valueAtInput = bits.isBitSetAt(tick);
+            if (tick < bitStream.getLength()) {
+                valueAtInput = bitStream.isBitSetAt(tick);
             } else {
                 valueAtInput = false;
             }
@@ -301,8 +301,8 @@ public class Circuit {
             valuesAtInput[tick] = valueAtInput ? 1 : 0;
         }
 
-        boolean same = compareShiftedDelay(valuesAtInput, valuesAtOutput, delay);
-        //System.out.println("Testing " + Arrays.toString(valuesAtInput) + " -> " + Arrays.toString(valuesAtOutput) + " : " + same );
+        boolean same = compareShiftedDelay(valuesAtInput, valuesAtOutput, bitStream.getDelay());
+        System.out.println("Testing " + Arrays.toString(valuesAtInput) + " -> " + Arrays.toString(valuesAtOutput) + " : " + same );
         resetRegisters();
         return same;
     }
@@ -332,8 +332,8 @@ public class Circuit {
     public boolean testValidity(Requirements requirements) {
         System.out.println("Testing " + requirements.bitStreams.size() + " BitStreams on Circuit");
         for (BitStream bitStream : requirements.bitStreams) {
-            //System.out.println("Testing " + bitStream.toString());
-            if (!testBitStream(bitStream, requirements.getDelay())) {
+            System.out.println("Testing " + bitStream.toString());
+            if (!testBitStream(bitStream)) {
                 return false;
             }
         }

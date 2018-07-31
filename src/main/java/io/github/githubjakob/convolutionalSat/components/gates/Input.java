@@ -55,7 +55,7 @@ public class Input extends AbstractGate {
     public List<Clause> convertToCnf(BitStream bitStream, int maxMicroticks) {
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
-            int bits = bitStream.getLength();
+            int bits = bitStream.getLengthWithDelay();
             for (int tick = 0; tick < bits; tick++) {
                 BitAtComponentVariable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin);
                 BitAtComponentVariable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin);

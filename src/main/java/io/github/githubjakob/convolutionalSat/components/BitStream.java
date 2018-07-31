@@ -1,7 +1,6 @@
 package io.github.githubjakob.convolutionalSat.components;
 
-import io.github.githubjakob.convolutionalSat.components.gates.Gate;
- import io.github.githubjakob.convolutionalSat.components.gates.Input;
+import io.github.githubjakob.convolutionalSat.components.gates.Input;
 import io.github.githubjakob.convolutionalSat.components.gates.Output;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
@@ -29,6 +28,8 @@ public class BitStream {
     @Getter
     private int delay;
 
+    private static int idCounter = 0;
+
     public BitStream(int id, int[] bits, int delay, Input input, Output output) {
         this.id = id;
         this.bits = bits;
@@ -37,8 +38,41 @@ public class BitStream {
         this.output = output;
     }
 
-    public int getLength() {
+    public BitStream(int[] bits, int delay, Input input, Output output) {
+        this.id = idCounter++;
+        this.bits = bits;
+        this.delay = delay;
+        this.input = input;
+        this.output = output;
+    }
+
+    public BitStream(BitStream bitStream) {
+        this.id = bitStream.id;
+        this.bits = bitStream.bits;
+        this.delay = bitStream.delay;
+        this.input = bitStream.input;
+        this.output = bitStream.output;
+    }
+
+    public static BitStream noIdAndRandomBits(int blockLength, int delay) {
+        return new BitStream(-1, createRandomBits(blockLength), delay, null, null);
+    }
+
+    private static int[] createRandomBits(int length) {
+        Random rnd = new Random();
+        int[] randomBooleans = new int[length];
+        for (int i = 0; i < randomBooleans.length; i++) {
+            randomBooleans[i] = rnd.nextBoolean() ? 1 : 0;
+        }
+        return randomBooleans;
+    }
+
+    public int getLengthWithDelay() {
         return this.bits.length + delay;
+    }
+
+    public int getLength() {
+        return this.bits.length;
     }
 
     public List<Clause> toCnf() {
@@ -60,7 +94,7 @@ public class BitStream {
     private List<Clause> bitStreamAtOutput() {
         List<Clause> clausesForTick = new ArrayList<>();
 
-        for (int tick = 0; tick < getLength(); tick++) {
+        for (int tick = 0; tick < getLengthWithDelay(); tick++) {
             if (tick < delay) {
                 for (InputPin inputPin : output.getInputPins()) {
                     Clause outputClause = new Clause(
@@ -91,8 +125,8 @@ public class BitStream {
 
     private List<Clause> bitStreamAtInput() {
         List<Clause> clausesForTick = new ArrayList<>();
-        for (int tick = 0; tick < getLength(); tick++) {
-            if (tick >= getLength() - delay) {
+        for (int tick = 0; tick < getLengthWithDelay(); tick++) {
+            if (tick >= getLengthWithDelay() - delay) {
                 /**
                  * zuerst wird der bitstream am input angelegt, dann delay-bits lang 0's
                  *
