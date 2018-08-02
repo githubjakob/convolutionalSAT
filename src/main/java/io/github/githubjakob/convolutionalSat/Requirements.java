@@ -78,29 +78,6 @@ public class Requirements {
         bitStreams.add(bitStream);
     }
 
-    ///////////////////////////////////////////////////////
-
-    public Module getEncoder() {
-        for (Module module : modules) {
-            if (module instanceof Encoder) return (Encoder) module;
-        }
-        return null;
-    }
-
-    public Module getDecoder() {
-        for (Module module :modules) {
-            if (module instanceof Decoder) return (Decoder) module;
-        }
-        return null;
-    }
-
-    public Channel getChannel() {
-        for (Module module :modules) {
-            if (module instanceof Channel) return (Channel) module;
-        }
-        return null;
-    }
-
     public List<OutputPin> getOutputPins() {
         List<OutputPin> allPins = new ArrayList<>();
 

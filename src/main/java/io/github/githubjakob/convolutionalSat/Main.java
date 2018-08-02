@@ -53,7 +53,7 @@ public class Main {
 
         requirements.setModules(Arrays.asList(encoder, decoder, channel));
 
-        Problem problem = new Problem(requirements);
+        Problem problem = guice.getInstance(Problem.class);
 
         BooleanExpression booleanExpression;
 

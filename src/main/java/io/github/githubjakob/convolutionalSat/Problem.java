@@ -8,9 +8,12 @@ import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
+import io.github.githubjakob.convolutionalSat.modules.Decoder;
+import io.github.githubjakob.convolutionalSat.modules.Encoder;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 import lombok.Getter;
 
+import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,6 +25,10 @@ public class Problem {
     @Getter
     private final Requirements requirements;
 
+    private Encoder encoder;
+
+    private Decoder decoder;
+
     @Getter
     private int numberOfBitStreams = 0;
 
@@ -30,8 +37,11 @@ public class Problem {
 
     private List<BitStream> bitStreams = new ArrayList<>();
 
-    public Problem(Requirements requirements) {
+    @Inject
+    public Problem(Requirements requirements, Encoder encoder, Decoder decoder) {
         this.requirements = requirements;
+        this.encoder = encoder;
+        this.decoder = decoder;
     }
 
     /**
@@ -52,9 +62,6 @@ public class Problem {
     }
 
     private BitStream addInputAndOutputToBitStream(BitStream bitStream) {
-        Module encoder = requirements.getEncoder();
-        Module decoder = requirements.getDecoder();
-
         BitStream bitStreamToRegister = new BitStream(bitStream.getBits(),  bitStream.getDelay(),
                 encoder.getInputs().get(0), decoder.getOutputs().get(0));
 
@@ -92,9 +99,9 @@ public class Problem {
         for (OutputPin outputPin : requirements.getOutputPins()) {
             // for alle Connections die von diesem Output Pin weg geht
             Clause possibleConnections = new Clause();
-            for (Connection connections : requirements.getConnections()) {
-                if (connections.getFrom().equals(outputPin)) {
-                    possibleConnections.addVariable(new ConnectionVariable(true, connections));
+            for (Connection connection : requirements.getConnections()) {
+                if (connection.getFrom().equals(outputPin)) {
+                    possibleConnections.addVariable(new ConnectionVariable(true, connection));
                 }
             }
             clausesForTick.add(possibleConnections);

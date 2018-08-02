@@ -31,7 +31,7 @@ public class BitStream {
 
     private static int idCounter = 0;
 
-    public BitStream(int id, int[] bits, int delay, Input input, Output output) {
+    private BitStream(int id, int[] bits, int delay, Input input, Output output) {
         this.id = id;
         this.bits = bits;
         this.delay = delay;
@@ -45,14 +45,6 @@ public class BitStream {
         this.delay = delay;
         this.input = input;
         this.output = output;
-    }
-
-    public BitStream(BitStream bitStream) {
-        this.id = bitStream.id;
-        this.bits = bitStream.bits;
-        this.delay = bitStream.delay;
-        this.input = bitStream.input;
-        this.output = bitStream.output;
     }
 
     public static BitStream noIdAndRandomBits(int blockLength, int delay) {
