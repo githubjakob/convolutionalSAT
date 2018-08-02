@@ -4,6 +4,8 @@ import io.github.githubjakob.convolutionalSat.components.BitStream;
 import io.github.githubjakob.convolutionalSat.graph.Graph;
 import io.github.githubjakob.convolutionalSat.gui.MainGui;
 import io.github.githubjakob.convolutionalSat.modules.Channel;
+import io.github.githubjakob.convolutionalSat.modules.Decoder;
+import io.github.githubjakob.convolutionalSat.modules.Encoder;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.time.Instant;
@@ -20,7 +22,7 @@ public class Main {
         Requirements requirements = new Requirements(3, 10, 5, 0);
 
 
-        Module encoder = new Module(Enums.Module.ENCODER);
+        Encoder encoder = new Encoder();
         encoder.addGlobalInput();
         encoder.addOutput();
         encoder.addOutput();
@@ -35,7 +37,7 @@ public class Main {
         encoder.addRegister();
         encoder.addRegister();
 
-        Module decoder = new Module(Enums.Module.DECODER);
+        Module decoder = new Decoder();
         decoder.addInput();
         decoder.addInput();
         decoder.addInput();

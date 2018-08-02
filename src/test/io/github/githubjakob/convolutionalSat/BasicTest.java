@@ -6,6 +6,7 @@ import io.github.githubjakob.convolutionalSat.components.gates.Xor;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
+import io.github.githubjakob.convolutionalSat.modules.Encoder;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ public class BasicTest {
 
     @Test
     public void testEquals() {
-        Xor xor = new Xor(new Module(Enums.Module.ENCODER));
+        Xor xor = new Xor(new Encoder());
         Xor xor2 = xor;
 
         assertThat(xor, is(xor2));
@@ -55,7 +56,7 @@ public class BasicTest {
     public void testHashMap() {
         Map<ConnectionVariable, Integer> map = new HashMap<>();
 
-        Xor xor = new Xor(new Module(Enums.Module.ENCODER));
+        Xor xor = new Xor(new Encoder());
         ConnectionVariable variable = new ConnectionVariable(false, xor);
         ConnectionVariable sameVariable = new ConnectionVariable(false, xor);
 
@@ -71,7 +72,7 @@ public class BasicTest {
     public void testHashMapTimeDependentVariable() {
         Map<Variable, Integer> map = new HashMap<>();
 
-        Xor xor = new Xor(new Module(Enums.Module.ENCODER));
+        Xor xor = new Xor(new Encoder());
         BitAtComponentVariable variable = new BitAtComponentVariable(0, 0, false, xor);
         BitAtComponentVariable same = new BitAtComponentVariable(0, 0, false, xor);
         BitAtComponentVariable notSame = new BitAtComponentVariable(0, 1, false, xor);
@@ -88,8 +89,8 @@ public class BasicTest {
 
     @Test
     public void connectionEquals() {
-        Xor xor = new Xor(new Module(Enums.Module.ENCODER));
-        Xor xor2 = new Xor(new Module(Enums.Module.ENCODER));
+        Xor xor = new Xor(new Encoder());
+        Xor xor2 = new Xor(new Encoder());
 
         Connection connection = new NoiseFreeConnection(xor.getOutputPin(), xor2.getInputPins().get(0));
         Connection connection2 = new NoiseFreeConnection(xor.getOutputPin(), xor2.getInputPins().get(1));
@@ -105,8 +106,8 @@ public class BasicTest {
 
     @Test
     public void circuitEquals() {
-        Xor xor = new Xor(new Module(Enums.Module.ENCODER));
-        Xor xor2 = new Xor(new Module(Enums.Module.ENCODER));
+        Xor xor = new Xor(new Encoder());
+        Xor xor2 = new Xor(new Encoder());
 
         Connection connection = new NoiseFreeConnection(xor.getOutputPin(), xor2.getInputPins().get(0));
         Connection connection2 = new NoiseFreeConnection(xor.getOutputPin(), xor2.getInputPins().get(1));

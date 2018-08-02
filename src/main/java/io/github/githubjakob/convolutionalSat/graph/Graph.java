@@ -23,15 +23,15 @@ import java.util.*;
 public class Graph extends MultiGraph {
 
     @Getter
-    Circuit model;
+    Circuit circuit;
 
     Node root;
 
     private String stylesheet = readFile("stylesheet.css", Charset.forName("utf-8"));
 
-    public Graph(Circuit model) {
+    public Graph(Circuit circuit) {
         super("Network");
-        this.model = model;
+        this.circuit = circuit;
         createGraph();
     }
 
@@ -60,10 +60,10 @@ public class Graph extends MultiGraph {
 
         Map<String, Node> nodes = new HashMap<>();
 
-        final Map<Component, int[][]> bitsAtNodes = model.getBitsAtNodes();
-        final Map<Component, Integer> microticksAtNodes = model.getMicrotickAsDecimal();
+        final Map<Component, int[][]> bitsAtNodes = circuit.getBitsAtNodes();
+        final Map<Component, Integer> microticksAtNodes = circuit.getMicrotickAsDecimal();
 
-        for (Gate gate : model.getGates()) {
+        for (Gate gate : circuit.getGates()) {
             Node node = this.addNode(gate.toString());
 
             int[][] bitsStreams = bitsAtNodes.get(gate.getOutputPin());
@@ -95,7 +95,7 @@ public class Graph extends MultiGraph {
             registerInputPins(gate, node, nodes);
         }
 
-        for (Connection connection : model.getConnections()) {
+        for (Connection connection : circuit.getConnections()) {
             if (connection.getFrom() == null) {
                 continue;
             }

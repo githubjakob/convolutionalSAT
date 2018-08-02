@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class Module {
+public abstract class Module {
 
     @Getter
     List<Input> inputs = new ArrayList<>();
@@ -33,10 +33,6 @@ public class Module {
 
     @Getter
     Enums.Module type;
-
-    public Module(Enums.Module type) {
-        this.type = type;
-    }
 
     public Output addOutput() {
         Output output = new Output(this);

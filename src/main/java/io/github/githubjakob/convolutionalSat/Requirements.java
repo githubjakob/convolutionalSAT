@@ -7,6 +7,8 @@ import io.github.githubjakob.convolutionalSat.components.OutputPin;
 import io.github.githubjakob.convolutionalSat.components.connection.Connection;
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.modules.Channel;
+import io.github.githubjakob.convolutionalSat.modules.Decoder;
+import io.github.githubjakob.convolutionalSat.modules.Encoder;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 import lombok.Getter;
 import lombok.Setter;
@@ -70,22 +72,22 @@ public class Requirements {
     ///////////////////////////////////////////////////////
 
     public Module getEncoder() {
-        for (Module module :modules) {
-            if (module.getType().equals(Enums.Module.ENCODER)) return module;
+        for (Module module : modules) {
+            if (module instanceof Encoder) return (Encoder) module;
         }
         return null;
     }
 
     public Module getDecoder() {
         for (Module module :modules) {
-            if (module.getType().equals(Enums.Module.DECODER)) return module;
+            if (module instanceof Decoder) return (Decoder) module;
         }
         return null;
     }
 
     public Channel getChannel() {
         for (Module module :modules) {
-            if (module.getType().equals(Enums.Module.CHANNEL)) return (Channel) module;
+            if (module instanceof Channel) return (Channel) module;
         }
         return null;
     }

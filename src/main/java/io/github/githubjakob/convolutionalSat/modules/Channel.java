@@ -21,8 +21,9 @@ public class Channel extends Module {
     private Noise noise;
 
     public Channel(Module encoder, Module decoder, Requirements requirements) {
-        super(Enums.Module.CHANNEL);
+        super();
         this.encoder = encoder;
+        this.type = Enums.Module.CHANNEL;
         this.decoder = decoder;
         this.noise = requirements.getNoise();
         createConnectionsForChannel();

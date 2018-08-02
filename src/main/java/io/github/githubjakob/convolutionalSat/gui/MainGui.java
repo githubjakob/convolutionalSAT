@@ -73,7 +73,7 @@ public class MainGui {
         if (comboBox.getItemCount() > 0) {
             return;
         }
-        List<BitStream> bitStreams = graph.getModel().getBitStreams();
+        List<BitStream> bitStreams = graph.getCircuit().getBitStreams();
         // listener
         for (BitStream bitstream : bitStreams) {
             comboBox.addItem("ui.bitstream" + bitstream.getId());
