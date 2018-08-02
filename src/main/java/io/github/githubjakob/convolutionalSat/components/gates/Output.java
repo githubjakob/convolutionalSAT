@@ -1,12 +1,12 @@
 package io.github.githubjakob.convolutionalSat.components.gates;
 
-import io.github.githubjakob.convolutionalSat.components.BitStream;
-import io.github.githubjakob.convolutionalSat.components.InputPin;
-import io.github.githubjakob.convolutionalSat.components.OutputPin;
+import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
+import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
+import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
-import io.github.githubjakob.convolutionalSat.modules.Module;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,21 +18,20 @@ public class Output extends AbstractGate {
 
     private static int idCounter = 0;
 
-    private final Module module;
-
     private int id;
 
     private final InputPin inputPin;
 
     private final OutputPin outputPin;
 
-    public Output(Module module) {
-        this.module = module;
+    @Inject
+    public Output() {
         this.id = idCounter;
         idCounter++;
         this.outputPin = new OutputPin(this);
         this.inputPin = new InputPin(this);
     }
+
     @Override
     public String toString() {
         return "Output" + id;
@@ -79,11 +78,6 @@ public class Output extends AbstractGate {
         boolean value = fromGate.evaluate(tick);
         //System.out.println("Value at " + this.toString() + " : " + value);
         return value;
-    }
-
-    @Override
-    public Module getModule() {
-        return module;
     }
 
     @Override

@@ -1,12 +1,11 @@
 package io.github.githubjakob.convolutionalSat.components.gates;
 
-import io.github.githubjakob.convolutionalSat.components.BitStream;
-import io.github.githubjakob.convolutionalSat.components.InputPin;
-import io.github.githubjakob.convolutionalSat.components.OutputPin;
+import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
+import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
+import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
-import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,16 +22,11 @@ public class Register extends AbstractGate {
 
     private final OutputPin outputPin;
 
-    private final Module module;
-
     private int id;
-
-    public int in;
 
     private List<Boolean> outputBitValuesAtTick = new ArrayList<>(Arrays.asList(false));
 
-    public Register(Module module) {
-        this.module = module;
+    public Register() {
         this.id = idCounter++;
         this.inputPin = new InputPin(this);
         this.outputPin = new OutputPin(this);
@@ -117,15 +111,9 @@ public class Register extends AbstractGate {
     }
 
     @Override
-    public Module getModule() {
-        return module;
-    }
-
-    @Override
     public String getType() {
         return "register";
     }
-
 
     @Override
     public OutputPin getOutputPin() {

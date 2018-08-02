@@ -1,19 +1,5 @@
 package io.github.githubjakob.convolutionalSat;
 
-import io.github.githubjakob.convolutionalSat.components.*;
-import io.github.githubjakob.convolutionalSat.components.connection.Connection;
-import io.github.githubjakob.convolutionalSat.components.gates.Input;
-import io.github.githubjakob.convolutionalSat.components.gates.Output;
-import io.github.githubjakob.convolutionalSat.modules.Module;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-
-
-import java.util.*;
-
 /**
  * Created by jakob on 07.06.18.
  */

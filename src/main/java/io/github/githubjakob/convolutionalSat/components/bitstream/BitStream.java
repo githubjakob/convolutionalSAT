@@ -1,7 +1,8 @@
-package io.github.githubjakob.convolutionalSat.components;
+package io.github.githubjakob.convolutionalSat.components.bitstream;
 
 import io.github.githubjakob.convolutionalSat.components.gates.Input;
 import io.github.githubjakob.convolutionalSat.components.gates.Output;
+import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import lombok.Getter;

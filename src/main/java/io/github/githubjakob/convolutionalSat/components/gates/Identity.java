@@ -1,12 +1,11 @@
 package io.github.githubjakob.convolutionalSat.components.gates;
 
-import io.github.githubjakob.convolutionalSat.components.BitStream;
-import io.github.githubjakob.convolutionalSat.components.InputPin;
-import io.github.githubjakob.convolutionalSat.components.OutputPin;
+import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
+import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
+import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
-import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,16 +17,13 @@ import java.util.List;
 public class Identity extends AbstractGate {
     private static int idCounter = 0;
 
-    private final Module module;
-
     private int id;
 
     public InputPin inputPin;
 
     public OutputPin outputPin;
 
-    public Identity(Module module) {
-        this.module = module;
+    public Identity() {
         this.id = idCounter++;
         this.inputPin = new InputPin(this);
         this.outputPin = new OutputPin(this);
@@ -61,11 +57,6 @@ public class Identity extends AbstractGate {
 
         return clausesForAllTicks;
 
-    }
-
-    @Override
-    public Module getModule() {
-        return module;
     }
 
     @Override

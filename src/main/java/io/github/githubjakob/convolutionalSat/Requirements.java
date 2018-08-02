@@ -1,10 +1,9 @@
 package io.github.githubjakob.convolutionalSat;
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
-import io.github.githubjakob.convolutionalSat.components.BitStream;
-import io.github.githubjakob.convolutionalSat.components.InputPin;
-import io.github.githubjakob.convolutionalSat.components.OutputPin;
-import io.github.githubjakob.convolutionalSat.components.connection.Connection;
+import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
+import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
+import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
+import io.github.githubjakob.convolutionalSat.components.connections.Connection;
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.modules.Channel;
 import io.github.githubjakob.convolutionalSat.modules.Decoder;
@@ -48,6 +47,16 @@ public class Requirements {
 
     @Setter
     private List<Module> modules;
+
+    public Requirements() {
+        this.blockLength = 10;
+        this.delay = 3;
+        this.noiseRatioPercent = 5;
+        this.distortedChannel = 0;
+        enableNoise = true;
+        this.noise = new Noise(blockLength, delay, noiseRatioPercent, distortedChannel);
+        System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (noiseRatioPercent > 0));
+    }
 
     public Requirements(int delay, int blockLength, int noiseRatioPercent, int distortedChannel) {
         this.blockLength = blockLength;

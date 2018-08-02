@@ -1,9 +1,9 @@
-package io.github.githubjakob.convolutionalSat.components.connection;
+package io.github.githubjakob.convolutionalSat.components.connections;
 
 
-import io.github.githubjakob.convolutionalSat.components.BitStream;
-import io.github.githubjakob.convolutionalSat.components.InputPin;
-import io.github.githubjakob.convolutionalSat.components.OutputPin;
+import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
+import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
+import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.*;
 
 import java.util.ArrayList;

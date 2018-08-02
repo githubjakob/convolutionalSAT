@@ -1,8 +1,11 @@
 package io.github.githubjakob.convolutionalSat;
 
-import io.github.githubjakob.convolutionalSat.components.BitStream;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
 import io.github.githubjakob.convolutionalSat.graph.Graph;
 import io.github.githubjakob.convolutionalSat.gui.MainGui;
+import io.github.githubjakob.convolutionalSat.guice.GuiceModule;
 import io.github.githubjakob.convolutionalSat.modules.Channel;
 import io.github.githubjakob.convolutionalSat.modules.Decoder;
 import io.github.githubjakob.convolutionalSat.modules.Encoder;
@@ -19,10 +22,11 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Requirements requirements = new Requirements(3, 10, 5, 0);
+        Injector guice = Guice.createInjector(new GuiceModule());
 
+        Requirements requirements = guice.getInstance(Requirements.class);
 
-        Encoder encoder = new Encoder();
+        Encoder encoder = guice.getInstance(Encoder.class);
         encoder.addGlobalInput();
         encoder.addOutput();
         encoder.addOutput();
@@ -37,7 +41,7 @@ public class Main {
         encoder.addRegister();
         encoder.addRegister();
 
-        Module decoder = new Decoder();
+        Decoder decoder = guice.getInstance(Decoder.class);
         decoder.addInput();
         decoder.addInput();
         decoder.addInput();
@@ -45,7 +49,7 @@ public class Main {
         decoder.addXor();
         decoder.addXor();
 
-        Channel channel = new Channel(encoder, decoder, requirements);
+        Channel channel = guice.getInstance(Channel.class);
 
         requirements.setModules(Arrays.asList(encoder, decoder, channel));
 

@@ -1,7 +1,7 @@
 package io.github.githubjakob.convolutionalSat.gui;
 
 import io.github.githubjakob.convolutionalSat.Main;
-import io.github.githubjakob.convolutionalSat.components.*;
+import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
 import io.github.githubjakob.convolutionalSat.graph.Graph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;

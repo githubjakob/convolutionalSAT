@@ -1,13 +1,15 @@
 package io.github.githubjakob.convolutionalSat.components.gates;
 
-import io.github.githubjakob.convolutionalSat.components.BitStream;
-import io.github.githubjakob.convolutionalSat.components.InputPin;
-import io.github.githubjakob.convolutionalSat.components.OutputPin;
+import io.github.githubjakob.convolutionalSat.Requirements;
+import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
+import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
+import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
-import io.github.githubjakob.convolutionalSat.modules.Module;
+import io.github.githubjakob.convolutionalSat.modules.Channel;
 import lombok.Setter;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,8 +21,6 @@ public class Input extends AbstractGate {
 
     private static int idCounter = 0;
 
-    private final Module module;
-
     private int id;
 
     private final OutputPin outputPin;
@@ -30,8 +30,11 @@ public class Input extends AbstractGate {
     @Setter
     private Boolean bitValue = null;
 
-    public Input(Module module) {
-        this.module = module;
+    private Requirements requirements;
+
+    @Inject
+    public Input(Requirements requirements) {
+        this.requirements = requirements;
         this.id = idCounter;
         idCounter++;
         this.outputPin = new OutputPin(this);
@@ -77,12 +80,16 @@ public class Input extends AbstractGate {
     }
 
     @Override
-    public Module getModule() {
-        return module;
-    }
-
-    @Override
     public boolean evaluate(int tick) {
+
+
+
+        if (getModule() instanceof Channel) {
+            System.out.println("asdf");
+        }
+
+
+
         boolean value;
         if (bitValue != null) {
             value = bitValue;

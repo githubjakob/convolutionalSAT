@@ -1,15 +1,18 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
-import com.sun.org.apache.regexp.internal.RE;
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.Noise;
 import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.*;
-import io.github.githubjakob.convolutionalSat.components.connection.NoiseFreeConnection;
-import io.github.githubjakob.convolutionalSat.components.connection.NoisyConnection;
+import io.github.githubjakob.convolutionalSat.components.connections.NoiseFreeConnection;
+import io.github.githubjakob.convolutionalSat.components.connections.NoisyConnection;
 import io.github.githubjakob.convolutionalSat.components.gates.Input;
 import io.github.githubjakob.convolutionalSat.components.gates.Output;
+import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
+import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import lombok.Getter;
+
+import javax.inject.Inject;
 
 public class Channel extends Module {
 
@@ -20,8 +23,9 @@ public class Channel extends Module {
     @Getter
     private Noise noise;
 
-    public Channel(Module encoder, Module decoder, Requirements requirements) {
-        super();
+    @Inject
+    public Channel(Encoder encoder, Decoder decoder, Requirements requirements, ComponentFactory gateFactory) {
+        super(gateFactory);
         this.encoder = encoder;
         this.type = Enums.Module.CHANNEL;
         this.decoder = decoder;

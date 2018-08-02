@@ -1,13 +1,12 @@
 package io.github.githubjakob.convolutionalSat.components.gates;
 
 
-import io.github.githubjakob.convolutionalSat.components.BitStream;
-import io.github.githubjakob.convolutionalSat.components.InputPin;
-import io.github.githubjakob.convolutionalSat.components.OutputPin;
+import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
+import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
+import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
-import io.github.githubjakob.convolutionalSat.modules.Module;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,8 +19,6 @@ public class Xor extends AbstractGate {
 
     private static int idCounter = 0;
 
-    private final Module module;
-
     private int id;
 
     public InputPin inputPin1;
@@ -30,8 +27,7 @@ public class Xor extends AbstractGate {
 
     public OutputPin outputPin;
 
-    public Xor(Module module) {
-        this.module = module;
+    public Xor() {
         this.id = idCounter++;
         this.inputPin1 = new InputPin(this);
         this.inputPin2 = new InputPin(this);
@@ -80,11 +76,6 @@ public class Xor extends AbstractGate {
                 || (!fromGate1.evaluate(tick) && fromGate2.evaluate(tick));
         //System.out.println("Value at " + this.toString() + " : " + value);
         return value;
-    }
-
-    @Override
-    public Module getModule() {
-        return module;
     }
 
     @Override

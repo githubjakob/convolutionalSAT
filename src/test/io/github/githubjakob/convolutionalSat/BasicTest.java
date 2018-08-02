@@ -1,28 +1,10 @@
 package io.github.githubjakob.convolutionalSat;
 
-import io.github.githubjakob.convolutionalSat.components.connection.Connection;
-import io.github.githubjakob.convolutionalSat.components.connection.NoiseFreeConnection;
-import io.github.githubjakob.convolutionalSat.components.gates.Xor;
-import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
-import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
-import io.github.githubjakob.convolutionalSat.logic.Variable;
-import io.github.githubjakob.convolutionalSat.modules.Encoder;
-import io.github.githubjakob.convolutionalSat.modules.Module;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-
 /**
  * Created by jakob on 07.06.18.
  */
 public class BasicTest {
-
+/*
     @Test
     public void testEquals() {
         Xor xor = new Xor(new Encoder());
@@ -129,5 +111,5 @@ public class BasicTest {
         set.add(sameCircuit);
 
         assertThat(set.size(), is(1));
-    }
+    }*/
 }

@@ -1,10 +1,13 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
+import afu.org.checkerframework.checker.oigj.qual.O;
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.components.*;
-import io.github.githubjakob.convolutionalSat.components.connection.Connection;
-import io.github.githubjakob.convolutionalSat.components.connection.NoiseFreeConnection;
+import io.github.githubjakob.convolutionalSat.components.connections.Connection;
+import io.github.githubjakob.convolutionalSat.components.connections.NoiseFreeConnection;
 import io.github.githubjakob.convolutionalSat.components.gates.*;
+import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
+import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import lombok.Getter;
 
 import java.util.*;
@@ -34,8 +37,15 @@ public abstract class Module {
     @Getter
     Enums.Module type;
 
+    private ComponentFactory gateFactory;
+
+    public Module(ComponentFactory gateFactory) {
+        this.gateFactory = gateFactory;
+    }
+
     public Output addOutput() {
-        Output output = new Output(this);
+        Output output = gateFactory.getOutput();
+        output.setModule(this);
         outputs.add(output);
         gates.add(output);
         inputPins.addAll(output.getInputPins());
@@ -43,7 +53,8 @@ public abstract class Module {
     }
 
     public Output addGlobalOutput() {
-        Output output = new GlobalOutput(this);
+        Output output = gateFactory.getGlobalOutput();
+        output.setModule(this);
         outputs.add(output);
         gates.add(output);
         inputPins.addAll(output.getInputPins());
@@ -51,7 +62,8 @@ public abstract class Module {
     }
 
      public Input addInput() {
-        Input input = new Input(this);
+        Input input = gateFactory.getInput();
+        input.setModule(this);
         this.inputs.add(input);
         this.gates.add(input);
         this.outputPins.add(input.getOutputPin());
@@ -59,7 +71,8 @@ public abstract class Module {
     }
 
     public Input addGlobalInput() {
-        Input input = new GlobalInput(this);
+        Input input = gateFactory.getGlobalInput();
+        input.setModule(this);
         this.inputs.add(input);
         this.gates.add(input);
         this.outputPins.add(input.getOutputPin());
@@ -67,31 +80,31 @@ public abstract class Module {
     }
 
     public Register addRegister() {
-        Register register = new Register(this);
+        Register register = gateFactory.getRegister();
         setupNewGate(register);
         return register;
     };
 
     public And addAnd() {
-        And and = new And(this);
+        And and = gateFactory.getAnd();
         setupNewGate(and);
         return and;
     };
 
     public Not addNot() {
-        Not not = new Not(this);
+        Not not = gateFactory.getNot();
         setupNewGate(not);
         return not;
     };
 
     public Xor addXor() {
-        Xor xor = new Xor(this);
+        Xor xor = gateFactory.getXor();
         setupNewGate(xor);
         return xor;
     };
 
     public Identity addIdentity() {
-        Identity identity = new Identity(this);
+        Identity identity = gateFactory.getIdentity();
         setupNewGate(identity);
         return identity;
     }
@@ -102,6 +115,7 @@ public abstract class Module {
      */
     private void setupNewGate(Gate newGate) {
         gates.add(newGate);
+        newGate.setModule(this);
         inputPins.addAll(newGate.getInputPins());
         outputPins.add(newGate.getOutputPin());
         createNewConnectionsFor(newGate);

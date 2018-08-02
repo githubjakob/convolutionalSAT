@@ -1,43 +1,51 @@
-package io.github.githubjakob.convolutionalSat.components;
+package io.github.githubjakob.convolutionalSat.components.pins;
 
-import io.github.githubjakob.convolutionalSat.components.connection.Connection;
+import io.github.githubjakob.convolutionalSat.components.connections.Connection;
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by jakob on 07.06.18.
  */
-public class InputPin implements Pin {
+public class OutputPin implements Pin {
 
     static int idCounter = 0;
 
     Integer id;
 
-    private final Gate gate;
+    public Gate getGate() {
+        return gate;
+    }
 
     @Getter
     @Setter
-    private Connection connection = null;
+    private List<Connection> connections = new ArrayList<>();
 
-    public InputPin(Gate gate) {
+    @Getter
+    private final Gate gate;
+
+    public OutputPin(Gate gate) {
         this.id = idCounter++;
         this.gate = gate;
     }
 
     @Override
     public String toString() {
-        return "In" + id;
+        return "Out" + id;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;
         if (obj == this) return true;
-        if (!(obj instanceof InputPin))return false;
-        InputPin other = (InputPin) obj;
-        return (other.id.equals(this.id));
+        if (!(obj instanceof OutputPin))return false;
+        OutputPin other = (OutputPin) obj;
+        return (this.id.equals(other.id));
     }
 
     @Override
@@ -45,13 +53,9 @@ public class InputPin implements Pin {
         return id.hashCode();
     }
 
-    public Gate getGate() {
-        return gate;
-    }
-
     @Override
     public String getType() {
-        return "input-pin";
+        return "output-pin";
     }
 
     @Override

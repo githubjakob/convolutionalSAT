@@ -1,6 +1,6 @@
 package io.github.githubjakob.convolutionalSat;
 
-import io.github.githubjakob.convolutionalSat.components.connection.Connection;
+import io.github.githubjakob.convolutionalSat.components.connections.Connection;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
@@ -33,8 +33,6 @@ public class BooleanExpression {
     static Integer literalCount = 0;
 
     private List<Circuit> models = new ArrayList<>();
-
-    int numbersOfModelsFound = 0;
 
     public BooleanExpression(Problem problem) {
         this.problem = problem;

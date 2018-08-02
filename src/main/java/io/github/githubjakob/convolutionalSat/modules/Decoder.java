@@ -1,14 +1,17 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import io.github.githubjakob.convolutionalSat.Enums;
+import io.github.githubjakob.convolutionalSat.components.ComponentFactory;
+
+import javax.inject.Inject;
 
 /**
  * Created by jakob on 02.08.18.
  */
 public class Decoder extends Module {
-    public Decoder() {
-        super();
+    @Inject
+    public Decoder(ComponentFactory gateFactory) {
+        super(gateFactory);
         this.type = Enums.Module.DECODER;
     }
 }

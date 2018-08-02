@@ -1,11 +1,11 @@
 package io.github.githubjakob.convolutionalSat.components.gates;
 
-import io.github.githubjakob.convolutionalSat.components.BitStream;
-import io.github.githubjakob.convolutionalSat.components.InputPin;
-import io.github.githubjakob.convolutionalSat.components.OutputPin;
+import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
+import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
+import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.*;
-import io.github.githubjakob.convolutionalSat.modules.Module;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,8 +17,6 @@ public class And extends AbstractGate  {
 
     private static int idCounter = 0;
 
-    private final Module module;
-
     private int id;
 
     public InputPin inputPin1;
@@ -27,8 +25,7 @@ public class And extends AbstractGate  {
 
     public OutputPin outputPin;
 
-    public And(Module module) {
-        this.module = module;
+    public And() {
         this.id = idCounter++;
         this.inputPin1 = new InputPin(this);
         this.inputPin2 = new InputPin(this);
@@ -67,11 +64,6 @@ public class And extends AbstractGate  {
         clausesForAllTicks.addAll(microtickClauses);
 
         return clausesForAllTicks;
-    }
-
-    @Override
-    public Module getModule() {
-        return module;
     }
 
     @Override

@@ -1,8 +1,11 @@
 package io.github.githubjakob.convolutionalSat;
 
 import io.github.githubjakob.convolutionalSat.components.*;
-import io.github.githubjakob.convolutionalSat.components.connection.Connection;
+import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
+import io.github.githubjakob.convolutionalSat.components.connections.Connection;
 import io.github.githubjakob.convolutionalSat.components.gates.*;
+import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
+import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.logic.MicrotickVariable;
@@ -207,7 +210,10 @@ public class Circuit {
             Component component = variable.getComponent();
 
             if (variable.getWeight() && variable instanceof ConnectionVariable && component instanceof Connection){
-                connections.add((Connection) component);
+                Connection currentConnection = (Connection) component;
+                currentConnection.getFrom().getConnections().add(currentConnection);
+                currentConnection.getTo().setConnection(currentConnection);
+                connections.add(currentConnection);
             }
         }
         return connections;
