@@ -18,15 +18,8 @@ import java.util.List;
  */
 public class NoisyConnection extends AbstractConnection {
 
-    private static int channelIdCounter = 0;
-
-    private int channelId;
-
-    @Inject
-    public NoisyConnection(Requirements requirements) {
-        this.requirements = requirements;
-        this.id = idCounter++;
-        this.channelId = channelIdCounter++;
+    public NoisyConnection(OutputPin from, InputPin to, Requirements requirements) {
+        super(from, to, requirements);
     }
 
     @Override
@@ -49,7 +42,7 @@ public class NoisyConnection extends AbstractConnection {
     private List<Clause> convertToCnfAtTick(BitStream bitStream) {
         List<Clause> clausesForAllTicks = new ArrayList<>();
         ConnectionVariable connectionNotSet = new ConnectionVariable(false, this);
-        int[] flippedBits = requirements.getNoise().getFlippedBits(channelId);
+        int[] flippedBits = requirements.getNoise().getFlippedBits(id);
         //System.out.println("Flipped Bits (Gate: " + from.getGate() + ", Channel: " + channelId + " ): " + Arrays.toString(flippedBits));
 
             int bitstreamId = bitStream.getId();

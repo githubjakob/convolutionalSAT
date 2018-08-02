@@ -16,6 +16,4 @@ public interface Connection extends Component {
     List<Clause> convertToCnf();
     InputPin getTo();
     OutputPin getFrom();
-    void setFrom(OutputPin from);
-    void setTo(InputPin to);
 }

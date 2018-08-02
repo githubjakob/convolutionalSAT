@@ -17,10 +17,8 @@ import java.util.List;
  */
 public class NoiseFreeConnection extends AbstractConnection {
 
-    @Inject
-    public NoiseFreeConnection(Requirements requirements) {
-        this.requirements = requirements;
-        this.id = idCounter++;
+    public NoiseFreeConnection(OutputPin from, InputPin to, Requirements requirements) {
+        super(from, to, requirements);
     }
 
     @Override

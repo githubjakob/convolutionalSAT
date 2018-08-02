@@ -51,7 +51,7 @@ public class Requirements {
     public Requirements() {
         this.blockLength = 10;
         this.delay = 3;
-        this.noiseRatioPercent = 5;
+        this.noiseRatioPercent = 0;
         this.distortedChannel = 0;
         enableNoise = true;
         this.noise = new Noise(blockLength, delay, noiseRatioPercent, distortedChannel);

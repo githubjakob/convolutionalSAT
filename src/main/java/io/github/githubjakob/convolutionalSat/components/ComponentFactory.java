@@ -27,8 +27,6 @@ public class ComponentFactory {
     private Provider<Output> outputProvider;
     private Provider<Register> registerProvider;
     private Provider<Xor> xorProvider;
-    private Provider<NoisyConnection> noisyConnectionProvider;
-    private Provider<NoiseFreeConnection> noiseFreeConnectionProvider;
     private Requirements requirements;
 
     @Inject
@@ -36,7 +34,6 @@ public class ComponentFactory {
                             Provider<GlobalOutput> globalOutputProvider, Provider<Identity> identityProvider,
                             Provider<Input> inputProvider, Provider<Not> notProvider, Provider<Output> outputProvider,
                             Provider<Register> registerProvider, Provider<Xor> xorProvider,
-                            Provider<NoisyConnection> noisyConnectionProvider, Provider<NoiseFreeConnection> noiseFreeConnectionProvider,
                             Requirements requirements) {
         this.andProvider = andProvider;
         this.globalInputProvider = globalInputProvider;
@@ -47,8 +44,6 @@ public class ComponentFactory {
         this.outputProvider = outputProvider;
         this.registerProvider = registerProvider;
         this.xorProvider = xorProvider;
-        this.noisyConnectionProvider = noisyConnectionProvider;
-        this.noiseFreeConnectionProvider = noiseFreeConnectionProvider;
         this.requirements = requirements;
     }
 
@@ -91,19 +86,14 @@ public class ComponentFactory {
     public Connection createNoisyConnectionIfNoiseEnabled(OutputPin outputPin, InputPin inputPin) {
         Connection connection;
         if (requirements.getNoise().isNoiseEnabled()) {
-            connection = noisyConnectionProvider.get();
+            connection = new NoisyConnection(outputPin, inputPin, requirements);
         } else {
-            connection = noiseFreeConnectionProvider.get();
+            connection = new NoiseFreeConnection(outputPin, inputPin, requirements);
         }
-        connection.setFrom(outputPin);
-        connection.setTo(inputPin);
         return connection;
     }
 
     public Connection createNoiseFreeConnection(OutputPin outputPin, InputPin inputPin) {
-        Connection connection = noiseFreeConnectionProvider.get();
-        connection.setFrom(outputPin);
-        connection.setTo(inputPin);
-        return connection;
+        return new NoiseFreeConnection(outputPin, inputPin, requirements);
     }
 }

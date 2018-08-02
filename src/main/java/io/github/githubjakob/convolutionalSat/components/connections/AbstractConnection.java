@@ -1,6 +1,7 @@
 package io.github.githubjakob.convolutionalSat.components.connections;
 
 import io.github.githubjakob.convolutionalSat.Requirements;
+import io.github.githubjakob.convolutionalSat.components.gates.AbstractGate;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
@@ -24,12 +25,17 @@ public abstract class AbstractConnection implements Connection {
     Requirements requirements;
 
     @Getter
-    @Setter
     OutputPin from;
 
     @Getter
-    @Setter
     InputPin to;
+
+    public AbstractConnection(OutputPin from, InputPin to, Requirements requirements) {
+        this.from = from;
+        this.to = to;
+        this.id = idCounter++;
+        this.requirements = requirements;
+    }
 
     List<Clause> convertMicroticksRequirement() {
         int numberOfGates = requirements.getMaxMicrotticks();
