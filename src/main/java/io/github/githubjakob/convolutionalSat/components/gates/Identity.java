@@ -86,9 +86,9 @@ public class Identity extends AbstractGate {
     }
 
     @Override
-    public boolean evaluate(int tick) {
+    public boolean evaluate(BitStream bitStream, int tick) {
         Gate fromGate = inputPin.getConnection().getFrom().getGate();
-        return fromGate.evaluate(tick);
+        return fromGate.evaluate(bitStream, tick);
     }
 
     @Override

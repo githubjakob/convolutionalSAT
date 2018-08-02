@@ -5,7 +5,6 @@ import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.*;
-import jdk.nashorn.internal.ir.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -78,10 +77,12 @@ public class And extends AbstractGate  {
     }
 
     @Override
-    public boolean evaluate(int tick) {
+    public boolean evaluate(BitStream bitStream, int tick) {
         Gate fromGate1 = inputPin1.getConnection().getFrom().getGate();
         Gate fromGate2 = inputPin2.getConnection().getFrom().getGate();
-        boolean value = fromGate1.evaluate(tick) && fromGate2.evaluate(tick);
+        boolean from1 = fromGate1.evaluate(bitStream, tick);
+        boolean from2 = fromGate2.evaluate(bitStream, tick);
+        boolean value = from1 && from2;
         //System.out.println("Value at " + this.toString() + " : " + value);
         return value;
     }

@@ -1,7 +1,6 @@
 package io.github.githubjakob.convolutionalSat.components;
 
 import afu.org.checkerframework.checker.igj.qual.I;
-import io.github.githubjakob.convolutionalSat.Noise;
 import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.connections.Connection;
 import io.github.githubjakob.convolutionalSat.components.connections.NoiseFreeConnection;
@@ -85,7 +84,7 @@ public class ComponentFactory {
 
     public Connection createNoisyConnectionIfNoiseEnabled(OutputPin outputPin, InputPin inputPin) {
         Connection connection;
-        if (requirements.getNoise().isNoiseEnabled()) {
+        if (requirements.isNoiseEnabled()) {
             connection = new NoisyConnection(outputPin, inputPin, requirements);
         } else {
             connection = new NoiseFreeConnection(outputPin, inputPin, requirements);

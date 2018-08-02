@@ -28,6 +28,8 @@ public class Register extends AbstractGate {
 
     private List<Boolean> outputBitValuesAtTick = new ArrayList<>(Arrays.asList(false));
 
+    private int evaluationCounter = 0;
+
     @Inject
     public Register(Requirements requirements) {
         this.requirements = requirements;
@@ -99,7 +101,7 @@ public class Register extends AbstractGate {
     }
 
     @Override
-    public boolean evaluate(int tick) {
+    public boolean evaluate(BitStream bitStream, int tick) {
         //System.out.println("Evaluate Register " + id + ", tick "+ tick + ", size: " + outputBitValuesAtTick.size());
 
         if (outputBitValuesAtTick.size() - 2 == tick) {
@@ -108,13 +110,13 @@ public class Register extends AbstractGate {
         }
 
         /**
-         * add a null first to indictate that evaluate was called once allready
+         * add a null first to indictate that evaluate was called once already
          * prevents circuits in the evulation
          *
          */
         Gate fromGate = inputPin.getConnection().getFrom().getGate();
         outputBitValuesAtTick.add(null);
-        boolean inputValueAtThisTick = fromGate.evaluate(tick);
+        boolean inputValueAtThisTick = fromGate.evaluate(bitStream, tick);
         outputBitValuesAtTick.set(outputBitValuesAtTick.size()-1, inputValueAtThisTick);
 
         return outputBitValuesAtTick.get(tick);

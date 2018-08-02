@@ -5,9 +5,6 @@ import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.components.connections.Connection;
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
-import io.github.githubjakob.convolutionalSat.modules.Channel;
-import io.github.githubjakob.convolutionalSat.modules.Decoder;
-import io.github.githubjakob.convolutionalSat.modules.Encoder;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,9 +23,6 @@ import java.util.*;
 public class Requirements {
 
     @Getter
-    private final Noise noise;
-
-    @Getter
     List<BitStream> bitStreams = new ArrayList<>();
 
     /**
@@ -37,12 +31,16 @@ public class Requirements {
     @Getter
     private int delay;
 
+    @Getter
     int noiseRatioPercent;
 
+    @Getter
     private int distortedChannel;
 
-    boolean enableNoise;
+    @Getter
+    boolean noiseEnabled;
 
+    @Getter
     int blockLength;
 
     @Setter
@@ -53,8 +51,7 @@ public class Requirements {
         this.delay = 3;
         this.noiseRatioPercent = 0;
         this.distortedChannel = 0;
-        enableNoise = true;
-        this.noise = new Noise(blockLength, delay, noiseRatioPercent, distortedChannel);
+        noiseEnabled = true;
         System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (noiseRatioPercent > 0));
     }
 
@@ -63,8 +60,7 @@ public class Requirements {
         this.delay = delay;
         this.noiseRatioPercent = noiseRatioPercent;
         this.distortedChannel = distortedChannel;
-        enableNoise = false;
-        this.noise = new Noise(blockLength, delay, noiseRatioPercent, distortedChannel);
+        noiseEnabled = false;
         System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (noiseRatioPercent > 0));
     }
 

@@ -1,8 +1,6 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
 import io.github.githubjakob.convolutionalSat.Enums;
-import io.github.githubjakob.convolutionalSat.Noise;
-import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.components.gates.Input;
 import io.github.githubjakob.convolutionalSat.components.gates.Output;
@@ -18,16 +16,13 @@ public class Channel extends Module {
 
     private final Module decoder;
 
-    @Getter
-    private Noise noise;
 
     @Inject
-    public Channel(Encoder encoder, Decoder decoder, Requirements requirements, ComponentFactory componentFactory) {
+    public Channel(Encoder encoder, Decoder decoder, ComponentFactory componentFactory) {
         super(componentFactory);
         this.encoder = encoder;
         this.type = Enums.Module.CHANNEL;
         this.decoder = decoder;
-        this.noise = requirements.getNoise();
         createConnectionsForChannel();
     }
 

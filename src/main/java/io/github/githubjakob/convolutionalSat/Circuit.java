@@ -18,12 +18,12 @@ import java.util.*;
 public class Circuit {
 
     /*
-        Schaltkreise sind äquivalent, wenn sie
-        - die selbe Anzahl an Gates besitzen
-        - die selbe Anzahl an Verbindungen besitzen
-        - äquivalente Verbindungen beseitzen
-            (Verbdinungen sind äquivalent, wenn sie zwischen gleichen Typen von Komponenten besetehen)
-         */
+            Schaltkreise sind äquivalent, wenn sie
+            - die selbe Anzahl an Gates besitzen
+            - die selbe Anzahl an Verbindungen besitzen
+            - äquivalente Verbindungen beseitzen
+                (Verbdinungen sind äquivalent, wenn sie zwischen gleichen Typen von Komponenten besetehen)
+             */
     private static class EquivalentConnection {
 
         Gate from;
@@ -293,13 +293,9 @@ public class Circuit {
         int[] valuesAtInput = new int[bitStream.getLengthWithDelay()];
         for (int tick = 0; tick < bitStream.getLengthWithDelay(); tick++) {
             //System.out.println("testing bitstream " + bits.getId());
-            boolean valueAtInput;
-            if (tick < bitStream.getLength()) {
-                valueAtInput = bitStream.isBitSetAt(tick);
-            } else {
-                valueAtInput = false;
-            }
-            boolean valueAtOutput = evaluateGlobalOutput(valueAtInput, tick);
+            boolean valueAtInput = bitStream.getBitValueAtOrFalse(tick);
+            setGlobalInputTo(valueAtInput);
+            boolean valueAtOutput = evaluateGlobalOutput(bitStream, tick);
             valuesAtOutput[tick] = valueAtOutput ? 1 : 0;
             valuesAtInput[tick] = valueAtInput ? 1 : 0;
         }
@@ -319,17 +315,19 @@ public class Circuit {
         return true;
     }
 
-    public boolean evaluateGlobalOutput(boolean bitAtRoot, int tick) {
-        globalInput.setBitValue(bitAtRoot);
+    public boolean evaluateGlobalOutput(BitStream bitStream, int tick) {
         //System.out.println("Evaluating globalOutput (" + globalOutput.toString() + ")");
-        return globalOutput.evaluate(tick);
-
+        return globalOutput.evaluate(bitStream, tick);
     }
 
     private void resetRegisters() {
         for (Register register : getRegisters()) {
             register.reset();
         }
+    }
+
+    private void setGlobalInputTo(boolean valueAtInput) {
+        globalInput.setBitValue(valueAtInput);
     }
 
     public boolean testValidity(Requirements requirements) {

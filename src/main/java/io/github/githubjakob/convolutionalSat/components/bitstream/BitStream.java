@@ -1,5 +1,7 @@
 package io.github.githubjakob.convolutionalSat.components.bitstream;
 
+import com.sun.org.apache.regexp.internal.RE;
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.gates.Input;
 import io.github.githubjakob.convolutionalSat.components.gates.Output;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
@@ -7,12 +9,43 @@ import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import lombok.Getter;
 
+import javax.inject.Inject;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static afu.org.checkerframework.checker.units.UnitsTools.min;
 
 /**
  * Created by jakob on 22.06.18.
  */
 public class BitStream {
+
+    public static class BitStreamFactory {
+
+        private Requirements requirements;
+
+        @Inject
+        public BitStreamFactory(Requirements requirements) {
+            this.requirements = requirements;
+        }
+
+        public BitStream create(BitStream bitStream, Input input, Output output) {
+            return new BitStream(bitStream.getBits(), bitStream.getDelay(), input, output, bitStream.requirements);
+        }
+
+        public BitStream createWithNoIdAndRandomBits(int blockLength, int delay) {
+            return new BitStream(-1, createRandomBits(blockLength), delay, null, null, requirements);
+        }
+
+        private int[] createRandomBits(int length) {
+            Random rnd = new Random();
+            int[] randomBooleans = new int[length];
+            for (int i = 0; i < randomBooleans.length; i++) {
+                randomBooleans[i] = rnd.nextBoolean() ? 1 : 0;
+            }
+            return randomBooleans;
+        }
+    }
 
     @Getter
     int[] bits;
@@ -29,35 +62,30 @@ public class BitStream {
     @Getter
     private int delay;
 
+    int[] flippedBits;
+
     private static int idCounter = 0;
 
-    private BitStream(int id, int[] bits, int delay, Input input, Output output) {
+    private Requirements requirements;
+
+    private BitStream(int id, int[] bits, int delay, Input input, Output output, Requirements requirements) {
         this.id = id;
         this.bits = bits;
         this.delay = delay;
         this.input = input;
         this.output = output;
+        this.requirements = requirements;
+        flippedBits = createFlippedBits();
     }
 
-    public BitStream(int[] bits, int delay, Input input, Output output) {
+    private BitStream(int[] bits, int delay, Input input, Output output, Requirements requirements) {
+        this.requirements = requirements;
         this.id = idCounter++;
         this.bits = bits;
         this.delay = delay;
         this.input = input;
         this.output = output;
-    }
-
-    public static BitStream noIdAndRandomBits(int blockLength, int delay) {
-        return new BitStream(-1, createRandomBits(blockLength), delay, null, null);
-    }
-
-    private static int[] createRandomBits(int length) {
-        Random rnd = new Random();
-        int[] randomBooleans = new int[length];
-        for (int i = 0; i < randomBooleans.length; i++) {
-            randomBooleans[i] = rnd.nextBoolean() ? 1 : 0;
-        }
-        return randomBooleans;
+        flippedBits = createFlippedBits();
     }
 
     public int getLengthWithDelay() {
@@ -96,7 +124,7 @@ public class BitStream {
                     clausesForTick.add(outputClause);
                 }
             } else {
-                boolean bitSet = isBitSetAt(tick-delay);
+                boolean bitSet = getBitValueAt(tick-delay);
                 for (InputPin inputPin : output.getInputPins()) {
                     Clause outputClause = new Clause(
                             new BitAtComponentVariable(tick, this.getId(), bitSet, inputPin));
@@ -108,8 +136,18 @@ public class BitStream {
 
     }
 
-    public boolean isBitSetAt(int tick) {
+    public boolean getBitValueAt(int tick) {
         return bits[tick] == 1;
+    }
+
+    public boolean getBitValueAtOrFalse(int tick) {
+        boolean bitValue;
+        if (tick < getLength()) {
+            bitValue = getBitValueAt(tick);
+        } else {
+            bitValue = false;
+        }
+        return bitValue;
     }
 
     public int getBitAt(int tick) {
@@ -129,7 +167,7 @@ public class BitStream {
                         new BitAtComponentVariable(tick, this.getId(), false, input.getOutputPin()));
                 clausesForTick.add(inputClause);
             } else {
-                boolean bitSet = isBitSetAt(tick);
+                boolean bitSet = getBitValueAt(tick);
                 Clause inputClause = new Clause(
                         new BitAtComponentVariable(tick, this.getId(), bitSet, input.getOutputPin()));
                 clausesForTick.add(inputClause);
@@ -138,6 +176,28 @@ public class BitStream {
         }
 
         return clausesForTick;
+    }
+
+    public int getFlippedBitAt(int tick, int channel) {
+        if (id != channel) {
+            return 0;
+        }
+        return flippedBits[tick];
+    }
+
+    private int[] createFlippedBits() {
+        int counter = 0;
+        //System.out.println("channel id for flipped bits " + channel);
+        int[] flippedBits = new int[requirements.getBlockLength() + requirements.getDelay()];
+
+        for (int n = 0; n < flippedBits.length; n++) {
+            int randomNum = ThreadLocalRandom.current().nextInt(min, 100 + 1);
+            if (randomNum < requirements.getNoiseRatioPercent()) {
+                flippedBits[n] = 1;
+                counter++;
+            } else flippedBits[n] = 0;
+        }
+        return flippedBits;
     }
 
         @Override

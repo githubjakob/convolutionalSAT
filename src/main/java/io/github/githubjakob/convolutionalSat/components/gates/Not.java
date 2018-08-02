@@ -8,7 +8,6 @@ import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
-import org.bouncycastle.ocsp.Req;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,9 +72,9 @@ public class Not extends AbstractGate {
     }
 
     @Override
-    public boolean evaluate(int tick) {
+    public boolean evaluate(BitStream bitStream, int tick) {
         Gate fromGate = inputPin.getConnection().getFrom().getGate();
-        boolean value = !fromGate.evaluate(tick);
+        boolean value = !fromGate.evaluate(bitStream, tick);
         //System.out.println("Value at " + this.toString() + " : " + value);
         return value;
     }

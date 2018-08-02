@@ -29,6 +29,8 @@ public class Problem {
 
     private Decoder decoder;
 
+    private BitStream.BitStreamFactory bitStreamFactory;
+
     @Getter
     private int numberOfBitStreams = 0;
 
@@ -38,10 +40,11 @@ public class Problem {
     private List<BitStream> bitStreams = new ArrayList<>();
 
     @Inject
-    public Problem(Requirements requirements, Encoder encoder, Decoder decoder) {
+    public Problem(Requirements requirements, Encoder encoder, Decoder decoder, BitStream.BitStreamFactory bitStreamFactory) {
         this.requirements = requirements;
         this.encoder = encoder;
         this.decoder = decoder;
+        this.bitStreamFactory = bitStreamFactory;
     }
 
     /**
@@ -62,8 +65,7 @@ public class Problem {
     }
 
     private BitStream addInputAndOutputToBitStream(BitStream bitStream) {
-        BitStream bitStreamToRegister = new BitStream(bitStream.getBits(),  bitStream.getDelay(),
-                encoder.getInputs().get(0), decoder.getOutputs().get(0));
+        BitStream bitStreamToRegister = bitStreamFactory.create(bitStream, encoder.getInputs().get(0), decoder.getOutputs().get(0));
 
         registerBitStream(bitStreamToRegister);
         return bitStreamToRegister;
@@ -177,7 +179,7 @@ public class Problem {
         int counter = 0;
         while(counter < maxAttempts) {
             BitStream potentialFailingBitStream =
-                    BitStream.noIdAndRandomBits(requirements.blockLength, requirements.getDelay());
+                   bitStreamFactory.createWithNoIdAndRandomBits(requirements.blockLength, requirements.getDelay());
 
             if (!circuit.testBitStream(potentialFailingBitStream)) {
                 return potentialFailingBitStream;
@@ -189,7 +191,7 @@ public class Problem {
 
     private BitStream addRandomBitStream() {
         BitStream randomBitStream =
-                BitStream.noIdAndRandomBits(requirements.blockLength, requirements.getDelay());
+                bitStreamFactory.createWithNoIdAndRandomBits(requirements.blockLength, requirements.getDelay());
         return addInputAndOutputToBitStream(randomBitStream);
     }
 }

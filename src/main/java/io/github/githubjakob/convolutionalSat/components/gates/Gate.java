@@ -19,6 +19,6 @@ public interface Gate extends Component {
     List<Clause> convertToCnf();
     Module getModule();
     void setModule(Module module);
-    boolean evaluate(int tick);
+    boolean evaluate(BitStream bitStream, int tick);
 
 }

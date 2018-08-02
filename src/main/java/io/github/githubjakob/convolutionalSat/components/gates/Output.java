@@ -80,9 +80,9 @@ public class Output extends AbstractGate {
     }
 
     @Override
-    public boolean evaluate(int tick) {
+    public boolean evaluate(BitStream bitStream, int tick) {
         Gate fromGate = inputPin.getConnection().getFrom().getGate();
-        boolean value = fromGate.evaluate(tick);
+        boolean value = fromGate.evaluate(bitStream, tick);
         //System.out.println("Value at " + this.toString() + " : " + value);
         return value;
     }

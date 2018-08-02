@@ -2,12 +2,11 @@ package io.github.githubjakob.convolutionalSat.components.gates;
 
 import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
+import io.github.githubjakob.convolutionalSat.components.connections.NoisyConnection;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
-import io.github.githubjakob.convolutionalSat.modules.Channel;
-import lombok.Setter;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -26,9 +25,6 @@ public class Input extends AbstractGate {
     private final OutputPin outputPin;
 
     private final InputPin inputPin;
-
-    @Setter
-    private Boolean bitValue = null;
 
     @Inject
     public Input(Requirements requirements) {
@@ -84,24 +80,14 @@ public class Input extends AbstractGate {
     }
 
     @Override
-    public boolean evaluate(int tick) {
+    public boolean evaluate(BitStream bitStream, int tick) {
 
 
-
-        if (getModule() instanceof Channel) {
-            System.out.println("asdf");
+        if (inputPin.getConnection() instanceof NoisyConnection) {
+            int flippedBit = bitStream.getFlippedBitAt(tick, id);
         }
 
-
-
-        boolean value;
-        if (bitValue != null) {
-            value = bitValue;
-        } else {
-            value = inputPin.getConnection().getFrom().getGate().evaluate(tick);
-        }
-        //System.out.println("Value at " + this.toString() + " : " + value);
-        return value;
+        return inputPin.getConnection().getFrom().getGate().evaluate(bitStream, tick);
     }
 
     @Override

@@ -26,13 +26,11 @@ public class BooleanExpression {
 
     List<int[]> dimacs;
 
-    private int[] modelDimacs = null;
-
     static HashMap<Variable, Integer> dictionary = new HashMap<>();
 
     static Integer literalCount = 0;
 
-    private List<Circuit> models = new ArrayList<>();
+    private Circuit lastModel = null;
 
     public BooleanExpression(Problem problem) {
         this.problem = problem;
@@ -59,8 +57,6 @@ public class BooleanExpression {
             } catch (ContradictionException e) {
                 System.err.println("Empty clause " + Arrays.toString(clause));
             }
-
-            //System.out.println(reader.decode(clause));
         }
     }
 
@@ -104,23 +100,6 @@ public class BooleanExpression {
         return dimacsClauses;
     }
 
-    /**
-     * Find another solution that is different from the last one
-     * The connections of the model already found are negated and then added to the clauses
-     *
-     * @return
-     */
-    public Circuit solveNext() {
-        if (this.models.isEmpty()) {
-            return solve();
-        }
-
-        addLastModelNegated();
-
-        return solve();
-
-    }
-
     public Circuit solve() {
         convertProblemToDimacs();
         setupSolver();
@@ -129,14 +108,13 @@ public class BooleanExpression {
         try {
             System.out.println("Solving...");
             if (problem.isSatisfiable()) {
-                modelDimacs = problem.model();
-                //System.out.println(reader.decode(modelDimacs));
+                int[] solution = problem.model();
                 System.out.println("found model");
-                Circuit model = retranslate(modelDimacs);
-                model.setNumberOfBitsPerBitStream(this.problem.getNumberOfBits());
-                model.setNumberOfBitStreams(this.problem.getNumberOfBitStreams());
-                models.add(model);
-                return model;
+                Circuit circuit = retranslate(solution);
+                circuit.setNumberOfBitsPerBitStream(this.problem.getNumberOfBits());
+                circuit.setNumberOfBitStreams(this.problem.getNumberOfBitStreams());
+                lastModel = circuit;
+                return circuit;
 
             } else {
                 System.out.println("is not satisfiable");
@@ -177,13 +155,11 @@ public class BooleanExpression {
     }
 
     public void addLastModelNegated() {
-        Circuit latestModel = models.get(models.size()-1);
-
         List<Clause> negatedModel = new ArrayList<>();
         Clause clause = new Clause();
         negatedModel.add(clause);
 
-        for (Connection connection : latestModel.getConnections()) {
+        for (Connection connection : lastModel.getConnections()) {
             ConnectionVariable variable = new ConnectionVariable(false, connection);
             clause.addVariable(variable);
         }

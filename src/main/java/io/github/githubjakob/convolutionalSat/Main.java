@@ -61,7 +61,7 @@ public class Main {
         Graph solution = null;
 
         int counter = 0;
-        MainGui mainGui = new MainGui();
+        //MainGui mainGui = new MainGui();
 
         while (counter < MAX_NUMBER_OF_ITERATIONS) {
 
@@ -85,7 +85,7 @@ public class Main {
             }
 
             solution = new Graph(latestCircuit);
-            mainGui.addPanel(solution);
+            //mainGui.addPanel(solution);
 
 
             if (!latestCircuit.testValidity(requirements)) {
