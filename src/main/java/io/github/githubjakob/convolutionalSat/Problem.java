@@ -73,7 +73,7 @@ public class Problem {
         List<Clause> clausesForAllGates = new ArrayList<>();
 
         for (Gate gate : requirements.getGates()) {
-            clausesForAllGates.addAll(gate.convertToCnf()); 
+            clausesForAllGates.addAll(gate.convertToCnf());
         }
         return clausesForAllGates;
     }
@@ -81,15 +81,9 @@ public class Problem {
     private List<Clause> convertConnectionsToCnf() {
         List<Clause> clausesForTick = new ArrayList<>();
 
-        int MICROTICKS_MAX = requirements.getMaxMicrotticks();
-        System.out.println("Microticks " + MICROTICKS_MAX);
-
         //für jede Verbindung
         for (Connection connection : requirements.getConnections()) {
-            clausesForTick.addAll(connection.convertMicroticksRequirement(MICROTICKS_MAX));
-            for (BitStream bitStream : bitStreams) {
-                clausesForTick.addAll(connection.convertToCnfAtTick(bitStream, MICROTICKS_MAX));
-            }
+            clausesForTick.addAll(connection.convertToCnf());
         }
 
         /**

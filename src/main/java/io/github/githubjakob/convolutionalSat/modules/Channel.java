@@ -4,8 +4,6 @@ import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.Noise;
 import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.*;
-import io.github.githubjakob.convolutionalSat.components.connections.NoiseFreeConnection;
-import io.github.githubjakob.convolutionalSat.components.connections.NoisyConnection;
 import io.github.githubjakob.convolutionalSat.components.gates.Input;
 import io.github.githubjakob.convolutionalSat.components.gates.Output;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
@@ -24,8 +22,8 @@ public class Channel extends Module {
     private Noise noise;
 
     @Inject
-    public Channel(Encoder encoder, Decoder decoder, Requirements requirements, ComponentFactory gateFactory) {
-        super(gateFactory);
+    public Channel(Encoder encoder, Decoder decoder, Requirements requirements, ComponentFactory componentFactory) {
+        super(componentFactory);
         this.encoder = encoder;
         this.type = Enums.Module.CHANNEL;
         this.decoder = decoder;
@@ -49,11 +47,8 @@ public class Channel extends Module {
             OutputPin outputPin = output.getOutputPin();
             InputPin inputPin = input.getInputPins().get(0);
 
-            if (noise.isNoiseEnabled()) {
-                connections.add(new NoisyConnection(outputPin, inputPin, noise));
-            } else {
-                connections.add(new NoiseFreeConnection(outputPin, inputPin));
-            }
+            connections.add(componentFactory.createNoisyConnectionIfNoiseEnabled(outputPin, inputPin));
+
             outputPins.add(outputPin);
             inputPins.add(inputPin);
         }

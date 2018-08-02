@@ -1,6 +1,5 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
-import afu.org.checkerframework.checker.oigj.qual.O;
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.components.connections.Connection;
@@ -37,14 +36,14 @@ public abstract class Module {
     @Getter
     Enums.Module type;
 
-    private ComponentFactory gateFactory;
+    ComponentFactory componentFactory;
 
-    public Module(ComponentFactory gateFactory) {
-        this.gateFactory = gateFactory;
+    public Module(ComponentFactory componentFactory) {
+        this.componentFactory = componentFactory;
     }
 
     public Output addOutput() {
-        Output output = gateFactory.getOutput();
+        Output output = componentFactory.getOutput();
         output.setModule(this);
         outputs.add(output);
         gates.add(output);
@@ -53,7 +52,7 @@ public abstract class Module {
     }
 
     public Output addGlobalOutput() {
-        Output output = gateFactory.getGlobalOutput();
+        Output output = componentFactory.getGlobalOutput();
         output.setModule(this);
         outputs.add(output);
         gates.add(output);
@@ -62,7 +61,7 @@ public abstract class Module {
     }
 
      public Input addInput() {
-        Input input = gateFactory.getInput();
+        Input input = componentFactory.getInput();
         input.setModule(this);
         this.inputs.add(input);
         this.gates.add(input);
@@ -71,7 +70,7 @@ public abstract class Module {
     }
 
     public Input addGlobalInput() {
-        Input input = gateFactory.getGlobalInput();
+        Input input = componentFactory.getGlobalInput();
         input.setModule(this);
         this.inputs.add(input);
         this.gates.add(input);
@@ -80,31 +79,31 @@ public abstract class Module {
     }
 
     public Register addRegister() {
-        Register register = gateFactory.getRegister();
+        Register register = componentFactory.getRegister();
         setupNewGate(register);
         return register;
     };
 
     public And addAnd() {
-        And and = gateFactory.getAnd();
+        And and = componentFactory.getAnd();
         setupNewGate(and);
         return and;
     };
 
     public Not addNot() {
-        Not not = gateFactory.getNot();
+        Not not = componentFactory.getNot();
         setupNewGate(not);
         return not;
     };
 
     public Xor addXor() {
-        Xor xor = gateFactory.getXor();
+        Xor xor = componentFactory.getXor();
         setupNewGate(xor);
         return xor;
     };
 
     public Identity addIdentity() {
-        Identity identity = gateFactory.getIdentity();
+        Identity identity = componentFactory.getIdentity();
         setupNewGate(identity);
         return identity;
     }
@@ -133,7 +132,7 @@ public abstract class Module {
             }
 
             for (InputPin inputPin : justCreated.getInputPins()) {
-                connections.add(new NoiseFreeConnection(gate.getOutputPin(), inputPin));
+                connections.add(componentFactory.createNoiseFreeConnection(gate.getOutputPin(), inputPin));
             }
         }
 
@@ -143,7 +142,7 @@ public abstract class Module {
             }
 
             for (InputPin componentInputPin : gate.getInputPins()) {
-                connections.add(new NoiseFreeConnection(justCreated.getOutputPin(), componentInputPin));
+                connections.add(componentFactory.createNoiseFreeConnection(justCreated.getOutputPin(), componentInputPin));
             }
         }
     }

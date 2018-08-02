@@ -2,11 +2,13 @@ package io.github.githubjakob.convolutionalSat.components.connections;
 
 
 import io.github.githubjakob.convolutionalSat.Noise;
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.*;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,15 +20,12 @@ public class NoisyConnection extends AbstractConnection {
 
     private static int channelIdCounter = 0;
 
-    private final Noise noise;
-
     private int channelId;
 
-    public NoisyConnection(OutputPin from, InputPin to, Noise noise) {
+    @Inject
+    public NoisyConnection(Requirements requirements) {
+        this.requirements = requirements;
         this.id = idCounter++;
-        this.from = from;
-        this.to = to;
-        this.noise = noise;
         this.channelId = channelIdCounter++;
     }
 
@@ -35,10 +34,22 @@ public class NoisyConnection extends AbstractConnection {
         return "C" + id;
     }
 
-    public List<Clause> convertToCnfAtTick(BitStream bitStream, int numberOfGates) {
+    public List<Clause> convertToCnf() {
+        List<Clause> clausesForAllTicks = new ArrayList<>();
+
+        for (BitStream bitStream : requirements.getBitStreams()) {
+            clausesForAllTicks.addAll(convertToCnfAtTick(bitStream));
+        }
+
+        clausesForAllTicks.addAll(convertMicroticksRequirement());
+
+        return clausesForAllTicks;
+    }
+
+    private List<Clause> convertToCnfAtTick(BitStream bitStream) {
         List<Clause> clausesForAllTicks = new ArrayList<>();
         ConnectionVariable connectionNotSet = new ConnectionVariable(false, this);
-        int[] flippedBits = noise.getFlippedBits(channelId);
+        int[] flippedBits = requirements.getNoise().getFlippedBits(channelId);
         //System.out.println("Flipped Bits (Gate: " + from.getGate() + ", Channel: " + channelId + " ): " + Arrays.toString(flippedBits));
 
             int bitstreamId = bitStream.getId();

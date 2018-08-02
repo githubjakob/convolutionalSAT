@@ -1,11 +1,13 @@
 package io.github.githubjakob.convolutionalSat.components.connections;
 
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.logic.*;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,17 +16,23 @@ import java.util.List;
  * Created by jakob on 31.07.18.
  */
 public abstract class AbstractConnection implements Connection {
+
     static int idCounter = 0;
 
     int id;
 
+    Requirements requirements;
+
     @Getter
+    @Setter
     OutputPin from;
 
     @Getter
+    @Setter
     InputPin to;
 
-    public List<Clause> convertMicroticksRequirement(int numberOfGates) {
+    List<Clause> convertMicroticksRequirement() {
+        int numberOfGates = requirements.getMaxMicrotticks();
         List<Clause> microtickClauses = new ArrayList<>();
         ConnectionVariable connectionNotSet = new ConnectionVariable(false, this);
 

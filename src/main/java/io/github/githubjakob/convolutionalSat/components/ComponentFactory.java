@@ -1,7 +1,14 @@
 package io.github.githubjakob.convolutionalSat.components;
 
 import afu.org.checkerframework.checker.igj.qual.I;
+import io.github.githubjakob.convolutionalSat.Noise;
+import io.github.githubjakob.convolutionalSat.Requirements;
+import io.github.githubjakob.convolutionalSat.components.connections.Connection;
+import io.github.githubjakob.convolutionalSat.components.connections.NoiseFreeConnection;
+import io.github.githubjakob.convolutionalSat.components.connections.NoisyConnection;
 import io.github.githubjakob.convolutionalSat.components.gates.*;
+import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
+import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -20,12 +27,17 @@ public class ComponentFactory {
     private Provider<Output> outputProvider;
     private Provider<Register> registerProvider;
     private Provider<Xor> xorProvider;
+    private Provider<NoisyConnection> noisyConnectionProvider;
+    private Provider<NoiseFreeConnection> noiseFreeConnectionProvider;
+    private Requirements requirements;
 
     @Inject
     public ComponentFactory(Provider<And> andProvider, Provider<GlobalInput> globalInputProvider,
                             Provider<GlobalOutput> globalOutputProvider, Provider<Identity> identityProvider,
                             Provider<Input> inputProvider, Provider<Not> notProvider, Provider<Output> outputProvider,
-                            Provider<Register> registerProvider, Provider<Xor> xorProvider) {
+                            Provider<Register> registerProvider, Provider<Xor> xorProvider,
+                            Provider<NoisyConnection> noisyConnectionProvider, Provider<NoiseFreeConnection> noiseFreeConnectionProvider,
+                            Requirements requirements) {
         this.andProvider = andProvider;
         this.globalInputProvider = globalInputProvider;
         this.globalOutputProvider = globalOutputProvider;
@@ -35,6 +47,9 @@ public class ComponentFactory {
         this.outputProvider = outputProvider;
         this.registerProvider = registerProvider;
         this.xorProvider = xorProvider;
+        this.noisyConnectionProvider = noisyConnectionProvider;
+        this.noiseFreeConnectionProvider = noiseFreeConnectionProvider;
+        this.requirements = requirements;
     }
 
     public And getAnd() {
@@ -71,5 +86,24 @@ public class ComponentFactory {
 
     public Xor getXor() {
         return xorProvider.get();
+    }
+
+    public Connection createNoisyConnectionIfNoiseEnabled(OutputPin outputPin, InputPin inputPin) {
+        Connection connection;
+        if (requirements.getNoise().isNoiseEnabled()) {
+            connection = noisyConnectionProvider.get();
+        } else {
+            connection = noiseFreeConnectionProvider.get();
+        }
+        connection.setFrom(outputPin);
+        connection.setTo(inputPin);
+        return connection;
+    }
+
+    public Connection createNoiseFreeConnection(OutputPin outputPin, InputPin inputPin) {
+        Connection connection = noiseFreeConnectionProvider.get();
+        connection.setFrom(outputPin);
+        connection.setTo(inputPin);
+        return connection;
     }
 }

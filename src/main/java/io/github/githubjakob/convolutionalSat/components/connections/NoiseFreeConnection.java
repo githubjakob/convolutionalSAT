@@ -1,11 +1,13 @@
 package io.github.githubjakob.convolutionalSat.components.connections;
 
 
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.*;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,10 +17,10 @@ import java.util.List;
  */
 public class NoiseFreeConnection extends AbstractConnection {
 
-    public NoiseFreeConnection(OutputPin from, InputPin to) {
+    @Inject
+    public NoiseFreeConnection(Requirements requirements) {
+        this.requirements = requirements;
         this.id = idCounter++;
-        this.from = from;
-        this.to = to;
     }
 
     @Override
@@ -26,7 +28,20 @@ public class NoiseFreeConnection extends AbstractConnection {
         return "C" + id;
     }
 
-    public List<Clause> convertToCnfAtTick(BitStream bitStream, int numberOfGates) {
+    public List<Clause> convertToCnf() {
+        List<Clause> clausesForAllTicks = new ArrayList<>();
+
+        for (BitStream bitStream : requirements.getBitStreams()) {
+            clausesForAllTicks.addAll(convertToCnfAtTick(bitStream));
+        }
+
+        clausesForAllTicks.addAll(convertMicroticksRequirement());
+
+        return clausesForAllTicks;
+    }
+
+
+    private List<Clause> convertToCnfAtTick(BitStream bitStream) {
         List<Clause> clausesForAllTicks = new ArrayList<>();
         ConnectionVariable connectionNotSet = new ConnectionVariable(false, this);
 

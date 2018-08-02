@@ -34,7 +34,9 @@ public abstract class AbstractGate implements Gate {
         return allClauses;
     }
 
-    public List<Clause> getMicrotickCnf() {
+    abstract List<Clause> getGateCnf();
+
+    List<Clause> getMicrotickCnf() {
         List<Clause> allClauses = new ArrayList<>();
 
         // wenn sie gesetzt ist, dann müssen alle Stellen davor auch gesezt seind
