@@ -1,9 +1,11 @@
 package io.github.githubjakob.convolutionalSat.components.gates;
 
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.*;
+import jdk.nashorn.internal.ir.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -25,8 +27,10 @@ public class And extends AbstractGate  {
 
     public OutputPin outputPin;
 
-    public And() {
+    @Inject
+    public And(Requirements requirements) {
         this.id = idCounter++;
+        this.requirements = requirements;
         this.inputPin1 = new InputPin(this);
         this.inputPin2 = new InputPin(this);
         this.outputPin = new OutputPin(this);
@@ -37,31 +41,38 @@ public class And extends AbstractGate  {
         return "And" + id;
     }
 
-    public List<Clause> convertToCnf(BitStream bitStream, int maxMicroticks) {
+    @Override
+    public List<Clause> getGateCnf() {
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
-            int bitStreamId = bitStream.getId();
-            int bits = bitStream.getLengthWithDelay();
-            for (int tick = 0; tick < bits; tick++) {
-                Variable outputTrue = new BitAtComponentVariable(tick, bitStreamId, true, outputPin);
-                Variable outputFalse = new BitAtComponentVariable(tick, bitStreamId, false, outputPin);
+        for (BitStream bitStream : requirements.getBitStreams()) {
+            clausesForAllTicks.addAll(getGateCnf(bitStream));
+        }
 
-                Variable input1True = new BitAtComponentVariable(tick, bitStreamId, true, inputPin1);
-                Variable input1False = new BitAtComponentVariable(tick, bitStreamId, false, inputPin1);
+        return clausesForAllTicks;
+    }
 
-                Variable input2True = new BitAtComponentVariable(tick, bitStreamId, true, inputPin2);
-                Variable input2False = new BitAtComponentVariable(tick, bitStreamId, false, inputPin2);
+    private List<Clause> getGateCnf(BitStream bitStream) {
+        List<Clause> clausesForAllTicks = new ArrayList<>();
+        int bitStreamId = bitStream.getId();
+        int bits = bitStream.getLengthWithDelay();
 
-                Clause clause1 = new Clause(outputFalse, input1True, input2True);
-                Clause clause2 = new Clause(outputTrue, input1False, input2False);
-                Clause clause3 = new Clause(outputFalse, input1False, input2True);
-                Clause clause4 = new Clause(outputFalse, input1True, input2False);
-                clausesForAllTicks.addAll(Arrays.asList(clause1, clause2, clause3, clause4));
-            }
+        for (int tick = 0; tick < bits; tick++) {
+            Variable outputTrue = new BitAtComponentVariable(tick, bitStreamId, true, outputPin);
+            Variable outputFalse = new BitAtComponentVariable(tick, bitStreamId, false, outputPin);
 
+            Variable input1True = new BitAtComponentVariable(tick, bitStreamId, true, inputPin1);
+            Variable input1False = new BitAtComponentVariable(tick, bitStreamId, false, inputPin1);
 
-        List<Clause> microtickClauses = getMicrotickCnf(maxMicroticks);
-        clausesForAllTicks.addAll(microtickClauses);
+            Variable input2True = new BitAtComponentVariable(tick, bitStreamId, true, inputPin2);
+            Variable input2False = new BitAtComponentVariable(tick, bitStreamId, false, inputPin2);
+
+            Clause clause1 = new Clause(outputFalse, input1True, input2True);
+            Clause clause2 = new Clause(outputTrue, input1False, input2False);
+            Clause clause3 = new Clause(outputFalse, input1False, input2True);
+            Clause clause4 = new Clause(outputFalse, input1True, input2False);
+            clausesForAllTicks.addAll(Arrays.asList(clause1, clause2, clause3, clause4));
+        }
 
         return clausesForAllTicks;
     }

@@ -1,5 +1,7 @@
 package io.github.githubjakob.convolutionalSat.components.gates;
 
+import com.google.inject.Inject;
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
@@ -23,7 +25,9 @@ public class Identity extends AbstractGate {
 
     public OutputPin outputPin;
 
-    public Identity() {
+    @Inject
+    public Identity(Requirements requirements) {
+        this.requirements = requirements;
         this.id = idCounter++;
         this.inputPin = new InputPin(this);
         this.outputPin = new OutputPin(this);
@@ -34,26 +38,33 @@ public class Identity extends AbstractGate {
         return "Identity" + id;
     }
 
-    public List<Clause> convertToCnf(BitStream bitStream, int maxMicroticks) {
+    public List<Clause> getGateCnf() {
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
-            int bits = bitStream.getLengthWithDelay();
-            for (int tick = 0; tick < bits; tick++) {
-                Variable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
-                Variable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
+        for (BitStream bitStream : requirements.getBitStreams()) {
+            clausesForAllTicks.addAll(getGateCnf(bitStream));
+        }
 
-                Variable inputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin);
-                Variable inputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin);
+        return clausesForAllTicks;
+    }
 
-                Clause clause1 = new Clause(outputFalse, inputTrue);
-                Clause clause2 = new Clause(outputTrue, inputFalse);
+    private List<Clause> getGateCnf(BitStream bitStream) {
+        List<Clause> clausesForAllTicks = new ArrayList<>();
 
-                clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
-            }
+        int bits = bitStream.getLengthWithDelay();
+        for (int tick = 0; tick < bits; tick++) {
+            Variable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
+            Variable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, outputPin);
 
+            Variable inputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin);
+            Variable inputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin);
 
-        List<Clause> microtickClauses = getMicrotickCnf(maxMicroticks);
-        clausesForAllTicks.addAll(microtickClauses);
+            Clause clause1 = new Clause(outputFalse, inputTrue);
+            Clause clause2 = new Clause(outputTrue, inputFalse);
+
+            clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+        }
+
 
         return clausesForAllTicks;
 

@@ -67,20 +67,15 @@ public class Problem {
         this.bitStreams.add(bitStream);
         numberOfBits = bitStream.getLengthWithDelay();
         requirements.addBitStream(bitStream);
-
     }
 
     private List<Clause> convertGatesToCnf() {
-        List<Clause> clausesForTick = new ArrayList<>();
+        List<Clause> clausesForAllGates = new ArrayList<>();
 
-        // für jedes Bauteil
         for (Gate gate : requirements.getGates()) {
-            for (BitStream bitStream : bitStreams) {
-                clausesForTick.addAll(gate.convertToCnf(bitStream, requirements.getMaxMicrotticks()));
-
-            }
+            clausesForAllGates.addAll(gate.convertToCnf()); 
         }
-        return clausesForTick;
+        return clausesForAllGates;
     }
 
     private List<Clause> convertConnectionsToCnf() {

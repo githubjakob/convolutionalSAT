@@ -1,11 +1,14 @@
 package io.github.githubjakob.convolutionalSat.components.gates;
 
+import com.google.inject.Inject;
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.BitAtComponentVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
+import org.bouncycastle.ocsp.Req;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,8 +26,10 @@ public class Not extends AbstractGate {
 
     public OutputPin outputPin;
 
-    public Not() {
+    @Inject
+    public Not(Requirements requirements) {
         this.id = idCounter++;
+        this.requirements = requirements;
         this.inputPin = new InputPin(this);
         this.outputPin = new OutputPin(this);
     }
@@ -34,7 +39,18 @@ public class Not extends AbstractGate {
         return "Not" + id;
     }
 
-    public List<Clause> convertToCnf(BitStream bitStream, int maxMicroticks) {
+    @Override
+    public List<Clause> getGateCnf() {
+        List<Clause> clausesForAllTicks = new ArrayList<>();
+
+        for (BitStream bitStream : requirements.getBitStreams()) {
+            clausesForAllTicks.addAll(getGateCnf(bitStream));
+        }
+
+        return clausesForAllTicks;
+    }
+
+    private List<Clause> getGateCnf(BitStream bitStream) {
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
             int bits = bitStream.getLengthWithDelay();
@@ -51,9 +67,6 @@ public class Not extends AbstractGate {
                 clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
             }
 
-
-        List<Clause> microtickClauses = getMicrotickCnf(maxMicroticks);
-        clausesForAllTicks.addAll(microtickClauses);
 
 
         return clausesForAllTicks;

@@ -30,8 +30,6 @@ public class Input extends AbstractGate {
     @Setter
     private Boolean bitValue = null;
 
-    private Requirements requirements;
-
     @Inject
     public Input(Requirements requirements) {
         this.requirements = requirements;
@@ -55,26 +53,32 @@ public class Input extends AbstractGate {
     }
 
     @Override
-    public List<Clause> convertToCnf(BitStream bitStream, int maxMicroticks) {
+    public List<Clause> getGateCnf() {
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
-            int bits = bitStream.getLengthWithDelay();
-            for (int tick = 0; tick < bits; tick++) {
-                BitAtComponentVariable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin);
-                BitAtComponentVariable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin);
+        for (BitStream bitStream : requirements.getBitStreams()) {
+            clausesForAllTicks.addAll(getGateCnf(bitStream));
+        }
 
-                BitAtComponentVariable outputPinTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
-                BitAtComponentVariable outputPinFalse = new BitAtComponentVariable(tick, bitStream.getId(),false, outputPin);
+        return clausesForAllTicks;
+    }
 
-                Clause clause1 = new Clause(outputTrue, outputPinFalse);
-                Clause clause2 = new Clause(outputFalse, outputPinTrue);
-                clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+    private List<Clause> getGateCnf(BitStream bitStream) {
+        List<Clause> clausesForAllTicks = new ArrayList<>();
 
-            }
+        int bits = bitStream.getLengthWithDelay();
+        for (int tick = 0; tick < bits; tick++) {
+            BitAtComponentVariable outputTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, inputPin);
+            BitAtComponentVariable outputFalse = new BitAtComponentVariable(tick, bitStream.getId(), false, inputPin);
 
+            BitAtComponentVariable outputPinTrue = new BitAtComponentVariable(tick, bitStream.getId(), true, outputPin);
+            BitAtComponentVariable outputPinFalse = new BitAtComponentVariable(tick, bitStream.getId(),false, outputPin);
 
-        List<Clause> microtickClauses = getMicrotickCnf(maxMicroticks);
-        clausesForAllTicks.addAll(microtickClauses);
+            Clause clause1 = new Clause(outputTrue, outputPinFalse);
+            Clause clause2 = new Clause(outputFalse, outputPinTrue);
+            clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
+
+        }
 
         return clausesForAllTicks;
     }

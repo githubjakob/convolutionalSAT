@@ -1,5 +1,6 @@
 package io.github.githubjakob.convolutionalSat.components.gates;
 
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
@@ -25,9 +26,9 @@ public class Output extends AbstractGate {
     private final OutputPin outputPin;
 
     @Inject
-    public Output() {
-        this.id = idCounter;
-        idCounter++;
+    public Output(Requirements requirements) {
+        this.requirements = requirements;
+        this.id = idCounter++;
         this.outputPin = new OutputPin(this);
         this.inputPin = new InputPin(this);
     }
@@ -46,7 +47,17 @@ public class Output extends AbstractGate {
     }
 
     @Override
-    public List<Clause> convertToCnf(BitStream bitStream, int maxMicroticks) {
+    public List<Clause> getGateCnf() {
+        List<Clause> clausesForAllTicks = new ArrayList<>();
+
+        for (BitStream bitStream : requirements.getBitStreams()) {
+            clausesForAllTicks.addAll(getGateCnf(bitStream));
+        }
+
+        return clausesForAllTicks;
+    }
+
+    private List<Clause> getGateCnf(BitStream bitStream) {
         List<Clause> clausesForAllTicks = new ArrayList<>();
 
             int bits = bitStream.getLengthWithDelay();
@@ -63,10 +74,6 @@ public class Output extends AbstractGate {
                 clausesForAllTicks.addAll(Arrays.asList(clause1, clause2));
 
             }
-
-
-        List<Clause> microtickClauses = getMicrotickCnf(maxMicroticks);
-        clausesForAllTicks.addAll(microtickClauses);
 
 
         return clausesForAllTicks;

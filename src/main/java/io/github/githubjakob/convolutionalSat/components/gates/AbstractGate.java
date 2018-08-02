@@ -1,14 +1,10 @@
 package io.github.githubjakob.convolutionalSat.components.gates;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
-import io.github.githubjakob.convolutionalSat.components.ComponentFactory;
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.MicrotickVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
 import io.github.githubjakob.convolutionalSat.modules.Module;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +12,8 @@ import java.util.List;
 public abstract class AbstractGate implements Gate {
 
     private Module module = null;
+
+    Requirements requirements;
 
     @Override
     public void setModule(Module module){
@@ -27,11 +25,20 @@ public abstract class AbstractGate implements Gate {
         return module;
     }
 
-    public List<Clause> getMicrotickCnf(int numberOfGates) {
+    public List<Clause> convertToCnf() {
+        List<Clause> allClauses = new ArrayList<>();
+
+        allClauses.addAll(getGateCnf());
+        allClauses.addAll(getMicrotickCnf());
+
+        return allClauses;
+    }
+
+    public List<Clause> getMicrotickCnf() {
         List<Clause> allClauses = new ArrayList<>();
 
         // wenn sie gesetzt ist, dann müssen alle Stellen davor auch gesezt seind
-        for (int i = 1; i < numberOfGates; i++) {
+        for (int i = 1; i < requirements.getMaxMicrotticks(); i++) {
 
             Variable isFalse = new MicrotickVariable(i, false, this);
 
