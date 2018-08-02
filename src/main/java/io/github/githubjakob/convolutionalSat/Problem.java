@@ -181,6 +181,7 @@ public class Problem {
     }
 
     private BitStream findFailingFor(Circuit circuit, int maxAttempts) {
+        System.out.println("Searching for failing Bitstream...");
         int counter = 0;
         while(counter < maxAttempts) {
             BitStream potentialFailingBitStream =

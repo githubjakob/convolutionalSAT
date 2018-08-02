@@ -55,7 +55,7 @@ public class Requirements {
         this.flippedBits = 2;
         this.distortedChannel = 0;
         noiseEnabled = true;
-        this.maxNumberOfIterations = 2;
+        this.maxNumberOfIterations = 3;
         System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (flippedBits > 0));
     }
 

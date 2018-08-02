@@ -338,6 +338,7 @@ public class Circuit {
                 return false;
             }
         }
+        System.out.println("All " + requirements.bitStreams.size() + " tests successfull!");
         return true;
     }
 }

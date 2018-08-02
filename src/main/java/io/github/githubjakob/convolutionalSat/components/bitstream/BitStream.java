@@ -29,7 +29,7 @@ public class BitStream {
         }
 
         public BitStream createBitStream(BitStream bitStream, Input input, Output output) {
-            return new BitStream(bitStream.getBits(), bitStream.getDelay(), input, output, bitStream.requirements);
+            return new BitStream(bitStream.getBits(), bitStream.flippedBits, bitStream.getDelay(), input, output, bitStream.requirements);
         }
 
         public BitStream createBitStreamWithNoIdAndRandomBits(int blockLength, int delay) {
@@ -77,14 +77,14 @@ public class BitStream {
         flippedBits = createFlippedBits();
     }
 
-    private BitStream(int[] bits, int delay, Input input, Output output, Requirements requirements) {
+    private BitStream(int[] bits, int[] flippedBits, int delay, Input input, Output output, Requirements requirements) {
         this.requirements = requirements;
         this.id = idCounter++;
         this.bits = bits;
         this.delay = delay;
         this.input = input;
         this.output = output;
-        flippedBits = createFlippedBits();
+        this.flippedBits = flippedBits;
     }
 
     public int getLengthWithDelay() {
@@ -178,7 +178,7 @@ public class BitStream {
     }
 
     public boolean isBitFlippedAt(int tick, int channel) {
-        if (id != channel) {
+        if (requirements.getDistortedChannel() != channel) {
             return false;
         }
         //System.out.println("Flipped Bits " + Arrays.toString(flippedBits));

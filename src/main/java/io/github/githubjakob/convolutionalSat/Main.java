@@ -59,10 +59,11 @@ public class Main {
 
         while (counter < requirements.getMaxNumberOfIterations()) {
 
+            requirements.setDistortedChannel(ThreadLocalRandom.current().nextInt(0, 100) % 2);
+
 
             BitStream underTest = problem.addFailingForOrRandom(latestCircuit);
-            System.out.println("Using random Bitstream for SAT Solver " + underTest.toString());
-            requirements.setDistortedChannel(ThreadLocalRandom.current().nextInt(0, 100) % 3);
+            System.out.println("Adding Bitstream to SAT Solver " + underTest.toString());
 
 
 
