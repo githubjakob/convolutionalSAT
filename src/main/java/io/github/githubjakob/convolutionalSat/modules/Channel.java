@@ -1,5 +1,6 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
+import com.sun.org.apache.regexp.internal.RE;
 import io.github.githubjakob.convolutionalSat.Enums;
 import io.github.githubjakob.convolutionalSat.Noise;
 import io.github.githubjakob.convolutionalSat.Requirements;
@@ -19,11 +20,11 @@ public class Channel extends Module {
     @Getter
     private Noise noise;
 
-    public Channel(Module encoder, Module decoder) {
+    public Channel(Module encoder, Module decoder, Requirements requirements) {
         super(Enums.Module.CHANNEL);
         this.encoder = encoder;
         this.decoder = decoder;
-        this.noise = new Noise();
+        this.noise = requirements.getNoise();
         createConnectionsForChannel();
     }
 

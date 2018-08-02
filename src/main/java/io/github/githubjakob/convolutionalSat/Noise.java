@@ -17,7 +17,7 @@ public class Noise {
 
     private int distortedChannel;
 
-    public void setup(int blockLength, int delay, int noiseRatioPercent, int distortedChannel) {
+    public Noise(int blockLength, int delay, int noiseRatioPercent, int distortedChannel) {
         this.blockLength = blockLength;
         this.delay = delay;
         this.distortedChannel = distortedChannel;
@@ -29,6 +29,7 @@ public class Noise {
     }
 
     public int[] getFlippedBits(int channel) {
+        int counter = 0;
         //System.out.println("channel id for flipped bits " + channel);
         int[] flippedBits = new int[blockLength + delay];
 
@@ -36,9 +37,10 @@ public class Noise {
             int randomNum = ThreadLocalRandom.current().nextInt(min, 100 + 1);
             if (randomNum < noiseRatioPercent && channel == distortedChannel) {
                 flippedBits[n] = 1;
+                counter++;
             } else flippedBits[n] = 0;
         }
-
+        System.out.println("Flipped bits " + channel);
         return flippedBits;
     }
 }

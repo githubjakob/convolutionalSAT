@@ -17,14 +17,20 @@ public class Main {
 
     public static void main(String[] args) {
 
+        Requirements requirements = new Requirements(3, 10, 5, 0);
+
 
         Module encoder = new Module(Enums.Module.ENCODER);
         encoder.addGlobalInput();
         encoder.addOutput();
         encoder.addOutput();
         encoder.addOutput();
-        encoder.addXor();
-        encoder.addXor();
+        encoder.addAnd();
+        encoder.addAnd();
+        encoder.addAnd();
+        encoder.addNot();
+        encoder.addNot();
+        encoder.addNot();
         encoder.addRegister();
         encoder.addRegister();
         encoder.addRegister();
@@ -37,10 +43,9 @@ public class Main {
         decoder.addXor();
         decoder.addXor();
 
-        Channel channel = new Channel(encoder, decoder);
+        Channel channel = new Channel(encoder, decoder, requirements);
 
-        Requirements requirements = new Requirements(Arrays.asList(encoder, decoder, channel),
-                3, 20, 0, 0);
+        requirements.setModules(Arrays.asList(encoder, decoder, channel));
 
         Problem problem = new Problem(requirements);
 

@@ -9,6 +9,7 @@ import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.modules.Channel;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
@@ -23,6 +24,7 @@ import java.util.*;
  */
 public class Requirements {
 
+    @Getter
     private final Noise noise;
 
     @Getter
@@ -42,17 +44,16 @@ public class Requirements {
 
     int blockLength;
 
+    @Setter
     private List<Module> modules;
 
-    public Requirements(List<Module> modules, int delay, int blockLength, int noiseRatioPercent, int distortedChannel) {
+    public Requirements(int delay, int blockLength, int noiseRatioPercent, int distortedChannel) {
         this.blockLength = blockLength;
-        this.modules = modules;
         this.delay = delay;
         this.noiseRatioPercent = noiseRatioPercent;
         this.distortedChannel = distortedChannel;
         enableNoise = false;
-        this.noise = getChannel().getNoise();
-        noise.setup(blockLength, delay, noiseRatioPercent, distortedChannel);
+        this.noise = new Noise(blockLength, delay, noiseRatioPercent, distortedChannel);
         System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (noiseRatioPercent > 0));
     }
 

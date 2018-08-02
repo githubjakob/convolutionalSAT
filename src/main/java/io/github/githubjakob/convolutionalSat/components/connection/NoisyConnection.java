@@ -40,7 +40,7 @@ public class NoisyConnection extends AbstractConnection {
         List<Clause> clausesForAllTicks = new ArrayList<>();
         ConnectionVariable connectionNotSet = new ConnectionVariable(false, this);
         int[] flippedBits = noise.getFlippedBits(channelId);
-        System.out.println("Flipped Bits (Gate: " + from.getGate() + ", Channel: " + channelId + " ): " + Arrays.toString(flippedBits));
+        //System.out.println("Flipped Bits (Gate: " + from.getGate() + ", Channel: " + channelId + " ): " + Arrays.toString(flippedBits));
 
             int bitstreamId = bitStream.getId();
             int bits = bitStream.getLengthWithDelay();
