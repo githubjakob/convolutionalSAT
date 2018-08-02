@@ -6,8 +6,8 @@ import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.*;
+import lombok.Getter;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,10 +15,16 @@ import java.util.List;
 /**
  * Created by jakob on 07.06.18.
  */
-public class NoisyConnection extends AbstractConnection {
+public class NoisyChannelConnection extends AbstractConnection {
 
-    public NoisyConnection(OutputPin from, InputPin to, Requirements requirements) {
+    private static int channelIdCounter = 0;
+
+    @Getter
+    private int channelId;
+
+    public NoisyChannelConnection(OutputPin from, InputPin to, Requirements requirements) {
         super(from, to, requirements);
+        this.channelId = channelIdCounter++;
     }
 
     @Override
@@ -54,7 +60,7 @@ public class NoisyConnection extends AbstractConnection {
                 BitAtComponentVariable outputFalse = new BitAtComponentVariable(tick, bitstreamId, false, to);
 
 
-                if (bitStream.getFlippedBitAt(tick, id) == 1) {
+                if (bitStream.isBitFlippedAt(tick, channelId)) {
                     /**
                      *
                      * Flip Bit

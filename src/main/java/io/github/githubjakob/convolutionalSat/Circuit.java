@@ -288,7 +288,7 @@ public class Circuit {
     }
 
     public boolean testBitStream(BitStream bitStream) {
-        //System.out.println("testing " + bitStream.toString());
+        System.out.println("Testing on Circuit " + bitStream.toString());
         int[] valuesAtOutput = new int[bitStream.getLengthWithDelay()];
         int[] valuesAtInput = new int[bitStream.getLengthWithDelay()];
         for (int tick = 0; tick < bitStream.getLengthWithDelay(); tick++) {
@@ -301,7 +301,7 @@ public class Circuit {
         }
 
         boolean success = compareShiftedDelay(valuesAtInput, valuesAtOutput, bitStream.getDelay());
-        //System.out.println("Testing " + Arrays.toString(valuesAtInput) + " -> " + Arrays.toString(valuesAtOutput) + " : " + success );
+        System.out.println("Results " + Arrays.toString(valuesAtInput) + " -> " + Arrays.toString(valuesAtOutput) + " : " + success );
         resetRegisters();
         return success;
     }

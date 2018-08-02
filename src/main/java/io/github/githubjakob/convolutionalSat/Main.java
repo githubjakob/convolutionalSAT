@@ -17,9 +17,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
 
-    /* Nach n gefundenen Modellen das Lösen abbrechen */
-    public static final int MAX_NUMBER_OF_ITERATIONS = 10;
-
     public static void main(String[] args) {
 
         Injector guice = Guice.createInjector(new GuiceModule());
@@ -30,23 +27,20 @@ public class Main {
         encoder.addGlobalInput();
         encoder.addOutput();
         encoder.addOutput();
-        encoder.addOutput();
         encoder.addAnd();
         encoder.addAnd();
-        encoder.addAnd();
+        encoder.addXor();
         encoder.addNot();
-        encoder.addNot();
-        encoder.addNot();
-        encoder.addRegister();
         encoder.addRegister();
         encoder.addRegister();
 
         Decoder decoder = guice.getInstance(Decoder.class);
         decoder.addInput();
         decoder.addInput();
-        decoder.addInput();
         decoder.addGlobalOutput();
-        decoder.addXor();
+        decoder.addAnd();
+        decoder.addAnd();
+        decoder.addNot();
         decoder.addXor();
 
         Channel channel = guice.getInstance(Channel.class);
@@ -61,13 +55,13 @@ public class Main {
         Graph solution = null;
 
         int counter = 0;
-        //MainGui mainGui = new MainGui();
+        MainGui mainGui = new MainGui();
 
-        while (counter < MAX_NUMBER_OF_ITERATIONS) {
+        while (counter < requirements.getMaxNumberOfIterations()) {
 
 
             BitStream underTest = problem.addFailingForOrRandom(latestCircuit);
-            System.out.println("Using random Bitstream id " + underTest.getId() +" : " + underTest.toString());
+            System.out.println("Using random Bitstream for SAT Solver " + underTest.toString());
             requirements.setDistortedChannel(ThreadLocalRandom.current().nextInt(0, 100) % 3);
 
 
@@ -85,7 +79,7 @@ public class Main {
             }
 
             solution = new Graph(latestCircuit);
-            //mainGui.addPanel(solution);
+            mainGui.addPanel(solution);
 
 
             if (!latestCircuit.testValidity(requirements)) {
@@ -96,11 +90,11 @@ public class Main {
 
 
 
-            if (!solution.isValid()) {
+            /*if (!solution.isValid()) {
                 System.err.println("graph is not valid, searching next solution");
                 booleanExpression.addLastModelNegated();
                 continue;
-            }
+            }*/
 
 
 

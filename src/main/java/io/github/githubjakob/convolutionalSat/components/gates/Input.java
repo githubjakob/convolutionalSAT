@@ -2,7 +2,8 @@ package io.github.githubjakob.convolutionalSat.components.gates;
 
 import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
-import io.github.githubjakob.convolutionalSat.components.connections.NoisyConnection;
+import io.github.githubjakob.convolutionalSat.components.connections.Connection;
+import io.github.githubjakob.convolutionalSat.components.connections.NoisyChannelConnection;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
@@ -82,9 +83,14 @@ public class Input extends AbstractGate {
     @Override
     public boolean evaluate(BitStream bitStream, int tick) {
 
-
-        if (inputPin.getConnection() instanceof NoisyConnection) {
-            int flippedBit = bitStream.getFlippedBitAt(tick, id);
+        if (inputPin.getConnection() instanceof NoisyChannelConnection) {
+            NoisyChannelConnection channelConnection = (NoisyChannelConnection) inputPin.getConnection();
+            int channelId = channelConnection.getChannelId();
+            boolean bitIsFlipped = bitStream.isBitFlippedAt(tick, channelId);
+            if (bitIsFlipped) {
+                boolean actualValue = inputPin.getConnection().getFrom().getGate().evaluate(bitStream, tick);
+                return !actualValue;
+            }
         }
 
         return inputPin.getConnection().getFrom().getGate().evaluate(bitStream, tick);

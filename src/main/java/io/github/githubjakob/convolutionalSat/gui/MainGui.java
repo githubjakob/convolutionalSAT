@@ -42,7 +42,7 @@ public class MainGui {
         jFrame.setVisible(true);
 
         legend.setFont(new Font(Font.DIALOG, Font.BOLD, 25));
-        solutions.setText("Maximale Lösungen: " + Main.MAX_NUMBER_OF_ITERATIONS);
+        //solutions.setText("Maximale Lösungen: " + Main.MAX_NUMBER_OF_ITERATIONS);
         solutions.setFont(new Font(Font.DIALOG, Font.BOLD, 25));
 
         System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");

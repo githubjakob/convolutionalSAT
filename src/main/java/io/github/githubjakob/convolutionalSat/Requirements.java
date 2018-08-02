@@ -32,7 +32,7 @@ public class Requirements {
     private int delay;
 
     @Getter
-    int noiseRatioPercent;
+    int flippedBits;
 
     @Getter
     private int distortedChannel;
@@ -43,30 +43,34 @@ public class Requirements {
     @Getter
     int blockLength;
 
+    @Getter
+    int maxNumberOfIterations;
+
     @Setter
     private List<Module> modules;
 
     public Requirements() {
-        this.blockLength = 10;
-        this.delay = 3;
-        this.noiseRatioPercent = 0;
+        this.blockLength = 4;
+        this.delay = 2;
+        this.flippedBits = 2;
         this.distortedChannel = 0;
         noiseEnabled = true;
-        System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (noiseRatioPercent > 0));
+        this.maxNumberOfIterations = 2;
+        System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (flippedBits > 0));
     }
 
-    public Requirements(int delay, int blockLength, int noiseRatioPercent, int distortedChannel) {
+    public Requirements(int delay, int blockLength, int flippedBits, int distortedChannel) {
         this.blockLength = blockLength;
         this.delay = delay;
-        this.noiseRatioPercent = noiseRatioPercent;
+        this.flippedBits = flippedBits;
         this.distortedChannel = distortedChannel;
         noiseEnabled = false;
-        System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (noiseRatioPercent > 0));
+        System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (flippedBits > 0));
     }
 
     public void setDistortedChannel(int distortedChannel) {
         this.distortedChannel = distortedChannel;
-        System.out.println("Setting distorted channel: " + distortedChannel + " with value: " + noiseRatioPercent + " %");
+        System.out.println("Setting distorted channel: " + distortedChannel + " with flippedBits: " + flippedBits);
     }
 
 

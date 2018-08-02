@@ -1,6 +1,5 @@
 package io.github.githubjakob.convolutionalSat.components.bitstream;
 
-import com.sun.org.apache.regexp.internal.RE;
 import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.gates.Input;
 import io.github.githubjakob.convolutionalSat.components.gates.Output;
@@ -29,11 +28,11 @@ public class BitStream {
             this.requirements = requirements;
         }
 
-        public BitStream create(BitStream bitStream, Input input, Output output) {
+        public BitStream createBitStream(BitStream bitStream, Input input, Output output) {
             return new BitStream(bitStream.getBits(), bitStream.getDelay(), input, output, bitStream.requirements);
         }
 
-        public BitStream createWithNoIdAndRandomBits(int blockLength, int delay) {
+        public BitStream createBitStreamWithNoIdAndRandomBits(int blockLength, int delay) {
             return new BitStream(-1, createRandomBits(blockLength), delay, null, null, requirements);
         }
 
@@ -178,30 +177,37 @@ public class BitStream {
         return clausesForTick;
     }
 
-    public int getFlippedBitAt(int tick, int channel) {
+    public boolean isBitFlippedAt(int tick, int channel) {
         if (id != channel) {
-            return 0;
+            return false;
         }
-        return flippedBits[tick];
+        //System.out.println("Flipped Bits " + Arrays.toString(flippedBits));
+        return flippedBits[tick] == 1;
     }
 
     private int[] createFlippedBits() {
         int counter = 0;
-        //System.out.println("channel id for flipped bits " + channel);
-        int[] flippedBits = new int[requirements.getBlockLength() + requirements.getDelay()];
+        int[] flippedBits = new int[requirements.getBlockLength() + requirements.getDelay()];;
 
-        for (int n = 0; n < flippedBits.length; n++) {
-            int randomNum = ThreadLocalRandom.current().nextInt(min, 100 + 1);
-            if (randomNum < requirements.getNoiseRatioPercent()) {
-                flippedBits[n] = 1;
-                counter++;
-            } else flippedBits[n] = 0;
+        //System.out.println("channel id for flipped bits " + channel);
+        while (counter != requirements.getFlippedBits()) {
+            counter = 0;
+            flippedBits = new int[requirements.getBlockLength() + requirements.getDelay()];
+            for (int n = 0; n < flippedBits.length; n++) {
+                int randomNum = ThreadLocalRandom.current().nextInt(min, 100 + 1);
+                if (randomNum < (requirements.getFlippedBits() * 100 / requirements.getBlockLength())) {
+                    flippedBits[n] = 1;
+                    counter++;
+                } else flippedBits[n] = 0;
+            }
         }
+
+        //System.out.println("counter " + counter);
         return flippedBits;
     }
 
         @Override
     public String toString() {
-        return Arrays.toString(bits);
+        return "Bits: " + Arrays.toString(bits) + ", flipped: " + Arrays.toString(flippedBits);
     }
 }

@@ -4,13 +4,14 @@ package io.github.githubjakob.convolutionalSat;
 import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
 import io.github.githubjakob.convolutionalSat.components.connections.Connection;
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
+import io.github.githubjakob.convolutionalSat.components.gates.Input;
+import io.github.githubjakob.convolutionalSat.components.gates.Output;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.modules.Decoder;
 import io.github.githubjakob.convolutionalSat.modules.Encoder;
-import io.github.githubjakob.convolutionalSat.modules.Module;
 import lombok.Getter;
 
 import javax.inject.Inject;
@@ -65,7 +66,7 @@ public class Problem {
     }
 
     private BitStream addInputAndOutputToBitStream(BitStream bitStream) {
-        BitStream bitStreamToRegister = bitStreamFactory.create(bitStream, encoder.getInputs().get(0), decoder.getOutputs().get(0));
+        BitStream bitStreamToRegister = bitStreamFactory.createBitStream(bitStream, encoder.getInputs().get(0), decoder.getOutputs().get(0));
 
         registerBitStream(bitStreamToRegister);
         return bitStreamToRegister;
@@ -96,9 +97,13 @@ public class Problem {
         }
 
         /**
-         * Für alle Verbindungen, die vom selben Output Pin weg gehen, muss mindestens eine gesetzt sein.
+         * Für alle Verbindungen eines Inputs oder Outputs, die vom selben Output Pin weg gehen, muss mindestens eine gesetzt sein.
          */
+
         for (OutputPin outputPin : requirements.getOutputPins()) {
+            if (!(outputPin.getGate() instanceof Input) && !(outputPin.getGate() instanceof Output)) {
+                continue;
+            }
             // for alle Connections die von diesem Output Pin weg geht
             Clause possibleConnections = new Clause();
             for (Connection connection : requirements.getConnections()) {
@@ -179,7 +184,7 @@ public class Problem {
         int counter = 0;
         while(counter < maxAttempts) {
             BitStream potentialFailingBitStream =
-                   bitStreamFactory.createWithNoIdAndRandomBits(requirements.blockLength, requirements.getDelay());
+                   bitStreamFactory.createBitStreamWithNoIdAndRandomBits(requirements.blockLength, requirements.getDelay());
 
             if (!circuit.testBitStream(potentialFailingBitStream)) {
                 return potentialFailingBitStream;
@@ -191,7 +196,7 @@ public class Problem {
 
     private BitStream addRandomBitStream() {
         BitStream randomBitStream =
-                bitStreamFactory.createWithNoIdAndRandomBits(requirements.blockLength, requirements.getDelay());
+                bitStreamFactory.createBitStreamWithNoIdAndRandomBits(requirements.blockLength, requirements.getDelay());
         return addInputAndOutputToBitStream(randomBitStream);
     }
 }
