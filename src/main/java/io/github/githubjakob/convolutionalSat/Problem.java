@@ -13,6 +13,9 @@ import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.modules.Decoder;
 import io.github.githubjakob.convolutionalSat.modules.Encoder;
 import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import scala.annotation.meta.field;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -39,6 +42,8 @@ public class Problem {
     private int numberOfBits = 0;
 
     private List<BitStream> bitStreams = new ArrayList<>();
+
+    Logger logger = LogManager.getLogger();
 
     @Inject
     public Problem(Requirements requirements, Encoder encoder, Decoder decoder, BitStream.BitStreamFactory bitStreamFactory) {
@@ -177,12 +182,12 @@ public class Problem {
             return addRandomBitStream();
         }
 
-        System.out.println("Adding Bitstream to Problem " + failingBitStream.toString());
+        logger.info("Adding Bitstream to Problem {}", failingBitStream.toString());
         return addInputAndOutputToBitStream(failingBitStream);
     }
 
     private BitStream findFailingFor(Circuit circuit, int maxAttempts) {
-        System.out.println("Searching for failing Bitstream...");
+        logger.info("Searching for failing Bitstream...");
         int counter = 0;
         while(counter < maxAttempts) {
             BitStream potentialFailingBitStream =

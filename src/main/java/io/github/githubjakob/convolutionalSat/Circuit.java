@@ -12,6 +12,8 @@ import io.github.githubjakob.convolutionalSat.logic.MicrotickVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -64,6 +66,8 @@ public class Circuit {
     private final Set<Gate> gates;
 
     private List<Variable> variables = new ArrayList<>();
+
+    Logger logger = LogManager.getLogger();
 
     @Setter
     @Getter
@@ -288,7 +292,7 @@ public class Circuit {
     }
 
     public boolean testBitStream(BitStream bitStream) {
-        System.out.println("Testing on Circuit " + bitStream.toString());
+        logger.info("Testing on Circuit {}", bitStream.toString());
         int[] valuesAtOutput = new int[bitStream.getLengthWithDelay()];
         int[] valuesAtInput = new int[bitStream.getLengthWithDelay()];
         for (int tick = 0; tick < bitStream.getLengthWithDelay(); tick++) {
@@ -301,7 +305,7 @@ public class Circuit {
         }
 
         boolean success = compareShiftedDelay(valuesAtInput, valuesAtOutput, bitStream.getDelay());
-        System.out.println("Results " + Arrays.toString(valuesAtInput) + " -> " + Arrays.toString(valuesAtOutput) + " : " + success );
+        logger.info("Results {} -> {} => {}", Arrays.toString(valuesAtInput), Arrays.toString(valuesAtOutput), success );
         resetRegisters();
         return success;
     }
@@ -331,14 +335,14 @@ public class Circuit {
     }
 
     public boolean testValidity(Requirements requirements) {
-        System.out.println("Testing " + requirements.bitStreams.size() + " BitStreams on Circuit");
+        logger.info("Testing {} BitStreams on Circuit", requirements.bitStreams.size());
         for (BitStream bitStream : requirements.bitStreams) {
             //System.out.println("Testing " + bitStream.toString());
             if (!testBitStream(bitStream)) {
                 return false;
             }
         }
-        System.out.println("All " + requirements.bitStreams.size() + " tests successfull!");
+        logger.info("All {} tests successfull!", requirements.bitStreams.size() );
         return true;
     }
 }

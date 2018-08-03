@@ -8,6 +8,8 @@ import io.github.githubjakob.convolutionalSat.components.gates.Gate;
 import io.github.githubjakob.convolutionalSat.modules.Module;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -52,6 +54,8 @@ public class Requirements {
     @Setter
     private int numberOfChannels;
 
+    Logger logger = LogManager.getLogger();
+
     public Requirements() {
         this.blockLength = 4;
         this.delay = 2;
@@ -59,12 +63,12 @@ public class Requirements {
         this.distortedChannel = 0;
         noiseEnabled = true;
         this.maxNumberOfIterations = 3;
-        System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (flippedBits > 0));
+        logger.info("Test Suite with: delay {}, bitStreamLenght: {}, noise enabled: {}", delay, blockLength, (flippedBits > 0));
     }
 
     public void setRandomDistortedChannel() {
         this.distortedChannel = ThreadLocalRandom.current().nextInt(0, 100) % numberOfChannels;
-        System.out.println("Setting distorted channel: " + distortedChannel + " with flippedBits: " + flippedBits);
+        logger.info("Setting distorted channel: {}with flippedBits: {}", distortedChannel, flippedBits);
     }
 
     public void addBitStream(BitStream bitStream) {

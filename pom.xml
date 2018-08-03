@@ -12,7 +12,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <source>1.7</source>
-                    <target>1.7</target>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -68,6 +68,16 @@
         <groupId>com.google.inject</groupId>
         <artifactId>guice</artifactId>
         <version>4.2.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>2.11.1</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.11.1</version>
     </dependency>
 </dependencies>
 </project>

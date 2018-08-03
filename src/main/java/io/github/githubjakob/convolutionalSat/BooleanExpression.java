@@ -4,6 +4,8 @@ import io.github.githubjakob.convolutionalSat.components.connections.Connection;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.logic.Variable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
@@ -33,6 +35,8 @@ public class BooleanExpression {
 
     private Circuit lastModel = null;
 
+    Logger logger = LogManager.getLogger();
+
     public BooleanExpression(Problem problem) {
         this.problem = problem;
     }
@@ -45,9 +49,9 @@ public class BooleanExpression {
 
     private void setupSolver() {
         this.solver.newVar(dictionary.size() + 1000);
-        System.out.println("Number of vars " + dictionary.size());
+        logger.info("Number of vars {}", dictionary.size());
         this.solver.setExpectedNumberOfClauses(dimacs.size() + 1000);
-        System.out.println("Number of clauses " + dimacs.size() );
+        logger.info("Number of clauses {}", dimacs.size());
     }
 
     private void addDimacsToSolver(List<int[]> dimacs) {
@@ -56,7 +60,7 @@ public class BooleanExpression {
             try {
                 solver.addClause(new VecInt(clause));
             } catch (ContradictionException e) {
-                System.err.println("Empty clause " + Arrays.toString(clause));
+                logger.warn("Empty clause {}", Arrays.toString(clause));
             }
         }
     }
@@ -107,13 +111,13 @@ public class BooleanExpression {
 
         IProblem problem = solver;
         try {
-            System.out.println("Solving...");
+            logger.info("Solving...");
             Instant start = Instant.now();
             if (problem.isSatisfiable()) {
                 int[] solution = problem.model();
                 Instant end = Instant.now();
                 long millis = (end.toEpochMilli() - start.toEpochMilli());
-                System.out.println("Found model! Solving took " + millis + " ms");
+                logger.info("Found model! Solving took {} ms", millis);
                 Circuit circuit = retranslate(solution);
                 circuit.setNumberOfBitsPerBitStream(this.problem.getNumberOfBits());
                 circuit.setNumberOfBitStreams(this.problem.getNumberOfBitStreams());
@@ -121,7 +125,7 @@ public class BooleanExpression {
                 return circuit;
 
             } else {
-                System.out.println("is not satisfiable");
+                logger.warn("Not satisfiable!");
                 return null;
             }
         } catch (TimeoutException e) {
