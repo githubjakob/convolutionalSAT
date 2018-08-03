@@ -11,6 +11,7 @@ import org.sat4j.specs.IProblem;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.TimeoutException;
 
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -107,9 +108,12 @@ public class BooleanExpression {
         IProblem problem = solver;
         try {
             System.out.println("Solving...");
+            Instant start = Instant.now();
             if (problem.isSatisfiable()) {
                 int[] solution = problem.model();
-                System.out.println("found model");
+                Instant end = Instant.now();
+                long millis = (end.toEpochMilli() - start.toEpochMilli());
+                System.out.println("Found model! Solving took " + millis + " ms");
                 Circuit circuit = retranslate(solution);
                 circuit.setNumberOfBitsPerBitStream(this.problem.getNumberOfBits());
                 circuit.setNumberOfBitStreams(this.problem.getNumberOfBitStreams());

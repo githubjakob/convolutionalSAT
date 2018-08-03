@@ -3,6 +3,7 @@ package io.github.githubjakob.convolutionalSat.guice;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import io.github.githubjakob.convolutionalSat.Requirements;
+import io.github.githubjakob.convolutionalSat.components.ComponentFactory;
 import io.github.githubjakob.convolutionalSat.modules.Channel;
 import io.github.githubjakob.convolutionalSat.modules.Decoder;
 import io.github.githubjakob.convolutionalSat.modules.Encoder;

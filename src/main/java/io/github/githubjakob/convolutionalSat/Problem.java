@@ -177,6 +177,7 @@ public class Problem {
             return addRandomBitStream();
         }
 
+        System.out.println("Adding Bitstream to Problem " + failingBitStream.toString());
         return addInputAndOutputToBitStream(failingBitStream);
     }
 

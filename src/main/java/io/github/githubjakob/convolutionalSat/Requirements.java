@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Wrapper/Utility Klasse für alle Anforderungen an den zu findenden Faltungskodierers. Bietet Zugriff auf
@@ -46,8 +47,10 @@ public class Requirements {
     @Getter
     int maxNumberOfIterations;
 
+    private List<Module> modules = new ArrayList<>();
+
     @Setter
-    private List<Module> modules;
+    private int numberOfChannels;
 
     public Requirements() {
         this.blockLength = 4;
@@ -59,23 +62,17 @@ public class Requirements {
         System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (flippedBits > 0));
     }
 
-    public Requirements(int delay, int blockLength, int flippedBits, int distortedChannel) {
-        this.blockLength = blockLength;
-        this.delay = delay;
-        this.flippedBits = flippedBits;
-        this.distortedChannel = distortedChannel;
-        noiseEnabled = false;
-        System.out.println("Test Suite with: delay " + delay + ", bitStreamLenght: " + blockLength + ", noise enabled: " + (flippedBits > 0));
-    }
-
-    public void setDistortedChannel(int distortedChannel) {
-        this.distortedChannel = distortedChannel;
+    public void setRandomDistortedChannel() {
+        this.distortedChannel = ThreadLocalRandom.current().nextInt(0, 100) % numberOfChannels;
         System.out.println("Setting distorted channel: " + distortedChannel + " with flippedBits: " + flippedBits);
     }
 
-
     public void addBitStream(BitStream bitStream) {
         bitStreams.add(bitStream);
+    }
+
+    public void addModule(Module module) {
+        this.modules.add(module);
     }
 
     public List<OutputPin> getOutputPins() {
@@ -122,6 +119,10 @@ public class Requirements {
         return allGates;
     }
 
+    /**
+     *
+     * @return Die Anzahl aller Gates ohne Register und Inputs
+     */
     public int getMaxMicrotticks() {
         int count = 0;
         for (Gate gate : getGates()) {

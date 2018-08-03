@@ -45,43 +45,32 @@ public class Main {
 
         Channel channel = guice.getInstance(Channel.class);
 
-        requirements.setModules(Arrays.asList(encoder, decoder, channel));
-
         Problem problem = guice.getInstance(Problem.class);
 
         BooleanExpression booleanExpression;
 
         Circuit latestCircuit = null;
-        Graph solution = null;
 
-        int counter = 0;
         MainGui mainGui = new MainGui();
 
+        int counter = 0;
         while (counter < requirements.getMaxNumberOfIterations()) {
 
-            requirements.setDistortedChannel(ThreadLocalRandom.current().nextInt(0, 100) % 2);
+            requirements.setRandomDistortedChannel();
 
-
-            BitStream underTest = problem.addFailingForOrRandom(latestCircuit);
-            System.out.println("Adding Bitstream to SAT Solver " + underTest.toString());
-
-
+            problem.addFailingForOrRandom(latestCircuit);
 
             booleanExpression = new BooleanExpression(problem);
-            Instant start = Instant.now();
+
             latestCircuit = booleanExpression.solve();
-            Instant end = Instant.now();
-            long millis = (end.toEpochMilli() - start.toEpochMilli());
-            System.out.println("Solving took " + millis + " ms");
 
             if (latestCircuit == null) {
                 System.out.println("is not satisfiable");
                 return;
             }
 
-            solution = new Graph(latestCircuit);
+            Graph solution = new Graph(latestCircuit);
             mainGui.addPanel(solution);
-
 
             if (!latestCircuit.testValidity(requirements)) {
                 System.err.println("circuit is not valid, searching next solution");
@@ -89,15 +78,11 @@ public class Main {
                 continue;
             }
 
-
-
             /*if (!solution.isValid()) {
                 System.err.println("graph is not valid, searching next solution");
                 booleanExpression.addLastModelNegated();
                 continue;
             }*/
-
-
 
             counter++;
         }

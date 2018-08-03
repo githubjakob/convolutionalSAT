@@ -1,12 +1,12 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
 import io.github.githubjakob.convolutionalSat.Enums;
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.components.gates.Input;
 import io.github.githubjakob.convolutionalSat.components.gates.Output;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
-import lombok.Getter;
 
 import javax.inject.Inject;
 
@@ -16,26 +16,28 @@ public class Channel extends Module {
 
     private final Module decoder;
 
-
     @Inject
-    public Channel(Encoder encoder, Decoder decoder, ComponentFactory componentFactory) {
-        super(componentFactory);
+    public Channel(Encoder encoder, Decoder decoder, ComponentFactory componentFactory, Requirements requirements) {
+        super(componentFactory, requirements);
         this.encoder = encoder;
         this.type = Enums.Module.CHANNEL;
         this.decoder = decoder;
-        createConnectionsForChannel();
+        int numberOfChannels = getNumberOfChannels();
+        requirements.setNumberOfChannels(numberOfChannels);
+        createConnectionsForChannel(numberOfChannels);
+    }
+
+    private int getNumberOfChannels() {
+        if (encoder.getOutputs().size() != decoder.getInputs().size()) {
+            throw new RuntimeException("unequal channels");
+        }
+        return decoder.getInputs().size();
     }
 
     /**
      * Erzeugt die Verbindungen des Kanals, zwischen Ausgang des Encoders und Eingang des Decoders
      */
-    private void createConnectionsForChannel() {
-        int numberOfChannels = 0;
-        if (encoder.getOutputs().size() == decoder.getInputs().size()) {
-            numberOfChannels = encoder.getOutputs().size();
-        } else {
-            throw new RuntimeException("unequal channels");
-        }
+    private void createConnectionsForChannel(int numberOfChannels) {
         for (int i = 0; i < numberOfChannels; i++) {
             Output output = encoder.getOutputs().get(i);
             Input input = decoder.getInputs().get(i);

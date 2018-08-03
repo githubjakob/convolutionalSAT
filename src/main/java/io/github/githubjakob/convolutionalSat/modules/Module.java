@@ -1,6 +1,7 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
 import io.github.githubjakob.convolutionalSat.Enums;
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.*;
 import io.github.githubjakob.convolutionalSat.components.connections.Connection;
 import io.github.githubjakob.convolutionalSat.components.connections.NoiseFreeConnection;
@@ -38,8 +39,12 @@ public abstract class Module {
 
     ComponentFactory componentFactory;
 
-    public Module(ComponentFactory componentFactory) {
+    Requirements requirements;
+
+    public Module(ComponentFactory componentFactory, Requirements requirements) {
         this.componentFactory = componentFactory;
+        this.requirements = requirements;
+        requirements.addModule(this);
     }
 
     public Output addOutput() {

@@ -1,6 +1,7 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
 import io.github.githubjakob.convolutionalSat.Enums;
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.ComponentFactory;
 
 import javax.inject.Inject;
@@ -10,8 +11,8 @@ import javax.inject.Inject;
  */
 public class Decoder extends Module {
     @Inject
-    public Decoder(ComponentFactory gateFactory) {
-        super(gateFactory);
+    public Decoder(ComponentFactory componentFactory, Requirements requirements) {
+        super(componentFactory, requirements);
         this.type = Enums.Module.DECODER;
     }
 }

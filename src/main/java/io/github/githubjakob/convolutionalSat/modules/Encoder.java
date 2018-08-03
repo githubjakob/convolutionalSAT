@@ -1,7 +1,9 @@
 package io.github.githubjakob.convolutionalSat.modules;
 
 import io.github.githubjakob.convolutionalSat.Enums;
+import io.github.githubjakob.convolutionalSat.Requirements;
 import io.github.githubjakob.convolutionalSat.components.ComponentFactory;
+import org.bouncycastle.ocsp.Req;
 
 import javax.inject.Inject;
 
@@ -10,8 +12,8 @@ import javax.inject.Inject;
  */
 public class Encoder extends Module {
     @Inject
-    public Encoder(ComponentFactory gateFactory) {
-        super(gateFactory);
+    public Encoder(ComponentFactory componentFactory, Requirements requirements) {
+        super(componentFactory, requirements);
         this.type = Enums.Module.ENCODER;
     }
 }
