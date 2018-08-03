@@ -47,7 +47,7 @@ public class Main {
 
         Problem problem = guice.getInstance(Problem.class);
 
-        BooleanExpression booleanExpression;
+        BooleanExpression booleanExpression = new BooleanExpression(problem);
 
         Circuit latestCircuit = null;
 
@@ -59,8 +59,6 @@ public class Main {
             requirements.setRandomDistortedChannel();
 
             problem.addFailingForOrRandom(latestCircuit);
-
-            booleanExpression = new BooleanExpression(problem);
 
             latestCircuit = booleanExpression.solve();
 
