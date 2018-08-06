@@ -38,9 +38,6 @@ public class Requirements {
     int flippedBits;
 
     @Getter
-    private int distortedChannel;
-
-    @Getter
     boolean noiseEnabled;
 
     @Getter
@@ -52,23 +49,19 @@ public class Requirements {
     private List<Module> modules = new ArrayList<>();
 
     @Setter
+    @Getter
     private int numberOfChannels;
 
     Logger logger = LogManager.getLogger();
 
     public Requirements() {
-        this.blockLength = 4;
+        this.blockLength = 10;
         this.delay = 2;
-        this.flippedBits = 2;
-        this.distortedChannel = 0;
+        this.flippedBits = 1;
         noiseEnabled = true;
         this.maxNumberOfIterations = 10;
-        logger.info("Test Suite with: delay {}, bitStreamLenght: {}, noise enabled: {}", delay, blockLength, (flippedBits > 0));
-    }
-
-    public void setRandomDistortedChannel() {
-        this.distortedChannel = ThreadLocalRandom.current().nextInt(0, 100) % numberOfChannels;
-        logger.info("Distorted channel: {}, flipped Bits: {}", distortedChannel, flippedBits);
+        logger.info("Searching convolutional code with block length: {}, delay {}, flipped Bits {}",
+                blockLength, delay, flippedBits);
     }
 
     public void addBitStream(BitStream bitStream) {

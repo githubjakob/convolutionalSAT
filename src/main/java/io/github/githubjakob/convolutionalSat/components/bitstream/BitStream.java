@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static afu.org.checkerframework.checker.units.UnitsTools.min;
+import static afu.org.checkerframework.checker.units.UnitsTools.s;
 
 /**
  * Created by jakob on 22.06.18.
@@ -29,7 +30,7 @@ public class BitStream {
         }
 
         public BitStream createBitStream(BitStream bitStream, Input input, Output output) {
-            return new BitStream(bitStream.getBits(), bitStream.flippedBits, bitStream.getDelay(), input, output, bitStream.requirements);
+            return new BitStream(bitStream.getBits(), bitStream.flippedBits, bitStream.getDelay(), bitStream.distortedChannel, input, output, bitStream.requirements);
         }
 
         public BitStream createBitStreamWithNoIdAndRandomBits(int blockLength, int delay) {
@@ -67,6 +68,8 @@ public class BitStream {
 
     private Requirements requirements;
 
+    private int distortedChannel;
+
     private BitStream(int id, int[] bits, int delay, Input input, Output output, Requirements requirements) {
         this.id = id;
         this.bits = bits;
@@ -75,9 +78,11 @@ public class BitStream {
         this.output = output;
         this.requirements = requirements;
         flippedBits = createFlippedBits();
+        this.distortedChannel = chooseDistortedChannel();
     }
 
-    private BitStream(int[] bits, int[] flippedBits, int delay, Input input, Output output, Requirements requirements) {
+    private BitStream(int[] bits, int[] flippedBits, int delay, int distortedChannel,
+                      Input input, Output output, Requirements requirements) {
         this.requirements = requirements;
         this.id = idCounter++;
         this.bits = bits;
@@ -85,6 +90,7 @@ public class BitStream {
         this.input = input;
         this.output = output;
         this.flippedBits = flippedBits;
+        this.distortedChannel = distortedChannel;
     }
 
     public int getLengthWithDelay() {
@@ -103,11 +109,11 @@ public class BitStream {
         }
 
 
-       if (input != null) {
+        if (input != null) {
             clausesForTick.addAll(bitStreamAtInput());
-       }
+        }
 
-       return clausesForTick;
+        return clausesForTick;
 
     }
 
@@ -123,7 +129,7 @@ public class BitStream {
                     clausesForTick.add(outputClause);
                 }
             } else {
-                boolean bitSet = getBitValueAt(tick-delay);
+                boolean bitSet = getBitValueAt(tick - delay);
                 for (InputPin inputPin : output.getInputPins()) {
                     Clause outputClause = new Clause(
                             new BitAtComponentVariable(tick, this.getId(), bitSet, inputPin));
@@ -166,7 +172,7 @@ public class BitStream {
     }
 
     public boolean isBitFlippedAt(int tick, int channel) {
-        if (requirements.getDistortedChannel() != channel) {
+        if (distortedChannel != channel) {
             return false;
         }
         //System.out.println("Flipped Bits " + Arrays.toString(flippedBits));
@@ -175,7 +181,8 @@ public class BitStream {
 
     private int[] createFlippedBits() {
         int counter = 0;
-        int[] flippedBits = new int[requirements.getBlockLength() + requirements.getDelay()];;
+        int[] flippedBits = new int[requirements.getBlockLength() + requirements.getDelay()];
+        ;
 
         //System.out.println("channel id for flipped bits " + channel);
         while (counter != requirements.getFlippedBits()) {
@@ -194,8 +201,27 @@ public class BitStream {
         return flippedBits;
     }
 
-        @Override
+    @Override
     public String toString() {
-        return "Bits: " + Arrays.toString(bits) + ", flipped: " + Arrays.toString(flippedBits);
+        return "Bits: " + Arrays.toString(bits) + ", flipped: " + getFlippedBitsAsString() + ", channel: " + distortedChannel;
     }
+
+    private int chooseDistortedChannel() {
+        return ThreadLocalRandom.current().nextInt(0, 100) % requirements.getNumberOfChannels();
+    }
+
+    public String getFlippedBitsAsString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("[");
+        for (int i = 0; i < flippedBits.length; i++) {
+            if (flippedBits[i] == 1) {
+                stringBuilder.append(i);
+            } else {
+                stringBuilder.append("-");
+            }
+        }
+        stringBuilder.append("]");
+        return stringBuilder.toString();
+    }
+
 }

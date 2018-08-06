@@ -14,6 +14,20 @@ Intentiert ist ein iteratives Vorgehen:
 Es werden zufällig einige Bitströme der gewünschten Länge erzeugt und zusammen mit den weiteren Requirements in eine Formel übersetzt. Die Formel wird mit einem Sat Solver gelöst, und die Lösung der Formel dann in einen Schaltplan übersetzt. Auf diesem Schaltplan werden so lange weitere zufällige Bitströme getestet, bis ein Fehler auftritt, d.h. der Faltungskodierer diesen Bitstrom nicht fehlerfrei übertragen kann. Dieser Bitstrom wird dann zur ursprünglichen Formel hinzugefügt usw.
 
 
+## Build & Run
+
+mvn install
+java -jar ./target/convolutionalSat-0.0.1-uber.jar 
+
+gcloud compute --project "blackalert-207710" ssh --zone "europe-west3-b" "instance-2"
+
+gcloud auth login
+
+gcloud compute ssh instance-2
+
+gcloud compute scp ~/Projects/ConvolutionalSAT/target/convolutionalSat-0.0.1-uber.jar instance-2:~/
+
+
 ## Einführung
 
 

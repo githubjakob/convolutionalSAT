@@ -199,7 +199,8 @@ public class Problem {
             if (!circuit.testBitStream(potentialFailingBitStream, false)) {
                 Instant end = Instant.now();
                 long millis = (end.toEpochMilli() - start.toEpochMilli());
-                logger.info("Found failing Bitstream in {} ms, {} ", millis, potentialFailingBitStream.toString());
+                logger.info("Found failing Bitstream in ms: {}, iterations: {}, {} ", millis, counter,
+                        potentialFailingBitStream.toString());
                 return potentialFailingBitStream;
             }
             counter++;

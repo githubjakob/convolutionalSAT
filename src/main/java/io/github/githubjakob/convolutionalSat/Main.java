@@ -31,7 +31,10 @@ public class Main {
         encoder.addOutput();
         encoder.addAnd();
         encoder.addAnd();
+        encoder.addAnd();
         encoder.addXor();
+        encoder.addXor();
+        encoder.addNot();
         encoder.addNot();
         encoder.addRegister();
         encoder.addRegister();
@@ -42,7 +45,17 @@ public class Main {
         decoder.addGlobalOutput();
         decoder.addAnd();
         decoder.addAnd();
+        decoder.addAnd();
+        decoder.addAnd();
+        decoder.addAnd();
         decoder.addNot();
+        decoder.addNot();
+        decoder.addNot();
+        decoder.addNot();
+        decoder.addXor();
+        decoder.addRegister();
+        decoder.addRegister();
+        decoder.addXor();
         decoder.addXor();
 
         Channel channel = guice.getInstance(Channel.class);
@@ -61,7 +74,6 @@ public class Main {
         int counter = 0;
         while (counter < requirements.getMaxNumberOfIterations()) {
             logger.info("Iteration: {} ", counter);
-            requirements.setRandomDistortedChannel();
 
             problem.addFailingForOrRandom(latestCircuit);
 
