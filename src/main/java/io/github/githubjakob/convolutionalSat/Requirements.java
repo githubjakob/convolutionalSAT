@@ -68,7 +68,7 @@ public class Requirements {
 
     public void setRandomDistortedChannel() {
         this.distortedChannel = ThreadLocalRandom.current().nextInt(0, 100) % numberOfChannels;
-        logger.info("Setting distorted channel: {}with flippedBits: {}", distortedChannel, flippedBits);
+        logger.info("Distorted channel: {}, flipped Bits: {}", distortedChannel, flippedBits);
     }
 
     public void addBitStream(BitStream bitStream) {

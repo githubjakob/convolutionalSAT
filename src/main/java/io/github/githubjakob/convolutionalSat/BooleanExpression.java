@@ -21,36 +21,28 @@ import java.util.*;
  */
 public class BooleanExpression {
 
-    private static ISolver solver = SolverFactory.newDefault();
+    private ISolver satSolver = SolverFactory.newDefault();
 
     private List<Clause> clauses;
 
     private final Problem problem;
 
-    List<int[]> dimacs;
+    private HashMap<Variable, Integer> dictionary = new HashMap<>();
 
-    static HashMap<Variable, Integer> dictionary = new HashMap<>();
-
-    static Integer literalCount = 0;
+    private Integer literalCount = 0;
 
     private Circuit lastModel = null;
 
-    Logger logger = LogManager.getLogger();
+    private Logger logger = LogManager.getLogger();
 
     public BooleanExpression(Problem problem) {
         this.problem = problem;
     }
 
-    private void convertProblemToDimacs() {
-        this.clauses = problem.convertProblemToCnf();
-        this.dimacs = convertClausesToDimacs(this.clauses);
-        addDimacsToSolver(this.dimacs);
-    }
-
-    private void setupSolver() {
-        this.solver.newVar(dictionary.size() + 1000);
+    private void setSolverParameters(List<int[]> dimacs) {
+        this.satSolver.newVar(dictionary.size() + 1000);
         logger.info("Number of vars {}", dictionary.size());
-        this.solver.setExpectedNumberOfClauses(dimacs.size() + 1000);
+        this.satSolver.setExpectedNumberOfClauses(dimacs.size() + 1000);
         logger.info("Number of clauses {}", dimacs.size());
     }
 
@@ -58,7 +50,7 @@ public class BooleanExpression {
         for (int i=0; i<dimacs.size(); i++) {
             int [] clause = dimacs.get(i);
             try {
-                solver.addClause(new VecInt(clause));
+                satSolver.addClause(new VecInt(clause));
             } catch (ContradictionException e) {
                 logger.warn("Empty clause {}", Arrays.toString(clause));
             }
@@ -106,32 +98,52 @@ public class BooleanExpression {
     }
 
     public Circuit solve() {
-        convertProblemToDimacs();
-        setupSolver();
+        ArrayList<Clause> backedUpClauses = backupCurrentClauses();
 
-        IProblem problem = solver;
+        this.clauses = problem.convertProblemToCnf();
+        List<int[]> dimacs = convertClausesToDimacs(this.clauses);
+        addDimacsToSolver(dimacs);
+        setSolverParameters(dimacs);
+
+        IProblem satProblem = satSolver;
+
         try {
             logger.info("Solving...");
             Instant start = Instant.now();
-            if (problem.isSatisfiable()) {
-                int[] solution = problem.model();
+            if (satProblem.isSatisfiable()) {
                 Instant end = Instant.now();
                 long millis = (end.toEpochMilli() - start.toEpochMilli());
                 logger.info("Found model! Solving took {} ms", millis);
-                Circuit circuit = retranslate(solution);
-                circuit.setNumberOfBitsPerBitStream(this.problem.getNumberOfBits());
-                circuit.setNumberOfBitStreams(this.problem.getNumberOfBitStreams());
-                lastModel = circuit;
-                return circuit;
-
+                return getCircuitFromModel(satProblem.model());
             } else {
                 logger.warn("Not satisfiable!");
+                resetDimacs(backedUpClauses);
                 return null;
             }
         } catch (TimeoutException e) {
             e.printStackTrace();
         }
 
+        return null;
+    }
+
+    private void resetDimacs(ArrayList<Clause> currentClauses) {
+        this.clauses = currentClauses;
+        this.satSolver = SolverFactory.newDefault();
+    }
+
+    private Circuit getCircuitFromModel(int[] solution) {
+        Circuit circuit = retranslate(solution);
+        circuit.setNumberOfBitsPerBitStream(this.problem.getNumberOfBits());
+        circuit.setNumberOfBitStreams(this.problem.getNumberOfBitStreams());
+        lastModel = circuit;
+        return circuit;
+    }
+
+    private ArrayList<Clause> backupCurrentClauses() {
+        if (lastModel != null && !this.clauses.isEmpty()) {
+            return new ArrayList<>(this.clauses);
+        }
         return null;
     }
 
@@ -174,11 +186,5 @@ public class BooleanExpression {
 
         final List<int[]> dimacs = convertClausesToDimacs(negatedModel);
         addDimacsToSolver(dimacs);
-    }
-
-    public static void resetSolver() {
-        solver = SolverFactory.newDefault();
-        dictionary = new HashMap<>();
-        literalCount = 0;
     }
 }

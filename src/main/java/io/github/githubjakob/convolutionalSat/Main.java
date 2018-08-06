@@ -51,7 +51,7 @@ public class Main {
 
         Circuit latestCircuit = null;
 
-        MainGui mainGui = new MainGui();
+        //MainGui mainGui = new MainGui();
 
         int counter = 0;
         while (counter < requirements.getMaxNumberOfIterations()) {
@@ -63,12 +63,11 @@ public class Main {
             latestCircuit = booleanExpression.solve();
 
             if (latestCircuit == null) {
-                System.out.println("is not satisfiable");
-                return;
+                continue;
             }
 
-            Graph solution = new Graph(latestCircuit);
-            mainGui.addPanel(solution);
+            //Graph solution = new Graph(latestCircuit);
+            //mainGui.addPanel(solution);
 
             if (!latestCircuit.testValidity(requirements)) {
                 System.err.println("circuit is not valid, searching next solution");

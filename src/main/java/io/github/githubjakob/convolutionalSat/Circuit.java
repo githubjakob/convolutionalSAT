@@ -94,17 +94,11 @@ public class Circuit {
 
     public Circuit(List<Variable> variables, Requirements requirements) {
         this.variables = cloneVariables(variables);
-        this.connections = extractFrom(variables);
+        this.connections = extractConnectionsFrom(variables);
         this.bitStreams = requirements.getBitStreams();
         this.gates = new HashSet<>(requirements.getGates());
-        for (Gate gate : gates) {
-            if (gate instanceof GlobalOutput) {
-                this.globalOutput = (GlobalOutput) gate;
-            }
-            if (gate instanceof GlobalInput) {
-                this.globalInput = (GlobalInput) gate;
-            }
-        }
+        this.globalOutput = extractGlobalOutputFrom(gates);
+        this.globalInput = extractGlobalInputFrom(gates);
         for (Connection connection : connections) {
             equivalentConnections.add(new EquivalentConnection(connection));
             setConnectionToGate(connection);
@@ -113,10 +107,29 @@ public class Circuit {
 
     }
 
+    private GlobalInput extractGlobalInputFrom(Set<Gate> gates) {
+        for (Gate gate : gates) {
+            if (gate instanceof GlobalInput) {
+                return (GlobalInput) gate;
+            }
+        }
+        return null;
+    }
+
+    private GlobalOutput extractGlobalOutputFrom(Set<Gate> gates) {
+        for (Gate gate : gates) {
+            if (gate instanceof GlobalOutput) {
+                return (GlobalOutput) gate;
+            }
+        }
+        return null;
+    }
+
     private void setConnectionToGate(Connection connection) {
         InputPin connectionTo = connection.getTo();
         OutputPin connectionFrom = connection.getFrom();
         for (Gate gate : gates) {
+            gate.getOutputPin().setConnections(new ArrayList<>());
             for (InputPin inputPin : gate.getInputPins()) {
                 if (inputPin.equals(connectionTo)) {
                     inputPin.setConnection(connection);
@@ -203,7 +216,7 @@ public class Circuit {
         return this.connections;
     }
 
-    private Set<Connection> extractFrom(List<Variable> variables) {
+    private Set<Connection> extractConnectionsFrom(List<Variable> variables) {
         if (variables == null) {
             return Collections.emptySet();
         }

@@ -73,6 +73,8 @@ public class Problem {
     private BitStream addInputAndOutputToBitStream(BitStream bitStream) {
         BitStream bitStreamToRegister = bitStreamFactory.createBitStream(bitStream, encoder.getInputs().get(0), decoder.getOutputs().get(0));
 
+        logger.info("Adding Bitstream to Problem {}", bitStreamToRegister.toString());
+
         registerBitStream(bitStreamToRegister);
         return bitStreamToRegister;
     }
@@ -182,7 +184,6 @@ public class Problem {
             return addRandomBitStream();
         }
 
-        logger.info("Adding Bitstream to Problem {}", failingBitStream.toString());
         return addInputAndOutputToBitStream(failingBitStream);
     }
 
