@@ -21,7 +21,7 @@ import java.util.*;
  */
 public class BooleanExpression {
 
-    private ISolver satSolver = SolverFactory.newDefault();
+    private ISolver satSolver = createNewSolver();
 
     private List<Clause> clauses;
 
@@ -102,6 +102,7 @@ public class BooleanExpression {
 
         this.clauses = problem.convertProblemToCnf();
         List<int[]> dimacs = convertClausesToDimacs(this.clauses);
+        createNewSolver();
         addDimacsToSolver(dimacs);
         setSolverParameters(dimacs);
 
@@ -125,6 +126,11 @@ public class BooleanExpression {
         }
 
         return null;
+    }
+
+    private ISolver createNewSolver() {
+        this.satSolver = SolverFactory.newDefault();
+        return this.satSolver;
     }
 
     private void resetDimacs(ArrayList<Clause> currentClauses) {

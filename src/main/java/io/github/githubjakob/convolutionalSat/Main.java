@@ -10,6 +10,8 @@ import io.github.githubjakob.convolutionalSat.modules.Channel;
 import io.github.githubjakob.convolutionalSat.modules.Decoder;
 import io.github.githubjakob.convolutionalSat.modules.Encoder;
 import io.github.githubjakob.convolutionalSat.modules.Module;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -53,9 +55,12 @@ public class Main {
 
         //MainGui mainGui = new MainGui();
 
+        Logger logger = LogManager.getLogger();
+
+
         int counter = 0;
         while (counter < requirements.getMaxNumberOfIterations()) {
-
+            logger.info("Iteration: {} ", counter);
             requirements.setRandomDistortedChannel();
 
             problem.addFailingForOrRandom(latestCircuit);

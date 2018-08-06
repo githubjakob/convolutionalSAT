@@ -156,22 +156,10 @@ public class BitStream {
     private List<Clause> bitStreamAtInput() {
         List<Clause> clausesForTick = new ArrayList<>();
         for (int tick = 0; tick < getLengthWithDelay(); tick++) {
-            if (tick >= getLengthWithDelay() - delay) {
-                /**
-                 * zuerst wird der bitstream am input angelegt, dann delay-bits lang 0's
-                 *
-                 */
-                Clause inputClause = new Clause(
-                        //new BitAtComponentVariable(tick, this.getId(), true, gate.getOutputPin()),
-                        new BitAtComponentVariable(tick, this.getId(), false, input.getOutputPin()));
-                clausesForTick.add(inputClause);
-            } else {
-                boolean bitSet = getBitValueAt(tick);
-                Clause inputClause = new Clause(
-                        new BitAtComponentVariable(tick, this.getId(), bitSet, input.getOutputPin()));
-                clausesForTick.add(inputClause);
-            }
-
+            boolean bitSet = getBitValueAtOrFalse(tick);
+            Clause inputClause = new Clause(
+                    new BitAtComponentVariable(tick, this.getId(), bitSet, input.getOutputPin()));
+            clausesForTick.add(inputClause);
         }
 
         return clausesForTick;

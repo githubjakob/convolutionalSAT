@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import scala.annotation.meta.field;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -178,7 +179,7 @@ public class Problem {
             return addRandomBitStream();
         }
 
-        BitStream failingBitStream = findFailingFor(circuit, 300);
+        BitStream failingBitStream = findFailingFor(circuit, 10000);
 
         if (failingBitStream == null) {
             return addRandomBitStream();
@@ -188,17 +189,24 @@ public class Problem {
     }
 
     private BitStream findFailingFor(Circuit circuit, int maxAttempts) {
+        Instant start = Instant.now();
         logger.info("Searching for failing Bitstream...");
         int counter = 0;
         while(counter < maxAttempts) {
             BitStream potentialFailingBitStream =
                    bitStreamFactory.createBitStreamWithNoIdAndRandomBits(requirements.blockLength, requirements.getDelay());
 
-            if (!circuit.testBitStream(potentialFailingBitStream)) {
+            if (!circuit.testBitStream(potentialFailingBitStream, false)) {
+                Instant end = Instant.now();
+                long millis = (end.toEpochMilli() - start.toEpochMilli());
+                logger.info("Found failing Bitstream in {} ms, {} ", millis, potentialFailingBitStream.toString());
                 return potentialFailingBitStream;
             }
             counter++;
         }
+        Instant end = Instant.now();
+        long millis = (end.toEpochMilli() - start.toEpochMilli());
+        logger.info("No failing Bitsream found in {} ms, {} attempts", millis, maxAttempts);
         return null;
     }
 
