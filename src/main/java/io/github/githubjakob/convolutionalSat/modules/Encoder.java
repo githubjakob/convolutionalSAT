@@ -15,5 +15,13 @@ public class Encoder extends Module {
     public Encoder(ComponentFactory componentFactory, Requirements requirements) {
         super(componentFactory, requirements);
         this.type = Enums.Module.ENCODER;
+        addGlobalInput();
+        addOutputs(requirements.getNumberOfChannels());
+    }
+
+    private void addOutputs(int n) {
+        for (int i = 0; i < n; i++) {
+            addOutput();
+        }
     }
 }

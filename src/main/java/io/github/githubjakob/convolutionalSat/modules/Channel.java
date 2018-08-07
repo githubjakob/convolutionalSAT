@@ -22,9 +22,7 @@ public class Channel extends Module {
         this.encoder = encoder;
         this.type = Enums.Module.CHANNEL;
         this.decoder = decoder;
-        int numberOfChannels = getNumberOfChannels();
-        requirements.setNumberOfChannels(numberOfChannels);
-        createConnectionsForChannel(numberOfChannels);
+        createConnectionsForChannel();
     }
 
     private int getNumberOfChannels() {
@@ -37,8 +35,8 @@ public class Channel extends Module {
     /**
      * Erzeugt die Verbindungen des Kanals, zwischen Ausgang des Encoders und Eingang des Decoders
      */
-    private void createConnectionsForChannel(int numberOfChannels) {
-        for (int i = 0; i < numberOfChannels; i++) {
+    private void createConnectionsForChannel() {
+        for (int i = 0; i < requirements.getNumberOfChannels(); i++) {
             Output output = encoder.getOutputs().get(i);
             Input input = decoder.getInputs().get(i);
             OutputPin outputPin = output.getOutputPin();

@@ -48,7 +48,6 @@ public class Requirements {
 
     private List<Module> modules = new ArrayList<>();
 
-    @Setter
     @Getter
     private int numberOfChannels;
 
@@ -56,10 +55,11 @@ public class Requirements {
 
     public Requirements() {
         this.blockLength = 10;
-        this.delay = 2;
+        this.delay = 3;
         this.flippedBits = 1;
         noiseEnabled = true;
         this.maxNumberOfIterations = 10;
+        this.numberOfChannels = 2;
         logger.info("Searching convolutional code with block length: {}, delay {}, flipped Bits {}",
                 blockLength, delay, flippedBits);
     }

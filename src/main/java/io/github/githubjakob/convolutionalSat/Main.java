@@ -26,9 +26,6 @@ public class Main {
         Requirements requirements = guice.getInstance(Requirements.class);
 
         Encoder encoder = guice.getInstance(Encoder.class);
-        encoder.addGlobalInput();
-        encoder.addOutput();
-        encoder.addOutput();
         encoder.addAnd();
         encoder.addAnd();
         encoder.addAnd();
@@ -36,13 +33,11 @@ public class Main {
         encoder.addXor();
         encoder.addNot();
         encoder.addNot();
+        encoder.addRegister();
         encoder.addRegister();
         encoder.addRegister();
 
         Decoder decoder = guice.getInstance(Decoder.class);
-        decoder.addInput();
-        decoder.addInput();
-        decoder.addGlobalOutput();
         decoder.addAnd();
         decoder.addAnd();
         decoder.addAnd();
@@ -50,11 +45,6 @@ public class Main {
         decoder.addAnd();
         decoder.addNot();
         decoder.addNot();
-        decoder.addNot();
-        decoder.addNot();
-        decoder.addXor();
-        decoder.addRegister();
-        decoder.addRegister();
         decoder.addXor();
         decoder.addXor();
 

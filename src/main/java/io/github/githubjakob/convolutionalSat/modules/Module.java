@@ -47,7 +47,7 @@ public abstract class Module {
         requirements.addModule(this);
     }
 
-    public Output addOutput() {
+    Output addOutput() {
         Output output = componentFactory.getOutput();
         output.setModule(this);
         outputs.add(output);

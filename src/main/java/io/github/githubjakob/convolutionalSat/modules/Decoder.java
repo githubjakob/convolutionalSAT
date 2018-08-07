@@ -14,5 +14,13 @@ public class Decoder extends Module {
     public Decoder(ComponentFactory componentFactory, Requirements requirements) {
         super(componentFactory, requirements);
         this.type = Enums.Module.DECODER;
+        addGlobalOutput();
+        addInputs(requirements.getNumberOfChannels());
+    }
+
+    private void addInputs(int n) {
+        for (int i = 0; i < n; i++) {
+            addInput();
+        }
     }
 }

@@ -322,7 +322,7 @@ public class Circuit {
         }
 
         boolean success = compareShiftedDelay(valuesAtInput, valuesAtOutput, bitStream.getDelay());
-        if (isLogEnabled) logger.info("Results {} -> {} => {}", Arrays.toString(valuesAtInput), Arrays.toString(valuesAtOutput), success );
+        if (isLogEnabled) logger.info("In {} -> Out {} => {}", Arrays.toString(valuesAtInput), Arrays.toString(valuesAtOutput), success );
         resetRegisters();
         return success;
     }
