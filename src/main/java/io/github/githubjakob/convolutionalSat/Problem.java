@@ -15,7 +15,6 @@ import io.github.githubjakob.convolutionalSat.modules.Encoder;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import scala.annotation.meta.field;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -182,7 +181,7 @@ public class Problem {
         BitStream failingBitStream = findFailingFor(circuit, 10000);
 
         if (failingBitStream == null) {
-            return addRandomBitStream();
+            return null;
         }
 
         return addInputAndOutputToBitStream(failingBitStream);
@@ -194,7 +193,7 @@ public class Problem {
         int counter = 0;
         while(counter < maxAttempts) {
             BitStream potentialFailingBitStream =
-                   bitStreamFactory.createBitStreamWithNoIdAndRandomBits(requirements.blockLength, requirements.getDelay());
+                   bitStreamFactory.createBitStreamWithNoIdAndRandomBits(requirements.frameLength, requirements.getDelay());
 
             if (!circuit.testBitStream(potentialFailingBitStream, false)) {
                 Instant end = Instant.now();
@@ -213,7 +212,7 @@ public class Problem {
 
     private BitStream addRandomBitStream() {
         BitStream randomBitStream =
-                bitStreamFactory.createBitStreamWithNoIdAndRandomBits(requirements.blockLength, requirements.getDelay());
+                bitStreamFactory.createBitStreamWithNoIdAndRandomBits(requirements.frameLength, requirements.getDelay());
         return addInputAndOutputToBitStream(randomBitStream);
     }
 }

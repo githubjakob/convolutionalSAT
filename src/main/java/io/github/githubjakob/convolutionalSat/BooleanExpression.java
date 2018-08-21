@@ -40,9 +40,9 @@ public class BooleanExpression {
     }
 
     private void setSolverParameters(List<int[]> dimacs) {
-        this.satSolver.newVar(dictionary.size() + 1000);
+        this.satSolver.newVar(dictionary.size());
         logger.info("Number of vars {}", dictionary.size());
-        this.satSolver.setExpectedNumberOfClauses(dimacs.size() + 1000);
+        this.satSolver.setExpectedNumberOfClauses(dimacs.size());
         logger.info("Number of clauses {}", dimacs.size());
     }
 

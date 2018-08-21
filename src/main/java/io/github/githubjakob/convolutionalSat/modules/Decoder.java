@@ -16,6 +16,20 @@ public class Decoder extends Module {
         this.type = Enums.Module.DECODER;
         addGlobalOutput();
         addInputs(requirements.getNumberOfChannels());
+        addNots();
+        addAnds();
+    }
+
+    protected void addNots() {
+        for (int i = 0; i < requirements.getDecNot(); i++) {
+            addNot();
+        }
+    }
+
+    protected void addAnds() {
+        for (int i = 0; i < requirements.getDecAnd(); i++) {
+            addAnd();
+        }
     }
 
     private void addInputs(int n) {

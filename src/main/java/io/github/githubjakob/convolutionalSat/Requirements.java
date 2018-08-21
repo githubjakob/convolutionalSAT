@@ -12,7 +12,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Wrapper/Utility Klasse für alle Anforderungen an den zu findenden Faltungskodierers. Bietet Zugriff auf
@@ -32,36 +31,57 @@ public class Requirements {
      * wait for delay ticks and then check that input(encoder) equals output(encoder)
      */
     @Getter
+    @Setter
     private int delay;
 
     @Getter
-    int flippedBits;
+    @Setter
+    int numberOfFlippedBits;
 
     @Getter
-    boolean noiseEnabled;
+    @Setter
+    int frameLength;
 
     @Getter
-    int blockLength;
-
-    @Getter
+    @Setter
     int maxNumberOfIterations;
 
     private List<Module> modules = new ArrayList<>();
 
     @Getter
+    @Setter
     private int numberOfChannels;
 
     Logger logger = LogManager.getLogger();
 
+    @Getter
+    @Setter
+    private int enAnd;
+
+    @Getter
+    @Setter
+    private int enNot;
+
+    @Getter
+    @Setter
+    private int enReg;
+
+    @Getter
+    @Setter
+    private int decAnd;
+
+    @Getter
+    @Setter
+    private int decNot;
+
     public Requirements() {
-        this.blockLength = 10;
-        this.delay = 3;
-        this.flippedBits = 1;
-        noiseEnabled = true;
-        this.maxNumberOfIterations = 10;
+        /*this.frameLength = 4;
+        this.delay = 1;
+        this.numberOfFlippedBits = 1;
+        this.maxNumberOfIterations = 50;
         this.numberOfChannels = 2;
-        logger.info("Searching convolutional code with block length: {}, delay {}, flipped Bits {}",
-                blockLength, delay, flippedBits);
+        //logger.info("Searching convolutional code with block length: {}, delay {}, flipped Bits {}",
+         //       frameLength, delay, numberOfFlippedBits);*/
     }
 
     public void addBitStream(BitStream bitStream) {
@@ -129,5 +149,16 @@ public class Requirements {
             count++;
         }
         return count;
+    }
+
+    public boolean isNoiseEnabled() {
+        return numberOfFlippedBits > 0;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Requirements: enAnd %d, enNot %d, enReg %d, decAnd %d, decNot %d, delay %d, frameLength %d, " +
+                "numberOfChannels %d, iterations %d",
+                enAnd, enNot, enReg, decAnd, decNot, delay, frameLength, numberOfChannels, maxNumberOfIterations);
     }
 }

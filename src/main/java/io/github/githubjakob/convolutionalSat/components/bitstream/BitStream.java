@@ -13,7 +13,6 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static afu.org.checkerframework.checker.units.UnitsTools.min;
-import static afu.org.checkerframework.checker.units.UnitsTools.s;
 
 /**
  * Created by jakob on 22.06.18.
@@ -181,16 +180,16 @@ public class BitStream {
 
     private int[] createFlippedBits() {
         int counter = 0;
-        int[] flippedBits = new int[requirements.getBlockLength() + requirements.getDelay()];
+        int[] flippedBits = new int[requirements.getFrameLength() + requirements.getDelay()];
         ;
 
         //System.out.println("channel id for flipped bits " + channel);
-        while (counter != requirements.getFlippedBits()) {
+        while (counter != requirements.getNumberOfFlippedBits()) {
             counter = 0;
-            flippedBits = new int[requirements.getBlockLength() + requirements.getDelay()];
+            flippedBits = new int[requirements.getFrameLength() + requirements.getDelay()];
             for (int n = 0; n < flippedBits.length; n++) {
                 int randomNum = ThreadLocalRandom.current().nextInt(min, 100 + 1);
-                if (randomNum < (requirements.getFlippedBits() * 100 / requirements.getBlockLength())) {
+                if (randomNum < (requirements.getNumberOfFlippedBits() * 100 / requirements.getFrameLength())) {
                     flippedBits[n] = 1;
                     counter++;
                 } else flippedBits[n] = 0;

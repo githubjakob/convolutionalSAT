@@ -101,13 +101,13 @@ public abstract class Module {
         return not;
     };
 
-    public Xor addXor() {
+    Xor addXor() {
         Xor xor = componentFactory.getXor();
         setupNewGate(xor);
         return xor;
     };
 
-    public Identity addIdentity() {
+    Identity addIdentity() {
         Identity identity = componentFactory.getIdentity();
         setupNewGate(identity);
         return identity;

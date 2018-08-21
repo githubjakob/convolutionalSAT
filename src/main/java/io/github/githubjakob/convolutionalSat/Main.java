@@ -19,76 +19,76 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
 
-    public static void main(String[] args) {
+    static Injector guice = Guice.createInjector(new GuiceModule());
 
-        Injector guice = Guice.createInjector(new GuiceModule());
+    static Logger logger = LogManager.getLogger();
+
+    public static void main(String[] args) {
+        findWith(3, 2, 2, 5, 5, 4, 2, 2,
+                5, 1);
+    }
+
+    public static void findWith(int enAnd, int enNot, int enReg, int decAnd, int decNot, int frameLength, int delay,
+                            int numberOfChannels, int maxNumberOfIterations, int numberOfFlippedBits) {
 
         Requirements requirements = guice.getInstance(Requirements.class);
+        requirements.setFrameLength(frameLength);
+        requirements.setDelay(delay);
+        requirements.setNumberOfChannels(numberOfChannels);
+        requirements.setMaxNumberOfIterations(maxNumberOfIterations);
+        requirements.setNumberOfFlippedBits(numberOfFlippedBits);
+        requirements.setEnAnd(enAnd);
+        requirements.setEnNot(enNot);
+        requirements.setEnReg(enReg);
+        requirements.setDecAnd(decAnd);
+        requirements.setDecNot(decNot);
+
+        logger.info("Finding with:");
+        logger.info(requirements.toString());
+        findWith(requirements);
+
+    }
+
+    public static void findWith(Requirements requirements) {
 
         Encoder encoder = guice.getInstance(Encoder.class);
-        encoder.addAnd();
-        encoder.addAnd();
-        encoder.addAnd();
-        encoder.addXor();
-        encoder.addXor();
-        encoder.addNot();
-        encoder.addNot();
-        encoder.addRegister();
-        encoder.addRegister();
-        encoder.addRegister();
-
         Decoder decoder = guice.getInstance(Decoder.class);
-        decoder.addAnd();
-        decoder.addAnd();
-        decoder.addAnd();
-        decoder.addAnd();
-        decoder.addAnd();
-        decoder.addNot();
-        decoder.addNot();
-        decoder.addXor();
-        decoder.addXor();
-
         Channel channel = guice.getInstance(Channel.class);
-
         Problem problem = guice.getInstance(Problem.class);
 
         BooleanExpression booleanExpression = new BooleanExpression(problem);
 
         Circuit latestCircuit = null;
 
-        //MainGui mainGui = new MainGui();
+        MainGui mainGui = new MainGui();
 
-        Logger logger = LogManager.getLogger();
+        int iteration = 0;
+        while (iteration < requirements.getMaxNumberOfIterations()) {
+            logger.info("Iteration: {} ", iteration);
 
+            BitStream failingOrRandomBitStream = problem.addFailingForOrRandom(latestCircuit);
 
-        int counter = 0;
-        while (counter < requirements.getMaxNumberOfIterations()) {
-            logger.info("Iteration: {} ", counter);
-
-            problem.addFailingForOrRandom(latestCircuit);
+            if (failingOrRandomBitStream == null) {
+                break; // keine failingBitstreams gefunden -> fertig
+            }
 
             latestCircuit = booleanExpression.solve();
 
             if (latestCircuit == null) {
-                continue;
+                continue; // keine Lösung mit letztem failing Bitstream gefunden -> letzte Iteration wiederholen
             }
 
             //Graph solution = new Graph(latestCircuit);
             //mainGui.addPanel(solution);
 
             if (!latestCircuit.testValidity(requirements)) {
-                System.err.println("circuit is not valid, searching next solution");
+                logger.warn("circuit is not valid, searching next solution");
                 booleanExpression.addLastModelNegated();
                 continue;
             }
 
-            /*if (!solution.isValid()) {
-                System.err.println("graph is not valid, searching next solution");
-                booleanExpression.addLastModelNegated();
-                continue;
-            }*/
 
-            counter++;
+            iteration++;
         }
 
         System.out.println("end");
