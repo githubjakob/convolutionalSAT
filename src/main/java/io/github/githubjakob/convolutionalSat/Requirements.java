@@ -74,6 +74,18 @@ public class Requirements {
     @Setter
     private int decNot;
 
+    @Getter
+    @Setter
+    private int decReg;
+
+    @Getter
+    @Setter
+    private int decXor;
+
+    @Getter
+    @Setter
+    private int enXor;
+
     public Requirements() {
         /*this.frameLength = 4;
         this.delay = 1;
@@ -157,8 +169,8 @@ public class Requirements {
 
     @Override
     public String toString() {
-        return String.format("Requirements: enAnd %d, enNot %d, enReg %d, decAnd %d, decNot %d, delay %d, frameLength %d, " +
+        return String.format("Requirements: enAnd %d, enNot %d, enReg %d, decAnd %d, decNot %d, decReg %d, delay %d, frameLength %d, " +
                 "numberOfChannels %d, iterations %d",
-                enAnd, enNot, enReg, decAnd, decNot, delay, frameLength, numberOfChannels, maxNumberOfIterations);
+                enAnd, enNot, enReg, decAnd, decNot, decReg, delay, frameLength, numberOfChannels, maxNumberOfIterations);
     }
 }

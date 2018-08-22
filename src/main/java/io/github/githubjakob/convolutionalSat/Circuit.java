@@ -354,8 +354,8 @@ public class Circuit {
     public boolean testValidity(Requirements requirements) {
         logger.info("Testing {} BitStreams on Circuit", requirements.bitStreams.size());
         for (BitStream bitStream : requirements.bitStreams) {
-            //System.out.println("Testing " + bitStream.toString());
             if (!testBitStream(bitStream)) {
+                logger.warn("circuit is not valid, searching next solution");
                 return false;
             }
         }

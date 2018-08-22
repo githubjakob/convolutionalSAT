@@ -18,6 +18,8 @@ public class Decoder extends Module {
         addInputs(requirements.getNumberOfChannels());
         addNots();
         addAnds();
+        addXors();
+        addRegisters();
     }
 
     protected void addNots() {
@@ -29,6 +31,18 @@ public class Decoder extends Module {
     protected void addAnds() {
         for (int i = 0; i < requirements.getDecAnd(); i++) {
             addAnd();
+        }
+    }
+
+    protected void addXors() {
+        for (int i = 0; i < requirements.getDecXor(); i++) {
+            addAnd();
+        }
+    }
+
+    private void addRegisters() {
+        for (int i = 0; i < requirements.getDecReg(); i++) {
+            addRegister();
         }
     }
 

@@ -20,6 +20,7 @@ public class Encoder extends Module {
         addRegisters();
         addAnds();
         addNots();
+        addXors();
     }
 
     private void addNots() {
@@ -37,6 +38,12 @@ public class Encoder extends Module {
     private void addRegisters() {
         for (int i = 0; i < requirements.getEnReg(); i++) {
             addRegister();
+        }
+    }
+
+    protected void addXors() {
+        for (int i = 0; i < requirements.getEnXor(); i++) {
+            addAnd();
         }
     }
 

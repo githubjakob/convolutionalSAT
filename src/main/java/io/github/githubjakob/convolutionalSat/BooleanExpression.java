@@ -100,7 +100,7 @@ public class BooleanExpression {
     public Circuit solve() {
         ArrayList<Clause> backedUpClauses = backupCurrentClauses();
 
-        this.clauses = problem.convertProblemToCnf();
+        this.clauses = problem.createClauses();
         List<int[]> dimacs = convertClausesToDimacs(this.clauses);
         createNewSolver();
         addDimacsToSolver(dimacs);
@@ -139,10 +139,12 @@ public class BooleanExpression {
     }
 
     private Circuit getCircuitFromModel(int[] solution) {
+        logger.info("getting circuit back...");
         Circuit circuit = retranslate(solution);
         circuit.setNumberOfBitsPerBitStream(this.problem.getNumberOfBits());
         circuit.setNumberOfBitStreams(this.problem.getNumberOfBitStreams());
         lastModel = circuit;
+        logger.info("done");
         return circuit;
     }
 
@@ -161,6 +163,7 @@ public class BooleanExpression {
             if (!(dictionary.containsValue(literal) || dictionary.containsValue(literal*-1))) {
                 throw new RuntimeException("something is wrong");
             }
+
 
             for (Map.Entry<Variable, Integer> entry : dictionary.entrySet()) {
                 if (!(literal == entry.getValue() || literal == entry.getValue() * -1)) {

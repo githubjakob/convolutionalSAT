@@ -25,10 +25,13 @@ public abstract class AbstractGate implements Gate {
         return module;
     }
 
-    public List<Clause> convertToCnf() {
+    public List<Clause> convertToClauses() {
         List<Clause> allClauses = new ArrayList<>();
 
         allClauses.addAll(getGateCnf());
+        /**
+         * nonCirc
+         */
         allClauses.addAll(getMicrotickCnf());
 
         return allClauses;
@@ -39,7 +42,10 @@ public abstract class AbstractGate implements Gate {
     List<Clause> getMicrotickCnf() {
         List<Clause> allClauses = new ArrayList<>();
 
-        // wenn sie gesetzt ist, dann müssen alle Stellen davor auch gesezt seind
+        /**
+         * nonCirc-mtSan
+         * Sanitätsbedingung für den Microtick
+         */
         for (int i = 1; i < requirements.getMaxMicrotticks(); i++) {
 
             Variable isFalse = new MicrotickVariable(i, false, this);

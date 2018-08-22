@@ -4,10 +4,7 @@ package io.github.githubjakob.convolutionalSat;
 import io.github.githubjakob.convolutionalSat.components.bitstream.BitStream;
 import io.github.githubjakob.convolutionalSat.components.connections.Connection;
 import io.github.githubjakob.convolutionalSat.components.gates.Gate;
-import io.github.githubjakob.convolutionalSat.components.gates.Input;
-import io.github.githubjakob.convolutionalSat.components.gates.Output;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
-import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
 import io.github.githubjakob.convolutionalSat.modules.Decoder;
@@ -54,20 +51,57 @@ public class Problem {
     }
 
     /**
-     *
-     * @return eine Liste an Klauseln, die alle Eigenschaften dieses Problems repräsentiert, insbesondere
-     *  - Variablen über Gates
-     *  - Variablen über Verbindungen
-     *  - Variablen über Bitströme
+     * eine Liste an Klauseln, die alle Eigenschaften dieses Problems repräsentieren
      */
-    public List<Clause> convertProblemToCnf() {
-        List<Clause> cnf = new ArrayList<>();
+    public List<Clause> createClauses() {
+        List<Clause> clauses = new ArrayList<>();
 
-        cnf.addAll(convertGatesToCnf());
-        cnf.addAll(convertConnectionsToCnf());
-        cnf.addAll(convertBitStreamsToCnf());
+        clauses.addAll(createClausesForGates());
+        clauses.addAll(createClausesForBitStreams());
+        clauses.addAll(createClausesForConnections());
 
-        return cnf;
+        return clauses;
+    }
+
+    private List<Clause> createClausesForConnections() {
+        List<Clause> clauses = new ArrayList<>();
+
+        /**
+         * C1
+         */
+        clauses.addAll(createC1Clauses());
+        /**
+         * C2-least
+         */
+        clauses.addAll(createC2leastClauses());
+        /**
+         * C2-most
+         */
+        clauses.addAll(createC2mostClauses());
+
+        /**
+         * Für alle Verbindungen eines Inputs oder Outputs, die vom selben Output Pin weg gehen, muss mindestens eine gesetzt sein.
+         *
+         * C3 : Für alle Inputs und Outputs, für alle Verbindungen die von diesen Gattern weggehen, muss mindestens eine gesetzt sein
+         *  (( Wir sagen nicht im allgemeinen, dass an Outputs Verbindungen anliegen müssen, aber im Falle von Inputs und Outputs schon)
+         * /
+         /*
+         for (OutputPin outputPin : requirements.getOutputPins()) {
+         if (!(outputPin.getGate() instanceof Input) && !(outputPin.getGate() instanceof Output)) {
+         continue;
+         }
+         // for alle Connections die von diesem Output Pin weg geht
+         Clause possibleConnections = new Clause();
+         for (Connection connection : requirements.getConnections()) {
+         if (connection.getFrom().equals(outputPin)) {
+         possibleConnections.addVariable(new ConnectionVariable(true, connection));
+         }
+         }
+         clausesForTick.add(possibleConnections);
+         }
+         */
+
+        return clauses;
     }
 
     private BitStream addInputAndOutputToBitStream(BitStream bitStream) {
@@ -86,58 +120,24 @@ public class Problem {
         requirements.addBitStream(bitStream);
     }
 
-    private List<Clause> convertGatesToCnf() {
+    private List<Clause> createClausesForGates() {
         List<Clause> clausesForAllGates = new ArrayList<>();
 
         for (Gate gate : requirements.getGates()) {
-            clausesForAllGates.addAll(gate.convertToCnf());
+            clausesForAllGates.addAll(gate.convertToClauses());
         }
         return clausesForAllGates;
     }
 
-    private List<Clause> convertConnectionsToCnf() {
+    private List<Clause> createC2mostClauses() {
         List<Clause> clausesForTick = new ArrayList<>();
 
-        //für jede Verbindung
-        for (Connection connection : requirements.getConnections()) {
-            clausesForTick.addAll(connection.convertToCnf());
-        }
-
-        /**
-         * Für alle Verbindungen eines Inputs oder Outputs, die vom selben Output Pin weg gehen, muss mindestens eine gesetzt sein.
-         */
-
-        for (OutputPin outputPin : requirements.getOutputPins()) {
-            if (!(outputPin.getGate() instanceof Input) && !(outputPin.getGate() instanceof Output)) {
-                continue;
-            }
-            // for alle Connections die von diesem Output Pin weg geht
-            Clause possibleConnections = new Clause();
-            for (Connection connection : requirements.getConnections()) {
-                if (connection.getFrom().equals(outputPin)) {
-                    possibleConnections.addVariable(new ConnectionVariable(true, connection));
-                }
-            }
-            clausesForTick.add(possibleConnections);
-        }
-
-
         for (InputPin inputPin : requirements.getInputPins()) {
-
             List<Connection> connectionsWithSameTo = requirements.getConnections().stream().filter(connection -> connection.getTo().equals(inputPin)).collect(Collectors.toList());
 
             /**
-             * Für alle Verbindungen, die zum selben Input Pin führen, muss mindestens eine gesetzt sein.
-             */
-            Clause possibleConnections = new Clause();
-            for (Connection connection : connectionsWithSameTo) {
-                possibleConnections.addVariable(new ConnectionVariable(true, connection));
-
-            }
-            clausesForTick.add(possibleConnections);
-
-            /**
              * Für eine bestimmte Verbindung zu einem Input Pin, dürfen alle anderen Verbindungen zum selben Pin nicht gesetzt sein.
+             * C2-most
              */
             for (Connection connection : connectionsWithSameTo) {
                 for (Connection other : connectionsWithSameTo) {
@@ -152,11 +152,42 @@ public class Problem {
 
             }
         }
+        return clausesForTick;
+    }
+
+    private List<Clause> createC2leastClauses() {
+        List<Clause> clausesForTick = new ArrayList<>();
+
+        /**
+         * Für alle Verbindungen, die zum selben Input Pin führen, muss mindestens eine gesetzt sein.
+         * C2-least
+         */
+        for (InputPin inputPin : requirements.getInputPins()) {
+
+            List<Connection> connectionsWithSameTo = requirements.getConnections().stream().filter(connection -> connection.getTo().equals(inputPin)).collect(Collectors.toList());
+
+
+            Clause possibleConnections = new Clause();
+            for (Connection connection : connectionsWithSameTo) {
+                possibleConnections.addVariable(new ConnectionVariable(true, connection));
+
+            }
+            clausesForTick.add(possibleConnections);
+        }
+        return clausesForTick;
+    }
+
+    private List<Clause> createC1Clauses() {
+        List<Clause> clausesForTick = new ArrayList<>();
+
+        for (Connection connection : requirements.getConnections()) {
+            clausesForTick.addAll(connection.convertToCnf());
+        }
 
         return clausesForTick;
     }
 
-    private List<Clause> convertBitStreamsToCnf() {
+    private List<Clause> createClausesForBitStreams() {
         List<Clause> clausesForTick = new ArrayList<>();
 
         for (BitStream bitStream : bitStreams) {

@@ -49,23 +49,14 @@ public abstract class AbstractConnection implements Connection {
             return microtickClauses;
         }
 
-
         /**
+         * nonCirc-mtGr
+         * Definition „echt größer“ für zwei Microticks
          *
-         * A <=> (~B && C)
-         * b ist größer gleich c (=A) gdw. microtick von b nicht gesetzt und von c gesetzt an stelle i
-         * CNF
-         * (~A || B ) && (~A || C) && (A || B || ~C)
-         *
-         *
-         * außerdem:
-         * A1 || A2 || .. || An
-         *
+         * nonCirc-C
+         * Ist eine Verbindung gesetzt, dann ist der Microtick des Gatters am in der Verbin-
+         * dung echt kleiner als der Microtick des Gatters am out der Verbindung
          */
-
-
-        // wenn die verbindung gestzt ist muss der Microtick von "from" kleiner als von "to" sein
-        // für irgendeine Stelligkeit
         Clause biggerOrEqual = new Clause();
         microtickClauses.add(biggerOrEqual);
         biggerOrEqual.addVariable(connectionNotSet);
