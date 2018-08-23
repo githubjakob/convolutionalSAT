@@ -1,5 +1,7 @@
 package io.github.githubjakob.convolutionalSat;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import io.github.githubjakob.convolutionalSat.components.connections.Connection;
 import io.github.githubjakob.convolutionalSat.logic.Clause;
 import io.github.githubjakob.convolutionalSat.logic.ConnectionVariable;
@@ -27,7 +29,7 @@ public class BooleanExpression {
 
     private final Problem problem;
 
-    private HashMap<Variable, Integer> dictionary = new HashMap<>();
+    private BiMap<Variable, Integer> dictionary = HashBiMap.create();
 
     private Integer literalCount = 0;
 
@@ -139,12 +141,10 @@ public class BooleanExpression {
     }
 
     private Circuit getCircuitFromModel(int[] solution) {
-        logger.info("getting circuit back...");
         Circuit circuit = retranslate(solution);
         circuit.setNumberOfBitsPerBitStream(this.problem.getNumberOfBits());
         circuit.setNumberOfBitStreams(this.problem.getNumberOfBitStreams());
         lastModel = circuit;
-        logger.info("done");
         return circuit;
     }
 
@@ -157,30 +157,28 @@ public class BooleanExpression {
 
     private Circuit retranslate(int[] model) {
         List<Variable> translatedModel = new ArrayList<>();
+
         for (int i = 0; i < model.length; i++) {
             int literal = model[i];
 
             if (!(dictionary.containsValue(literal) || dictionary.containsValue(literal*-1))) {
-                throw new RuntimeException("something is wrong");
+                throw new RuntimeException("Dictionary does not contain Value " + literal);
             }
 
+            Variable correspondingVariable = dictionary.inverse().get(literal);
+            correspondingVariable = correspondingVariable == null ? dictionary.inverse().get(literal*-1) : correspondingVariable;
 
-            for (Map.Entry<Variable, Integer> entry : dictionary.entrySet()) {
-                if (!(literal == entry.getValue() || literal == entry.getValue() * -1)) {
-                    continue;
-                }
-                Variable variable = entry.getKey();
-                if (literal < 0) {
-                    variable.setWeight(false);
-                } else {
-                    variable.setWeight(true);
-                }
-                translatedModel.add(variable);
+            if (correspondingVariable == null) continue;
 
+            if (literal < 0) {
+                correspondingVariable.setWeight(false);
+            } else {
+                correspondingVariable.setWeight(true);
             }
+
+            translatedModel.add(correspondingVariable);
         }
         return new Circuit(translatedModel, problem.getRequirements());
-
     }
 
     public void addLastModelNegated() {

@@ -21,19 +21,24 @@ public class Main {
     public static void main(String[] args) {
 
         // klein
-        findConvolutionalCode(0, 0, 2, 2,
-                10, 20, 1, 0,
-                4, 2, 2, 5, 1);
+        /*findConvolutionalCode(3, 2, 2, 0,
+                6, 3, 1, 0,
+                4, 2, 2, 5, 1);*/
 
         // mittel-frameLength
         /*findConvolutionalCode(0, 0, 2, 3,
                 0, 0, 1, 2,
-                10, 2, 2, 5, 1);/*
+                10, 2, 2, 5, 1);*/
 
         // mittel-memory
         /*findConvolutionalCode(0, 0, 5, 6,
                 0, 0, 2, 4,
-                4, 5, 2, 5, 1);/*
+                4, 5, 2, 5, 1);*/
+
+        // mittel-decoder
+        findConvolutionalCode(3, 2, 2, 0,
+                8, 6, 1, 0,
+                4, 2, 2, 5, 1);
 
         // groß
         /*findConvolutionalCode(0, 0, 2, 3,
