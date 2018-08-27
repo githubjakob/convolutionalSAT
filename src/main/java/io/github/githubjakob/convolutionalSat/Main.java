@@ -31,20 +31,19 @@ public class Main {
         CommandLineParser commandLineParser = new DefaultParser();
         Options options = new Options();
 
-
-        options.addOption(Option.builder("a").longOpt("encoderAnds").hasArg().desc("Number of Ands for the Encdoder").type(NUMBER_VALUE).build());
-        options.addOption(Option.builder("n").longOpt("encoderNots").hasArg().desc("Number of Nots for the Encdoder").type(NUMBER_VALUE).build());
-        options.addOption(Option.builder("r").longOpt("endocderRegisters").hasArg().desc("Number of Registers for the Encoder").type(NUMBER_VALUE).build());
-        options.addOption(Option.builder("b").longOpt("decoderAnds").hasArg().desc("Number of Ands for the Decoder").type(NUMBER_VALUE).build());
-        options.addOption(Option.builder("m").longOpt("decoderNots").hasArg().desc("Number of Nots for the Decoder").type(NUMBER_VALUE).build());
-        options.addOption(Option.builder("q").longOpt("decoderRegisters").hasArg().desc("Number of Registers for the Decoder").type(NUMBER_VALUE).build());
-        options.addOption(Option.builder("d").longOpt("delay").hasArg().desc("Ticks of Delay").type(NUMBER_VALUE).build());
-        options.addOption(Option.builder("c").longOpt("channel").hasArg().desc("Number of Channels").type(NUMBER_VALUE).build());
-        options.addOption(Option.builder("f").longOpt("frameLength").hasArg().desc("Length of Frame in Bits").type(NUMBER_VALUE).build());
-        options.addOption(Option.builder("i").longOpt("iterions").hasArg().desc("Number of Iterations").type(NUMBER_VALUE).build());
-        options.addOption(Option.builder("e").longOpt("error").hasArg().desc("Number of Flipped Bits").type(NUMBER_VALUE).build());
-        options.addOption(Option.builder("h").longOpt("help").desc("Shows the help").build());
-        options.addOption(Option.builder("g").longOpt("gui").desc("Shows the Gui").build());
+        options.addOption(Option.builder("a").longOpt("encoderAnds").hasArg().desc("Number of Ands for the Encdoder (required)").type(NUMBER_VALUE).build());
+        options.addOption(Option.builder("n").longOpt("encoderNots").hasArg().desc("Number of Nots for the Encdoder (required)").type(NUMBER_VALUE).build());
+        options.addOption(Option.builder("r").longOpt("endocderRegisters").hasArg().desc("Number of Registers for the Encoder (required)").type(NUMBER_VALUE).build());
+        options.addOption(Option.builder("b").longOpt("decoderAnds").hasArg().desc("Number of Ands for the Decoder (required)").type(NUMBER_VALUE).build());
+        options.addOption(Option.builder("m").longOpt("decoderNots").hasArg().desc("Number of Nots for the Decoder (required)").type(NUMBER_VALUE).build());
+        options.addOption(Option.builder("q").longOpt("decoderRegisters").hasArg().desc("Number of Registers for the Decoder (required)").type(NUMBER_VALUE).build());
+        options.addOption(Option.builder("d").longOpt("delay").hasArg().desc("Ticks of Delay (required)").type(NUMBER_VALUE).build());
+        options.addOption(Option.builder("c").longOpt("channel").hasArg().desc("Number of Channels (required)").type(NUMBER_VALUE).build());
+        options.addOption(Option.builder("f").longOpt("frameLength").hasArg().desc("Length of Frame in Bits (required)").type(NUMBER_VALUE).build());
+        options.addOption(Option.builder("i").longOpt("iterions").hasArg().desc("Number of Iterations (required)").type(NUMBER_VALUE).build());
+        options.addOption(Option.builder("e").longOpt("error").hasArg().desc("Number of Flipped Bits (required)").type(NUMBER_VALUE).build());
+        options.addOption(Option.builder("h").longOpt("help").desc("Shows the help (optional)").build());
+        options.addOption(Option.builder("g").longOpt("gui").desc("Shows the Gui (optional)").build());
 
         try {
             CommandLine commandLine = commandLineParser.parse(options, args);
@@ -52,6 +51,7 @@ public class Main {
             if (commandLine.hasOption("h")) {
                 HelpFormatter helpFormatter = new HelpFormatter();
                 helpFormatter.printHelp("ConvolutionalSat", options);
+                System.exit(1);
             }
 
             if (!commandLine.hasOption("a") || !commandLine.hasOption("n") || !commandLine.hasOption("r")
