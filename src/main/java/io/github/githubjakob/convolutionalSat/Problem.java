@@ -133,7 +133,12 @@ public class Problem {
         List<Clause> clausesForTick = new ArrayList<>();
 
         for (InputPin inputPin : requirements.getInputPins()) {
-            List<Connection> connectionsWithSameTo = requirements.getConnections().stream().filter(connection -> connection.getTo().equals(inputPin)).collect(Collectors.toList());
+            List<Connection> connectionsWithSameTo = new ArrayList<>();
+            for (Connection connection1 : requirements.getConnections()) {
+                if (connection1.getTo().equals(inputPin)) {
+                    connectionsWithSameTo.add(connection1);
+                }
+            }
 
             /**
              * Für eine bestimmte Verbindung zu einem Input Pin, dürfen alle anderen Verbindungen zum selben Pin nicht gesetzt sein.
@@ -164,7 +169,12 @@ public class Problem {
          */
         for (InputPin inputPin : requirements.getInputPins()) {
 
-            List<Connection> connectionsWithSameTo = requirements.getConnections().stream().filter(connection -> connection.getTo().equals(inputPin)).collect(Collectors.toList());
+            List<Connection> connectionsWithSameTo = new ArrayList<>();
+            for (Connection connection1 : requirements.getConnections()) {
+                if (connection1.getTo().equals(inputPin)) {
+                    connectionsWithSameTo.add(connection1);
+                }
+            }
 
 
             Clause possibleConnections = new Clause();
@@ -233,6 +243,7 @@ public class Problem {
                         potentialFailingBitStream.toString());
                 return potentialFailingBitStream;
             }
+            //logger.info("Not failing Bitstream: {}", potentialFailingBitStream.toString());
             counter++;
         }
         Instant end = Instant.now();

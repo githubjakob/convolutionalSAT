@@ -127,9 +127,19 @@ public abstract class Module {
 
     private void createNewConnectionsFor(Gate justCreated) {
         List<Gate> allGatesExceptOutput =
-                gates.stream().filter(gate -> !(gate instanceof Output)).collect(Collectors.toList());
+                new ArrayList<>();
+        for (Gate gate1 : gates) {
+            if (!(gate1 instanceof Output)) {
+                allGatesExceptOutput.add(gate1);
+            }
+        }
         List<Gate> allGatesExceptInput =
-                gates.stream().filter(gate -> !(gate instanceof Input)).collect(Collectors.toList());
+                new ArrayList<>();
+        for (Gate gate1 : gates) {
+            if (!(gate1 instanceof Input)) {
+                allGatesExceptInput.add(gate1);
+            }
+        }
 
         for (Gate gate : allGatesExceptOutput) {
             if (gate.equals(justCreated)) {

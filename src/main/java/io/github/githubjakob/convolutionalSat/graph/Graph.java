@@ -9,11 +9,13 @@ import io.github.githubjakob.convolutionalSat.components.gates.GlobalOutput;
 import io.github.githubjakob.convolutionalSat.components.pins.InputPin;
 import io.github.githubjakob.convolutionalSat.components.pins.OutputPin;
 import lombok.Getter;
+import org.apache.commons.io.IOUtils;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -142,6 +144,15 @@ public class Graph extends MultiGraph {
     }
 
     private String readFile(String filename, Charset encoding) {
+        InputStream in = this.getClass().getClassLoader()
+                .getResourceAsStream(filename);
+        try {
+            return IOUtils.toString(in, "utf-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+        /*
         ClassLoader classLoader = getClass().getClassLoader();
         String stylesheet = classLoader.getResource(filename).getPath();
         byte[] encoded = new byte[0];
@@ -150,7 +161,7 @@ public class Graph extends MultiGraph {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new String(encoded, encoding);
+        return new String(encoded, encoding);*/
     }
 
     public void setLabel(String attribute) {
